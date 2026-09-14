@@ -1,0 +1,44 @@
+# Publishes the storefront to GitHub Pages on every push to main.
+#
+# The site is plain static files with no build step, so the whole
+# repository is the artifact — there is nothing to compile. .nojekyll at
+# the root stops Pages running the files through Jekyll, which would
+# otherwise ignore any path beginning with an underscore.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  # Lets you re-publish from the Actions tab without making a commit.
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Let a running deploy finish rather than cancelling it, but only queue
+# one behind it — intermediate commits do not each need their own deploy.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      - name: Upload the site
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
