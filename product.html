@@ -1,0 +1,341 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Product — Percaal</title>
+    <meta name="description" content="Percale bed linen woven from long-staple Egyptian cotton. Choose your weave, size and colourway." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="product" data-path="/shop" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <div id="site-header"></div>
+
+    <main class="overflow-x-clip">
+      <!-- ================= GALLERY + BUY BOX (Figma 60:5382) =================
+           Left: photo grid, 2 columns of 456px images. Right: 446px buy
+           box with breadcrumb, name/price, rating, size chips, colour
+           circles, ADD TO BAG, delivery line, description, and two
+           collapsible sections (Product Specifications, Delivering Info). -->
+      <section class="pdp">
+        <div class="pdp__inner">
+
+          <!-- Gallery — Figma 60:5972. Two-column grid of equal 456×570
+               tiles, all photos visible at once (no hero/thumbnail split). -->
+          <div class="pdp__gallery" data-gallery></div>
+
+          <!-- Buy box -->
+          <div class="pdp__buy">
+            <nav aria-label="Breadcrumb" class="pdp__crumb">
+              <a href="index.html">HOME</a>
+              <span class="ico ico-16" data-ico="arrow-right-01-sharp"></span>
+              <a href="shop.html" data-crumb-cat>Bedding</a>
+              <span class="ico ico-16" data-ico="arrow-right-01-sharp"></span>
+              <span class="pdp__crumb-here" data-crumb-name>Product</span>
+            </nav>
+
+            <div class="pdp__head">
+              <div class="pdp__head-title">
+                <h1 class="pdp__name" data-name>Product</h1>
+                <p class="pdp__price" data-price>EGP —</p>
+              </div>
+              <button type="button" class="pdp__fav" aria-label="Save to wishlist" aria-pressed="false">
+                <span class="ico ico-24" data-ico="favourite"></span>
+              </button>
+            </div>
+
+            <div class="pdp__rating" aria-label="Rated 4 out of 5 (12 reviews)">
+              <span class="pdp__stars" aria-hidden="true">
+                <span class="ico ico-16" data-ico="star"></span>
+                <span class="ico ico-16" data-ico="star"></span>
+                <span class="ico ico-16" data-ico="star"></span>
+                <span class="ico ico-16" data-ico="star"></span>
+                <span class="ico ico-16 is-muted" data-ico="star"></span>
+              </span>
+              <span class="pdp__rating-count">12</span>
+            </div>
+
+            <!-- Size chips: bordered rectangles, active state = ink border -->
+            <div class="pdp__group" data-size-block>
+              <div class="pdp__group-head">
+                <span class="pdp__group-label">Size</span>
+              </div>
+              <div class="pdp__chips" data-size-opts></div>
+            </div>
+
+            <!-- Colour: circle swatches with label underneath -->
+            <div class="pdp__group" data-colour-block>
+              <div class="pdp__group-head">
+                <span class="pdp__group-label">Color</span>
+                <span class="pdp__group-value" data-colour-name></span>
+              </div>
+              <div class="pdp__swatches" data-colour-opts></div>
+            </div>
+
+            <!-- ADD TO BAG + secondary delivery line -->
+            <div class="pdp__buy-block">
+              <div class="pdp__qty-row">
+                <div class="pdp__stepper" data-stepper>
+                  <button type="button" data-step="-1" class="pdp__stepper-btn" aria-label="Decrease quantity"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+                  <span data-qty class="pdp__stepper-qty">1</span>
+                  <button type="button" data-step="1" class="pdp__stepper-btn" aria-label="Increase quantity"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+                </div>
+                <button type="button" class="pdp__addtobag" data-add-to-bag>ADD TO BAG</button>
+              </div>
+              <p class="pdp__delivery">
+                <span class="ico ico-24" data-ico="scooter-02"></span>
+                <span>DELIVER WITHIN 3 DAYS IN CAIRO AND GIZA</span>
+              </p>
+            </div>
+
+            <!-- Fabric picker + description block. Fabric is shown as chips
+                 like Size; the copy below repurposes the Figma "Introducing"
+                 block for whichever fabric the user has selected. -->
+            <div class="pdp__group" data-fabric-block>
+              <div class="pdp__group-head">
+                <span class="pdp__group-label">Fabric</span>
+                <span class="pdp__group-value" data-fabric-name></span>
+              </div>
+              <div class="pdp__chips" data-fabric-opts></div>
+              <p class="pdp__fabric-desc" data-fabric-desc></p>
+            </div>
+
+            <!-- Collapsible: Product Specifications, Delivering Info -->
+            <div class="pdp__acc" data-accordion>
+              <section class="pdp__acc-item is-open">
+                <button type="button" class="pdp__acc-legend" aria-expanded="true">
+                  <span>Product Specifications</span>
+                  <span class="sfd__legend-sign" aria-hidden="true"></span>
+                </button>
+                <div class="pdp__acc-body"><div class="speclist" data-spec></div></div>
+              </section>
+              <section class="pdp__acc-item">
+                <button type="button" class="pdp__acc-legend" aria-expanded="false">
+                  <span>Delivering Info</span>
+                  <span class="sfd__legend-sign" aria-hidden="true"></span>
+                </button>
+                <div class="pdp__acc-body">
+                  <p class="pdp__acc-copy">Orders are processed quickly and delivered within a few business days based on your location. After shipping, you'll get a confirmation with tracking details.</p>
+                </div>
+              </section>
+              <section class="pdp__acc-item">
+                <button type="button" class="pdp__acc-legend" aria-expanded="false">
+                  <span>Care</span>
+                  <span class="sfd__legend-sign" aria-hidden="true"></span>
+                </button>
+                <div class="pdp__acc-body"><p class="pdp__acc-copy" data-care></p></div>
+              </section>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Related Products (Figma 2026:13966) -->
+      <section class="pdp-related">
+        <div class="pdp-related__inner">
+          <h2 class="pdp-related__title">Related Products</h2>
+          <div class="egrid egrid--4" data-related></div>
+        </div>
+      </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script>
+      /* ---------------------------------------------------------------
+         Product page controller.
+
+         Three variation axes — fabric, colour, size — and the price
+         depends on the fabric. Everything re-renders from one `state`
+         object so the price, the picture and the SKU line can never
+         disagree with the buttons that are lit.
+         --------------------------------------------------------------- */
+      document.addEventListener("DOMContentLoaded", function () {
+        var P = window.percaalProducts || [];
+        var F = window.percaalFabrics || {};
+        var CW = (window.percaalColourways || {}).map || {};
+        var money = window.percaalMoney || function (n) { return "EGP " + n; };
+        var art = window.percaalArt;
+        if (!P.length) return;
+
+        var slug = new URLSearchParams(location.search).get("p") || P[0].slug;
+        var p = P.filter(function (x) { return x.slug === slug; })[0] || P[0];
+
+        var state = { fabric: p.fabrics[p.fabrics.length - 1], colour: p.colours[0], size: p.sizes[0] };
+
+        var CARE = {
+          cotton: "Machine wash at 40°, tumble dry low, and fold while still just warm — percale creases least when it is put away warm. No bleach, no fabric softener: softener coats the fibre and is what makes cotton stop breathing.",
+          "tc-400": "Machine wash at 40°, tumble dry low. Skip the fabric softener — it coats the fibre and undoes the breathability you paid for. Iron on the reverse while barely damp if you like a hotel finish.",
+          "tc-200": "Machine wash at 40°, tumble dry low. Skip the fabric softener. Comes out of the dryer ready to use; iron only if you want the crease.",
+          blend: "Machine wash at 40°, tumble dry low, remove promptly. Designed not to need ironing.",
+          microfiber: "Machine wash at 30° on a gentle cycle. Tumble dry low. Do not iron.",
+          "memory-foam": "Spot clean only. Air the pillow monthly; never machine wash memory foam.",
+          pollydown: "Machine washable at 30°. Tumble dry low with dryer balls to keep the fill even.",
+        };
+        var HANDMADE_CARE =
+          "Hand wash only, cold, and dry flat in the shade. Made by hand from traditionally sourced Upper Egypt cotton — recommended for pet-free homes.";
+
+        function price() {
+          return (p.price && p.price[state.fabric]) || p.from;
+        }
+
+        function chip(label, attr, val, active) {
+          return (
+            '<button type="button" class="pdp__chip' + (active ? " is-active" : "") +
+            '" data-' + attr + '="' + val + '">' + label + "</button>"
+          );
+        }
+
+        function setText(sel, txt) { var el = document.querySelector(sel); if (el) el.textContent = txt; }
+
+        function render() {
+          var f = F[state.fabric] || {};
+          var c = CW[state.colour] || { name: state.colour };
+
+          document.title = p.name + " — Percaal";
+          setText("[data-name]", p.name);
+          setText("[data-crumb-name]", p.name);
+          var catLink = document.querySelector("[data-crumb-cat]");
+          if (catLink) {
+            catLink.textContent = p.cat.replace(/-/g, " ").replace(/\b\w/g, function (m) { return m.toUpperCase(); });
+            catLink.href = "shop-category.html?c=" + p.cat;
+          }
+
+          setText("[data-price]", money(price()));
+
+          var fBlock = document.querySelector("[data-fabric-block]");
+          if (fBlock) fBlock.hidden = p.fabrics.length < 2;
+          setText("[data-fabric-name]", f.name || "");
+          setText("[data-fabric-desc]", f.long || "");
+          var fOpts = document.querySelector("[data-fabric-opts]");
+          if (fOpts) fOpts.innerHTML = p.fabrics
+            .map(function (k) { return chip((F[k] || {}).name || k, "fabric", k, k === state.fabric); })
+            .join("");
+
+          var cBlock = document.querySelector("[data-colour-block]");
+          if (cBlock) cBlock.hidden = p.colours.length < 2;
+          setText("[data-colour-name]", c.name || "");
+          var cOpts = document.querySelector("[data-colour-opts]");
+          if (cOpts) cOpts.innerHTML = p.colours
+            .map(function (k) {
+              var m = CW[k] || { hex: "#ccc", name: k };
+              return (
+                '<button type="button" class="pdp__swatch' + (k === state.colour ? " is-active" : "") +
+                '" data-colour="' + k + '" title="' + m.name + '" aria-label="' + m.name + '">' +
+                '<span class="pdp__swatch-dot" style="--sw:' + m.hex + '"></span>' +
+                '<span class="pdp__swatch-label">' + m.name + '</span>' +
+                '</button>'
+              );
+            })
+            .join("");
+
+          var sBlock = document.querySelector("[data-size-block]");
+          if (sBlock) sBlock.hidden = p.sizes.length < 2;
+          var sOpts = document.querySelector("[data-size-opts]");
+          if (sOpts) sOpts.innerHTML = p.sizes
+            .map(function (s) { return chip(s, "size", s, s === state.size); })
+            .join("");
+
+          /* Gallery — Figma 60:5972. A 2-column grid of equal-size tiles;
+             every photo is visible at once. Uses this product's colourway
+             artwork as the source set so switching a colourway still
+             refreshes the gallery. */
+          var gallery = document.querySelector("[data-gallery]");
+          if (gallery) {
+            var shots = p.colours.slice(0, 6);
+            /* Put the selected colourway first so its plate leads. */
+            shots = [state.colour].concat(shots.filter(function (k) { return k !== state.colour; }));
+            gallery.innerHTML = shots
+              .map(function (k) {
+                return (
+                  '<img class="pdp__gallery-img" src="' + art(p, k) +
+                  '" alt="' + p.name + " in " + (((CW[k] || {}).name) || k) + '" loading="lazy" />'
+                );
+              })
+              .join("");
+          }
+
+          var care = p.cat === "handmade" ? HANDMADE_CARE : CARE[state.fabric] || CARE.cotton;
+          setText("[data-care]", care);
+
+          var spec = document.querySelector("[data-spec]");
+          if (spec) spec.innerHTML = [
+            ["Fabric", f.short || ""],
+            ["Colour", c.name || ""],
+            ["Size", state.size],
+            ["Category", p.cat.replace(/-/g, " ")],
+            ["Made in", "Egypt"],
+          ]
+            .map(function (r) { return "<div><span>" + r[0] + "</span><span>" + r[1] + "</span></div>"; })
+            .join("");
+        }
+
+        document.addEventListener("click", function (e) {
+          var el = e.target.closest("[data-fabric],[data-colour],[data-size]");
+          if (!el || !el.closest("main")) return;
+          e.preventDefault();
+          if (el.hasAttribute("data-fabric")) state.fabric = el.getAttribute("data-fabric");
+          else if (el.hasAttribute("data-colour")) state.colour = el.getAttribute("data-colour");
+          else state.size = el.getAttribute("data-size");
+          render();
+        });
+
+        var add = document.querySelector("[data-add-to-bag]");
+        if (add) {
+          add.addEventListener("click", function () {
+            var qty = parseInt((document.querySelector("[data-qty]") || {}).textContent || "1", 10) || 1;
+            if (window.kAddToCart) window.kAddToCart(qty, add);
+            add.textContent = "ADDED";
+            setTimeout(function () { add.textContent = "ADD TO BAG"; }, 1400);
+          });
+        }
+
+        /* Inline every icon declared with data-ico — populated here so
+           the breadcrumb arrows, star row, favourite heart and delivery
+           scooter render after this page's own DOM is in place. */
+        var ic = window.icon || function () { return ""; };
+        document.querySelectorAll("[data-ico]").forEach(function (el) {
+          el.innerHTML = ic(el.getAttribute("data-ico"));
+        });
+
+        /* Accordion sections in the buy box (Product Specifications /
+           Delivering Info / Care). One item is-open at a time is not
+           required — each toggles independently. */
+        document.addEventListener("click", function (e) {
+          var lg = e.target.closest(".pdp__acc-legend");
+          if (!lg) return;
+          var item = lg.closest(".pdp__acc-item");
+          var open = !item.classList.contains("is-open");
+          item.classList.toggle("is-open", open);
+          lg.setAttribute("aria-expanded", open ? "true" : "false");
+        });
+
+        /* Related: other products in the same category, then anything else,
+           so a short category still fills the row. */
+        var related = P.filter(function (x) { return x.slug !== p.slug && x.cat === p.cat; })
+          .concat(P.filter(function (x) { return x.slug !== p.slug && x.cat !== p.cat; }))
+          .slice(0, 4);
+        document.querySelector("[data-related]").innerHTML = related
+          .map(function (x) { return window.percaalCard(x); })
+          .join("");
+
+        render();
+        if (window.kInit) window.kInit(document);
+      });
+    </script>
+  </body>
+</html>

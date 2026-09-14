@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Our Blog — Percaal</title>
+    <meta name="description" content="Notes from Percaal on cloth, care and the places our linen comes from." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="blogs" data-path="/blogs" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <div id="site-header"></div>
+
+    <main class="overflow-x-clip">
+      <!-- ============ BLOG LIST (Figma 185:9956) ============
+           Centred header, then a three-up grid of the same .bcard the
+           homepage rail uses, widened to fill its column. -->
+      <section class="bloglist">
+        <div class="bloglist__head">
+          <p class="bloglist__eyebrow">Stay Updated</p>
+          <h1 class="bloglist__title">Our Blog</h1>
+        </div>
+        <div class="bloglist__grid" data-blogrid></div>
+      </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script>
+      (function () {
+        var ic = window.icon || function () { return ''; };
+        document.querySelectorAll('[data-ico]').forEach(function (el) {
+          el.innerHTML = ic(el.getAttribute('data-ico'));
+        });
+
+        var POSTS = [
+          ["5 Tips to Elevate Your Everyday Style", "16 Feb 2026", "images/blog-post-03-cotton-field.webp"],
+          ["Percaal's New Collaboration", "16 Feb 2026", "images/blog-post-01-showroom.webp"],
+          ["Our New Store Is Now Open in Madinaty", "16 Feb 2026", "images/blog-post-02-trade-show.webp"],
+          ["How to Build a Timeless Wardrobe", "15 Feb 2026", "images/blog-post-03-cotton-field.webp"],
+          ["Caring for Egyptian Cotton", "15 Feb 2026", "images/blog-post-03-cotton-field.webp"],
+          ["What Thread Count Really Means", "15 Feb 2026", "images/blog-post-03-cotton-field.webp"],
+          ["Inside the Mill at Damietta", "15 Feb 2026", "images/blog-post-01-showroom.webp"],
+          ["Our New Store Is Now Open in Madinaty", "15 Feb 2026", "images/blog-post-02-trade-show.webp"],
+          ["How to Build a Timeless Wardrobe", "15 Feb 2026", "images/blog-post-03-cotton-field.webp"],
+          ["Dressing a Bed for Summer", "15 Feb 2026", "images/blog-post-03-cotton-field.webp"],
+          ["Behind the Percale Weave", "15 Feb 2026", "images/blog-post-02-trade-show.webp"],
+          ["Five Ways to Fold a Towel", "15 Feb 2026", "images/blog-post-03-cotton-field.webp"]
+        ];
+
+        var mount = document.querySelector('[data-blogrid]');
+        if (mount) {
+          mount.innerHTML = POSTS.map(function (p) {
+            return '<a class="bcard" href="blog.html">' +
+              '<span class="bcard__media"><img src="' + p[2] + '" alt="' + p[0] + '" loading="lazy" /></span>' +
+              '<span class="bcard__title">' + p[0] + '</span>' +
+              '<span class="bcard__date">' + p[1] + '</span></a>';
+          }).join('');
+        }
+      })();
+    </script>
+  </body>
+</html>

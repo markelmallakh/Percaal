@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Page Not Found — Percaal</title>
+    <meta name="description" content="That page does not exist or has moved. Explore the Percaal collections instead." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="404" data-path="/404" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <div id="site-header"></div>
+
+    <main class="overflow-x-clip">
+      <!-- ============ 404 (Figma 261:16532) ============ -->
+      <section class="nf">
+        <div class="nf__inner">
+          <img class="nf__art" src="images/product-11-bed-frame.webp" alt="" loading="lazy" />
+          <div>
+            <h1 class="nf__title">404 Page Not Found</h1>
+            <p class="nf__copy">
+              We're sorry, but the page does not exist or has been moved.
+              Please enter the correct URL.
+            </p>
+            <a href="index.html" class="cta cta--brown cta--sentence nf__cta">Return to Homepage</a>
+          </div>
+        </div>
+      </section>
+
+      <!-- The same Explore Collections rail the homepage carries, so a
+           dead end still offers somewhere to go. --paper, not --grey:
+           the design keeps one continuous surface here rather than
+           stepping to a second tone. -->
+      <section class="band band--paper">
+        <div class="band__head">
+          <h2 class="band__title">Explore Collections</h2>
+        </div>
+        <div class="rail" data-rail>
+          <button type="button" class="rail__btn rail__btn--prev" data-rail-prev aria-label="Previous" data-ico="arrow-left-01-sharp"></button>
+          <div class="rail__track" data-rail-track data-collections></div>
+          <button type="button" class="rail__btn rail__btn--next" data-rail-next aria-label="Next" data-ico="arrow-right-01-sharp"></button>
+        </div>
+      </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script>
+      (function () {
+        var ic = window.icon || function () { return ''; };
+
+        /* Same five collections as the homepage rail. */
+        var COLLECTIONS = [
+          ["New In", "images/category-01-linens.webp", "shop-category.html?c=new"],
+          ["Bedding", "images/category-02-bedding.webp", "shop-category.html?c=bedding"],
+          ["Décor & Accessories", "images/category-03-decor.webp", "shop-category.html?c=decor"],
+          ["Towels", "images/category-04-towels.webp", "shop-category.html?c=towels"],
+          ["Household", "images/category-05-table-linen.webp", "shop-category.html?c=household"]
+        ];
+        var cmount = document.querySelector("[data-collections]");
+        if (cmount) {
+          cmount.innerHTML = COLLECTIONS.map(function (c) {
+            return (
+              '<a class="ccard" href="' + c[2] + '">' +
+              '<span class="ccard__media"><img src="' + c[1] + '" alt="' + c[0] + '" loading="lazy" /></span>' +
+              '<span class="ccard__row"><span class="ccard__label">' + c[0] + "</span>" +
+              '<span class="ccard__go ico ico-18">' + ic("arrow-right-02-sharp") + "</span></span></a>"
+            );
+          }).join("");
+        }
+
+        document.querySelectorAll('[data-ico]').forEach(function (el) {
+          if (!el.innerHTML.trim()) el.innerHTML = ic(el.getAttribute('data-ico'));
+        });
+      })();
+    </script>
+  </body>
+</html>

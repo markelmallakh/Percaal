@@ -1,0 +1,9 @@
+{
+  "name": "Percaal – Rename & Export Images to WebP",
+  "id": "percaal-role-export-webp",
+  "api": "1.0.0",
+  "main": "code.js",
+  "ui": "ui.html",
+  "editorType": ["figma"],
+  "networkAccess": { "allowedDomains": ["none"] }
+}

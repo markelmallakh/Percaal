@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Store Closed — Percaal</title>
+    <meta name="description" content="Percaal is currently closed. Our ordering hours are 8:00 AM to 10:00 PM." />
+    <meta name="robots" content="noindex,nofollow" />
+    <!-- Tailwind (Play CDN) + faithful port of the project's tailwind.config.ts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+    <!-- Page-scoped entrance animations (source uses animate-fadeIn / animate-slideIn / animation-delay-200) -->
+    <style>
+      @keyframes kFadeIn { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes kSlideIn { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+      .animate-fadeIn { animation: kFadeIn 0.6s ease-out both; }
+      .animate-slideIn { animation: kSlideIn 0.6s ease-out both; }
+      .animation-delay-200 { animation-delay: 0.2s; }
+    </style>
+  </head>
+  <body data-page="store-closed" data-path="/store-closed" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <!-- Shared header is injected here by scripts.js -->
+    <div id="site-header"></div>
+
+    <main class="overflow-x-clip">
+      <!-- ==================== Store temporarily closed state ==================== -->
+      <div class="flex min-h-[calc(100vh-80px)] flex-col items-center justify-center gap-6 px-4 py-16 text-center animate-fadeIn">
+        <img src="images/percaal-landscape-logo.svg" alt="Percaal" class="w-auto object-contain animate-bounce" style="height:64px;animation-duration:1000ms" />
+        <h1 class="text-3xl font-bold text-textSecondary animate-slideIn">Percaal Store Is Currently Closed</h1>
+        <p class="max-w-md text-gray-600 animate-slideIn animation-delay-200">
+          Percaal is currently closed. Our ordering hours are from 8:00 AM to 10:00 PM. Please save your items and
+          return during business hours to complete your order.
+        </p>
+        <a href="index.html" class="btn btn--primary btn--md justify-center gap-2 animate-slideIn animation-delay-200">
+          Back to Home
+        </a>
+      </div>
+    </main>
+
+    <!-- Shared footer is injected here by scripts.js -->
+    <div id="site-footer"></div>
+  </body>
+</html>

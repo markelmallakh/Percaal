@@ -1,0 +1,10 @@
+# macOS
+.DS_Store
+
+# Local-only Claude Code settings (launch.json is kept — it documents the dev server)
+.claude/settings.local.json
+
+# Separate clones that happen to sit inside this folder — they are their own
+# git repos (one is ~184MB) and must never be committed into this one.
+/Exception-Orderbase/
+/mark-amir-Exception-redesign/

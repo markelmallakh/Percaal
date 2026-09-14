@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FAQs — Percaal</title>
+    <meta name="description" content="Answers on sizing, shipping, returns and caring for your Percaal Egyptian cotton." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="faqs" data-path="/faqs" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <div id="site-header"></div>
+
+    <main class="overflow-x-clip">
+      <!-- ============ FAQS (Figma 183:7001) ============
+           Centred title, a row of filter chips, one 920px accordion
+           column, and a closing card. -->
+      <section class="faqpage">
+        <div class="faqpage__head">
+          <h1 class="faqpage__title">Frequently Asked Questions</h1>
+          <div class="faqpage__chips" role="tablist" aria-label="Filter questions">
+            <button type="button" class="faqpage__chip is-active" data-faq-filter="all">All FAQs</button>
+            <button type="button" class="faqpage__chip" data-faq-filter="returns">Return Policy</button>
+            <button type="button" class="faqpage__chip" data-faq-filter="shipping">Shipping</button>
+            <button type="button" class="faqpage__chip" data-faq-filter="collections">Collections</button>
+            <button type="button" class="faqpage__chip" data-faq-filter="products">About the Products</button>
+            <button type="button" class="faqpage__chip" data-faq-filter="support">Support</button>
+          </div>
+        </div>
+
+        <div class="faq"><div class="faq__list" data-faq-list></div></div>
+
+        <div class="faqpage__support">
+          <p class="faqpage__support-eyebrow">Still Have a Question?</p>
+          <p class="faqpage__support-title">Contact Our Support</p>
+          <a href="contact-us.html" class="cta cta--brown cta--sentence">Contact Us</a>
+        </div>
+      </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script>
+      (function () {
+        var ic = window.icon || function () { return ''; };
+        document.querySelectorAll('[data-ico]').forEach(function (el) {
+          el.innerHTML = ic(el.getAttribute('data-ico'));
+        });
+
+        /* Each entry carries the chip it belongs to, so filtering is a
+           property of the data rather than a second list to maintain. */
+        var FAQS = [
+          ['returns', 'Can I return or exchange an item?',
+           'Yes. Unused items in their original packaging can be returned within 14 days of delivery. Start a return from your order in My Account and we will arrange collection.'],
+          ['shipping', 'Do you offer international shipping?',
+           'Yes, we offer shipping to selected international locations. Shipping options and delivery times will be shown during checkout.'],
+          ['products', 'How do I choose the right size?',
+           'Every product page lists the finished dimensions in centimetres alongside the mattress depth it is cut for. If you are between sizes, the deeper fitted sheet is the safer choice.'],
+          ['products', 'Are the products shown exactly as in the photos?',
+           'The photographs are of the actual cloth, shot in daylight without colour filters. Screens vary, so a colour can read slightly warmer or cooler than it appears in person.'],
+          ['shipping', 'How long does delivery take?',
+           'Cairo and Giza orders arrive within 2 to 3 working days. Other governorates take 3 to 5. You will get a message with a delivery window the day before.'],
+          ['support', 'How do I contact customer support?',
+           'Message us from the Contact page, call (+2) 01004733588, or email info@percaal.com. We answer from Sunday to Thursday, 10am to 6pm.'],
+          ['collections', 'What is the difference between Percale 200 and 400?',
+           'Both are 100% Egyptian cotton. Percale 200 is crisp and cool, ideal for summer. Percale 400 is denser and softer, and it grows softer still with every wash.'],
+          ['collections', 'Do the collections restock?',
+           'Core colourways restock through the year. Seasonal colours are made once — when a size sells out it is usually gone.'],
+          ['products', 'How should I wash and care for my linen?',
+           'Machine wash warm with a mild detergent, no bleach and no softener. Tumble dry low and remove while slightly damp; the cloth finishes smoother that way.'],
+          ['returns', 'What if my order arrives damaged?',
+           'Send us a photograph within 48 hours of delivery and we will replace the piece or refund it in full, whichever you prefer. No return shipping to pay.']
+        ];
+
+        var mount = document.querySelector('[data-faq-list]');
+        var filter = 'all';
+
+        function render() {
+          mount.innerHTML = FAQS
+            .filter(function (f) { return filter === 'all' || f[0] === filter; })
+            .map(function (f, i) {
+              return '<div class="faq__item" data-faq-item>' +
+                '<button type="button" class="faq__q" aria-expanded="false">' +
+                  '<span>' + f[1] + '</span>' +
+                  '<span class="faq__sign" aria-hidden="true">' +
+                    '<span class="faq__plus ico ico-20">' + ic('plus-sign') + '</span>' +
+                    '<span class="faq__minus ico ico-20">' + ic('minus-sign') + '</span>' +
+                  '</span>' +
+                '</button>' +
+                '<div class="faq__a"><p>' + f[2] + '</p></div>' +
+              '</div>';
+            }).join('');
+          if (!mount.children.length) {
+            mount.innerHTML = '<p class="faqpage__support-eyebrow" style="padding:32px 0">Nothing here yet — try another filter.</p>';
+          }
+        }
+
+        render();
+
+        document.addEventListener('click', function (e) {
+          var chip = e.target.closest('[data-faq-filter]');
+          if (chip) {
+            filter = chip.getAttribute('data-faq-filter');
+            document.querySelectorAll('[data-faq-filter]').forEach(function (c) {
+              c.classList.toggle('is-active', c === chip);
+            });
+            render();
+            return;
+          }
+
+          /* One open at a time: an accordion where everything can be
+             open is just a long page with extra clicks. */
+          var q = e.target.closest('.faq__q');
+          if (!q) return;
+          var item = q.closest('.faq__item');
+          var wasOpen = item.classList.contains('is-open');
+          mount.querySelectorAll('.faq__item.is-open').forEach(function (el) {
+            el.classList.remove('is-open');
+            el.querySelector('.faq__q').setAttribute('aria-expanded', 'false');
+          });
+          if (!wasOpen) {
+            item.classList.add('is-open');
+            q.setAttribute('aria-expanded', 'true');
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

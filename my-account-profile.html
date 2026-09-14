@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My Profile — Percaal</title>
+    <meta
+      name="description"
+      content="Edit your Percaal profile details."
+    />
+    <!-- Tailwind (Play CDN) + faithful port of the project's tailwind.config.ts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="account" data-path="/my-account/profile" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <div id="site-header"></div>
+
+    <main class="overflow-x-clip bg-gray-100">
+      <div class="flex lg:flex-row flex-col items-start gap-7 md:gap-10 mx-auto px-4 py-10 md:py-16 max-w-[1392px]">
+
+        <!-- ============================ MOBILE ACCOUNT NAV (pills) ============================ -->
+        <!-- Shared account rail (Figma 159:8116), injected by
+             accountMenuHTML() in scripts.js so every account page
+             shows the same menu. -->
+        <div id="account-menu" data-active="profile" class="w-full lg:w-[384px] shrink-0"></div>
+
+        <!-- ============================ ACCOUNT CONTENT ============================ -->
+        <div class="w-full lg:w-[calc(75%-36px)]">
+          <nav class="mb-6 flex items-center gap-2 text-sm text-gray-700" aria-label="Breadcrumb">
+            <a href="index.html" class="hover:text-primaryDark">Home</a>
+            <span class="text-gray-400">/</span>
+            <a href="my-account.html" class="hover:text-primaryDark">My Account</a>
+            <span class="text-gray-400">/</span>
+            <span class="text-primaryDark font-medium">Profile</span>
+          </nav>
+
+          <div class="flex flex-col gap-5 md:gap-7">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <h1 class="text-2xl md:text-[32px] font-semibold text-textSecondary">My Profile</h1>
+            </div>
+
+            <!-- Edit profile form -->
+            <div class="flex flex-col gap-5 xl:gap-8 max-w-[538px] p-6 md:p-8 border items-center justify-center border-gray-300 rounded bg-white shadow-custom4">
+              <img src="icons/user.svg" alt="edit profile" width="60" height="60" class="w-[60px] h-[60px] object-contain" />
+              <!-- Demo form: prevents submit and shows a toast (see scripts.js) -->
+              <form data-demo-form="Profile updated" data-reset="false" class="flex flex-col gap-5 w-full">
+                <div class="grid xl:grid-cols-2 gap-4 md:gap-6">
+                  <div class="flex flex-col gap-1.5">
+                    <label for="firstName" class="text-sm font-medium text-textSecondary">First name</label>
+                    <input id="firstName" name="firstName" type="text" value="Mariam" class="w-full rounded-lg border border-border-light bg-white px-4 py-3 text-textSecondary outline-none transition-colors focus:border-primaryDark" />
+                  </div>
+                  <div class="flex flex-col gap-1.5">
+                    <label for="lastName" class="text-sm font-medium text-textSecondary">Last name</label>
+                    <input id="lastName" name="lastName" type="text" value="Hassan" class="w-full rounded-lg border border-border-light bg-white px-4 py-3 text-textSecondary outline-none transition-colors focus:border-primaryDark" />
+                  </div>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label for="email" class="text-sm font-medium text-textSecondary">Email</label>
+                  <input id="email" name="email" type="email" value="mariam.hassan@example.com" readonly class="w-full rounded-lg border border-border-light bg-gray-100 px-4 py-3 text-gray-600 outline-none cursor-not-allowed" />
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <label for="phone" class="text-sm font-medium text-textSecondary">Phone number</label>
+                  <input id="phone" name="phone" type="tel" value="+20 100 123 4567" dir="ltr" class="w-full rounded-lg border border-border-light bg-white px-4 py-3 text-textSecondary outline-none transition-colors focus:border-primaryDark" />
+                </div>
+                <div class="grid grid-cols-3 gap-x-4 gap-y-2 md:gap-x-6">
+                  <h5 class="col-span-3 text-sm font-medium text-textSecondary">Date of Birth</h5>
+                  <select name="dobDay" class="w-full rounded-lg border border-border-light bg-white px-3 py-3 text-textSecondary outline-none transition-colors focus:border-primaryDark">
+                    <option value="" disabled>Day</option>
+                    <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option><option>7</option><option>8</option><option>9</option><option>10</option><option>11</option><option selected>12</option><option>13</option><option>14</option><option>15</option><option>16</option><option>17</option><option>18</option><option>19</option><option>20</option><option>21</option><option>22</option><option>23</option><option>24</option><option>25</option><option>26</option><option>27</option><option>28</option><option>29</option><option>30</option><option>31</option>
+                  </select>
+                  <select name="dobMonth" class="w-full rounded-lg border border-border-light bg-white px-3 py-3 text-textSecondary outline-none transition-colors focus:border-primaryDark">
+                    <option value="" disabled>Month</option>
+                    <option>January</option><option>February</option><option>March</option><option selected>April</option><option>May</option><option>June</option><option>July</option><option>August</option><option>September</option><option>October</option><option>November</option><option>December</option>
+                  </select>
+                  <select name="dobYear" class="w-full rounded-lg border border-border-light bg-white px-3 py-3 text-textSecondary outline-none transition-colors focus:border-primaryDark">
+                    <option value="" disabled>Year</option>
+                    <option>2005</option><option>2000</option><option selected>1996</option><option>1992</option><option>1990</option><option>1985</option><option>1980</option>
+                  </select>
+                </div>
+                <div class="flex flex-col gap-1.5">
+                  <h3 class="text-sm font-medium text-textSecondary">Gender</h3>
+                  <div class="optrow-group optrow-group--row">
+<label class="optrow">
+  <input type="radio" name="gender" value="female" checked class="sr-only" />
+  <span class="optrow__radio"></span>
+  <span class="optrow__body"><span class="optrow__title">Female</span></span>
+</label>
+<label class="optrow">
+  <input type="radio" name="gender" value="male" class="sr-only" />
+  <span class="optrow__radio"></span>
+  <span class="optrow__body"><span class="optrow__title">Male</span></span>
+</label>
+</div>
+                </div>
+                <button type="submit" class="btn btn--black btn--md w-full inline-flex items-center justify-center gap-2">Save Changes</button>
+              </form>
+            </div>
+
+            
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="site-footer"></div>
+  </body>
+</html>

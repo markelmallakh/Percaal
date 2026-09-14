@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>5 Tips to Elevate Your Everyday Style — Percaal</title>
+    <meta name="description" content="Small changes to what you sleep and live in, and why they make the biggest difference." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="blog" data-path="/blog" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <div id="site-header"></div>
+
+    <main class="overflow-x-clip">
+      <!-- ============ SINGLE BLOG (Figma 186:10508) ============
+           One centred measure the whole way down: 747px head, 748px
+           picture, 735px body. -->
+      <article class="post">
+        <div class="post__head">
+          <nav class="acct-crumb" aria-label="Breadcrumb">
+            <a href="index.html">Home</a>
+            <span class="ico" data-ico="arrow-right-01-sharp" aria-hidden="true"></span>
+            <a href="blogs.html">Our Blog</a>
+            <span class="ico" data-ico="arrow-right-01-sharp" aria-hidden="true"></span>
+            <span class="acct-crumb__here" aria-current="page">5 Tips to Elevate Your Everyday Style</span>
+          </nav>
+          <h1 class="post__title">5 Tips to Elevate Your Everyday Style</h1>
+        </div>
+
+        <img class="post__hero" src="images/blog-post-03-cotton-field.webp"
+             alt="Folded linens stacked beside a window" loading="lazy" />
+
+        <div class="post__body">
+          <h2>Introduction</h2>
+          <p>
+            Looking stylish doesn't always require a complete new wardrobe. Often
+            the smallest adjustments can turn what you already own into something
+            more refined and considered. With a few thoughtful choices, you can
+            elevate your home and your everyday while staying comfortable and
+            entirely yourself.
+          </p>
+
+          <h2>1. Focus on Quality Basics</h2>
+          <p>
+            Every good room begins with strong basics. Well-made sheets, honest
+            towels and a reliable throw create a foundation for everything else.
+            Investing in quality here allows you to mix and match pieces
+            effortlessly while maintaining a polished, settled look.
+          </p>
+
+          <h2>2. Choose Timeless Pieces</h2>
+          <p>
+            Trends come and go, but timeless designs remain in style year after
+            year. Pieces with clean silhouettes, honest fabrics and quiet details
+            can easily move from season to season. Building your collection
+            around timeless cloth helps you create something that always feels
+            considered.
+          </p>
+
+          <h2>3. Pay Attention to Fit</h2>
+          <p>
+            The way a piece fits your bed can completely change how it looks.
+            Even simple linen appears more refined when it fits well. Choosing
+            the right size and depth can make your rooms feel more tailored and
+            more confident.
+          </p>
+
+          <h2>4. Add Elegant Accessories</h2>
+          <p>
+            Accessories can instantly elevate a simple room. A folded throw, a
+            pair of cushions or a single table runner adds personality and depth
+            to your look without overwhelming it. The key is to choose pieces
+            that complement your style rather than compete with it.
+          </p>
+
+          <h2>5. Keep It Simple and Balanced</h2>
+          <p>
+            Sometimes the most stylish rooms are the simplest ones. Avoid
+            over-styling and focus on balance between colours, textures and
+            shapes. A clean and well-coordinated room often creates a more
+            powerful impression than one with too many elements.
+          </p>
+        </div>
+      </article>
+
+      <!-- Read Also -->
+      <section class="post-also">
+        <div class="post-also__head">
+          <h2 class="post-also__title">Read Also</h2>
+        </div>
+        <div class="rail" data-rail>
+          <div class="rail__track" data-rail-track data-blograil></div>
+        </div>
+        <div class="post-also__more">
+          <a href="blogs.html" class="link-more">
+            Read More
+            <span class="link-more__icon ico ico-20" data-ico="arrow-right-02-round"></span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script>
+      (function () {
+        var ic = window.icon || function () { return ''; };
+
+        var POSTS = [
+          ["5 Tips to Elevate Your Everyday Style", "16 Feb 2026", "images/blog-post-03-cotton-field.webp"],
+          ["Percaal's New Collaboration", "16 Feb 2026", "images/blog-post-01-showroom.webp"],
+          ["Our New Store Is Now Open in Madinaty", "16 Feb 2026", "images/blog-post-02-trade-show.webp"],
+          ["How to Build a Timeless Wardrobe", "16 Feb 2026", "images/blog-post-03-cotton-field.webp"]
+        ];
+        var bmount = document.querySelector('[data-blograil]');
+        if (bmount) {
+          bmount.innerHTML = POSTS.map(function (p) {
+            return '<a class="bcard" href="blog.html">' +
+              '<span class="bcard__media"><img src="' + p[2] + '" alt="' + p[0] + '" loading="lazy" /></span>' +
+              '<span class="bcard__title">' + p[0] + '</span>' +
+              '<span class="bcard__date">' + p[1] + '</span></a>';
+          }).join('');
+        }
+
+        document.querySelectorAll('[data-ico]').forEach(function (el) {
+          if (!el.innerHTML.trim()) el.innerHTML = ic(el.getAttribute('data-ico'));
+        });
+      })();
+    </script>
+  </body>
+</html>

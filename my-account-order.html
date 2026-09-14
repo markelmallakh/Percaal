@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Order #2890 — Percaal</title>
+    <meta name="description" content="Your Percaal order: items, shipping information and totals." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="account-order" data-path="/account/orders" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <div id="site-header"></div>
+
+    <main class="overflow-x-clip">
+      <!-- ============ SINGLE ORDER ============
+           Figma 159:9114 (delivered) · 159:8320 (preparing) ·
+           159:9510 (on it's way). All three are the same page: the only
+           things that change are the status pill and the bottom action,
+           so ?status= drives those two and nothing else. -->
+      <section class="account">
+        <div class="account__inner">
+          <div id="account-menu" data-active="orders"></div>
+
+          <div class="account__main" data-order-state="delivered">
+            <div class="acct-head ordpage__head">
+              <nav class="acct-crumb" aria-label="Breadcrumb">
+                <a href="index.html">Home</a>
+                <span class="ico" data-ico="arrow-right-01-sharp" aria-hidden="true"></span>
+                <a href="my-account-orders.html">My Orders</a>
+                <span class="ico" data-ico="arrow-right-01-sharp" aria-hidden="true"></span>
+                <span class="acct-crumb__here" aria-current="page">Order #2890</span>
+              </nav>
+              <h1 class="acct-title">Order #2890</h1>
+              <span class="ostatus ostatus--delivered ordpage__status" data-order-pill>Delivered</span>
+            </div>
+
+            <div class="ordpage__card">
+              <ul class="bagsum__items">
+                <li class="bagsum__item">
+                  <img src="images/product-03-sheet-set-sage.webp" alt="" class="bagsum__item-thumb" />
+                  <div class="bagsum__item-body">
+                    <p class="bagsum__item-name">100% Cotton Bed Sheet</p>
+                    <p class="bagsum__item-attrs"><span>120 X 220</span><span class="cartpg__attr-dot" aria-hidden="true"></span><span>Olive</span></p>
+                  </div>
+                  <p class="bagsum__item-price">4,200.00 EGP</p>
+                </li>
+                <li class="bagsum__item">
+                  <img src="images/product-02-towel-set-white.webp" alt="" class="bagsum__item-thumb" />
+                  <div class="bagsum__item-body">
+                    <p class="bagsum__item-name">100% Cotton Bed Sheet</p>
+                    <p class="bagsum__item-attrs"><span>120 X 220</span><span class="cartpg__attr-dot" aria-hidden="true"></span><span>Olive</span></p>
+                  </div>
+                  <p class="bagsum__item-price">4,200.00 EGP</p>
+                </li>
+                <li class="bagsum__item">
+                  <img src="images/product-05-pillowcase-pair-burgundy.webp" alt="" class="bagsum__item-thumb" />
+                  <div class="bagsum__item-body">
+                    <p class="bagsum__item-name">100% Cotton Bed Sheet</p>
+                    <p class="bagsum__item-attrs"><span>120 X 220</span><span class="cartpg__attr-dot" aria-hidden="true"></span><span>Olive</span></p>
+                  </div>
+                  <p class="bagsum__item-price">4,200.00 EGP</p>
+                </li>
+              </ul>
+
+              <div class="ordpage__ship">
+                <h2 class="ordpage__ship-title">Shipping Info</h2>
+                <div class="ordpage__addr">
+                  <span class="ordpage__addr-label">Address</span>
+                  <span class="ordpage__addr-value">32B Kattamya Heights 1, New Cairo, Cario, Egypt</span>
+                </div>
+                <!-- Gift note — Figma 159:9598 -->
+                <div class="giftnote">
+                  <span class="giftnote__label">Send As A Gift to</span>
+                  <span class="giftnote__who">
+                    <span>Salma Alaa</span>
+                    <span class="giftnote__dot" aria-hidden="true"></span>
+                    <span dir="ltr">+2010012345678</span>
+                  </span>
+                </div>
+              </div>
+
+              <span class="ordpage__rule" aria-hidden="true"></span>
+
+              <div class="ordsum">
+                <div class="ordsum__row"><span>Subtotal</span><span>12,000 EGP</span></div>
+                <div class="ordsum__row"><span>Shipping Fees</span><span>100 EGP</span></div>
+                <div class="ordsum__row"><span>Discount</span><span>-1,000 EGP</span></div>
+                <span class="ordpage__rule" aria-hidden="true"></span>
+                <div class="ordsum__row ordsum__row--total"><span>Total</span><span>11,100 EGP</span></div>
+                <span class="ordsum__paid">
+                  Paid With Credit Card
+                  <img src="images/payment-method-mastercard.webp" alt="Mastercard" />
+                  <img src="images/payment-method-visa.webp" alt="Visa" />
+                </span>
+              </div>
+
+              <a href="cart.html" class="cta cta--brown cta--sentence ordpage__action ordpage__action--again">Order Again</a>
+              <button type="button" class="ordpage__action ordpage__action--cancel">Cancel Order</button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script>
+      (function () {
+        var ic = window.icon || function () { return ''; };
+        document.querySelectorAll('[data-ico]').forEach(function (el) {
+          el.innerHTML = ic(el.getAttribute('data-ico'));
+        });
+
+        /* ?status= picks the state. Everything else on the page is the
+           same in all three, so this only swaps the pill's label and
+           colour — the CSS handles which bottom action shows. */
+        var LABEL = { preparing: 'Preparing', way: "On It's Way", delivered: 'Delivered' };
+        var params = new URLSearchParams(location.search);
+        var state = params.get('status');
+        if (!LABEL[state]) state = 'delivered';
+
+        document.querySelector('[data-order-state]').setAttribute('data-order-state', state);
+
+        var pill = document.querySelector('[data-order-pill]');
+        pill.className = 'ostatus ostatus--' + state + ' ordpage__status';
+        pill.textContent = LABEL[state];
+
+        /* The order number travels with the link from the orders table. */
+        var id = params.get('id');
+        if (id) {
+          document.querySelectorAll('[data-order-id]').forEach(function (el) {
+            el.textContent = id;
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

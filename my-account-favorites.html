@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My Favorites — Percaal</title>
+    <meta name="description" content="The Percaal pieces you've saved for later." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="account-favorites" data-path="/account/favorites" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <div id="site-header"></div>
+
+    <main class="overflow-x-clip">
+      <!-- ============ MY FAVORITES (Figma 159:9889) ============
+           The storefront's own product widget, three across in the
+           976px panel. The design's instances are placed 6px apart,
+           which is exactly .egrid's gap, so the shop grid is reused
+           rather than a second one being written for this page. -->
+      <section class="account">
+        <div class="account__inner">
+          <div id="account-menu" data-active="favorites"></div>
+
+          <div class="account__main">
+            <div class="acct-head">
+              <nav class="acct-crumb" aria-label="Breadcrumb">
+                <a href="index.html">Home</a>
+                <span class="ico" data-ico="arrow-right-01-sharp" aria-hidden="true"></span>
+                <span class="acct-crumb__here" aria-current="page">My Favorites</span>
+              </nav>
+              <h1 class="acct-title">My Favorites</h1>
+            </div>
+
+            <div class="egrid egrid--3" data-shelf="all" data-limit="5"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script>
+      (function () {
+        var ic = window.icon || function () { return ''; };
+        document.querySelectorAll('[data-ico]').forEach(function (el) {
+          el.innerHTML = ic(el.getAttribute('data-ico'));
+        });
+      })();
+    </script>
+  </body>
+</html>

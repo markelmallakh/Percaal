@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My Addresses — Percaal</title>
+    <meta name="description" content="Manage the delivery addresses saved to your Percaal account." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="account-addresses" data-path="/account/addresses" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <div id="site-header"></div>
+
+    <main class="overflow-x-clip">
+      <!-- ============ MY ADDRESSES (Figma 163:5059, blank 163:4689) ============
+           Both states live here: the cards render from ADDRESSES below,
+           and the empty panel takes over when that list is empty, which
+           is the same thing the design draws as a separate screen. -->
+      <section class="account">
+        <div class="account__inner">
+          <div id="account-menu" data-active="addresses"></div>
+
+          <div class="account__main account__main--airy">
+            <div class="acct-head acct-head--row">
+              <div class="acct-head">
+                <nav class="acct-crumb" aria-label="Breadcrumb">
+                  <a href="index.html">Home</a>
+                  <span class="ico" data-ico="arrow-right-01-sharp" aria-hidden="true"></span>
+                  <span class="acct-crumb__here" aria-current="page">My Addresses</span>
+                </nav>
+                <h1 class="acct-title">My Addresses</h1>
+              </div>
+              <button type="button" class="cta cta--brown cta--sentence" data-addr-add data-open="address">
+                <span class="cta__icon ico" data-ico="add"></span><span>Add Address</span>
+              </button>
+            </div>
+
+            <div class="addr-list" data-addr-list hidden></div>
+
+            <div class="addr-empty" data-addr-empty hidden>
+              <span class="ico" data-ico="location-10"></span>
+              <p>There's no addresses saved yet</p>
+              <button type="button" class="cta cta--brown cta--sentence" data-addr-add data-open="address">
+                <span class="cta__icon ico" data-ico="add"></span><span>Add Address</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <!-- Add / Edit Address popup — Figma 178:6418 and 178:6551 are the
+         same card with a different title and CTA label, so one shell
+         serves both and the script swaps the two words. Opened through
+         the shared overlay plumbing (data-open="address"). -->
+    <div data-modal="address" class="modal-shell">
+      <form class="apop" data-modal-box data-addr-form>
+        <div class="apop__head">
+          <h2 class="apop__title" data-addr-title>Add Address</h2>
+          <button type="button" class="apop__close" data-close aria-label="Close">
+            <span class="ico" data-ico="cancel-01"></span>
+          </button>
+        </div>
+
+        <div class="apop__body">
+          <label class="dswitch">
+            <input type="checkbox" class="dswitch__input" data-addr-default checked />
+            <span class="dswitch__track" aria-hidden="true"><span class="dswitch__knob"></span></span>
+            <span>Set As Default</span>
+          </label>
+
+          <div class="field field--small">
+            <label class="field__label" for="addr-name">Address Name</label>
+            <input class="field__input" type="text" id="addr-name" name="address-name" placeholder="Home" />
+          </div>
+
+          <div class="field field--small">
+            <label class="field__label" for="addr-country">Choose Country</label>
+            <div class="field__select">
+              <select class="field__input" id="addr-country" name="country">
+                <option>Egypt</option>
+              </select>
+              <span class="field__chevron ico ico-16" data-ico="arrow-down-01-sharp" aria-hidden="true"></span>
+            </div>
+          </div>
+
+          <div class="apop__row">
+            <div class="field field--small">
+              <label class="field__label" for="addr-city">Choose City</label>
+              <div class="field__select">
+                <select class="field__input" id="addr-city" name="city">
+                  <option>Cairo</option>
+                  <option>Alexandria</option>
+                  <option>Giza</option>
+                </select>
+                <span class="field__chevron ico ico-16" data-ico="arrow-down-01-sharp" aria-hidden="true"></span>
+              </div>
+            </div>
+            <div class="field field--small">
+              <label class="field__label" for="addr-area">Choose Area</label>
+              <div class="field__select">
+                <select class="field__input" id="addr-area" name="area">
+                  <option>New Cairo</option>
+                  <option>Maadi</option>
+                  <option>Zamalek</option>
+                </select>
+                <span class="field__chevron ico ico-16" data-ico="arrow-down-01-sharp" aria-hidden="true"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="field field--small">
+            <label class="field__label" for="addr-line">Enter Address</label>
+            <input class="field__input" type="text" id="addr-line" name="address" placeholder="32B Kattamya Heights 1" />
+          </div>
+
+          <div class="apop__kind">
+            <div class="apop__kind-row" role="radiogroup" aria-label="Property type">
+              <label class="aradio">
+                <input type="radio" class="aradio__input" name="addr-kind" value="apartment" checked />
+                <span class="aradio__dot" aria-hidden="true"></span>
+                <span>Apartment</span>
+              </label>
+              <label class="aradio">
+                <input type="radio" class="aradio__input" name="addr-kind" value="villa" />
+                <span class="aradio__dot" aria-hidden="true"></span>
+                <span>Villa</span>
+              </label>
+            </div>
+
+            <div class="apop__triple">
+              <div class="field field--small">
+                <label class="field__label" for="addr-building">Building Number</label>
+                <input class="field__input" type="text" id="addr-building" name="building" placeholder="32B" />
+              </div>
+              <div class="field field--small">
+                <label class="field__label" for="addr-floor">Floor</label>
+                <input class="field__input" type="text" id="addr-floor" name="floor" placeholder="2" />
+              </div>
+              <div class="field field--small">
+                <label class="field__label" for="addr-apt">Appartment</label>
+                <input class="field__input" type="text" id="addr-apt" name="apartment" placeholder="15" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="cta cta--brown cta--sentence w-full" data-addr-submit>Add Address</button>
+      </form>
+    </div>
+
+    <script>
+      (function () {
+        var ic = window.icon || function () { return ''; };
+
+        /* The saved addresses. Empty this array to see the blank state
+           the design draws as its own screen. */
+        var ADDRESSES = [
+          { name: 'Home', line: '32B Kattamya Heights 1, New Cairo, Cario, Egypt', floor: '3', apartment: '302', isDefault: true },
+          { name: 'Work', line: '32B Kattamya Heights 1, New Cairo, Cario, Egypt', floor: '3', apartment: '302', isDefault: false }
+        ];
+
+        var list = document.querySelector('[data-addr-list]');
+        var empty = document.querySelector('[data-addr-empty]');
+
+        function render() {
+          var has = ADDRESSES.length > 0;
+          list.hidden = !has;
+          empty.hidden = has;
+          if (!has) return;
+
+          list.innerHTML = ADDRESSES.map(function (a, i) {
+            return '<article class="addr-card">' +
+              '<div class="addr-card__body">' +
+                '<div class="addr-card__head">' +
+                  '<h2 class="addr-card__name"><span class="ico" data-ico="location-10"></span>' + a.name + '</h2>' +
+                  '<label class="dswitch">' +
+                    '<input type="checkbox" class="dswitch__input" data-addr-setdefault="' + i + '"' + (a.isDefault ? ' checked' : '') + ' />' +
+                    '<span class="dswitch__track" aria-hidden="true"><span class="dswitch__knob"></span></span>' +
+                    '<span>Set As Default</span>' +
+                  '</label>' +
+                '</div>' +
+                '<span class="addr-card__rule" aria-hidden="true"></span>' +
+                '<p class="addr-card__line">' + a.line + '</p>' +
+                '<div class="acct-meta">' +
+                  '<div><span class="acct-meta__label">Floor</span><span class="acct-meta__value">' + a.floor + '</span></div>' +
+                  '<div><span class="acct-meta__label">Apartment</span><span class="acct-meta__value">' + a.apartment + '</span></div>' +
+                '</div>' +
+              '</div>' +
+              '<button type="button" class="acct-link" data-addr-edit="' + i + '" data-open="address">' +
+                '<span class="ico" data-ico="edit-02"></span>Edit</button>' +
+            '</article>';
+          }).join('');
+
+          list.querySelectorAll('[data-ico]').forEach(function (el) {
+            el.innerHTML = ic(el.getAttribute('data-ico'));
+          });
+        }
+
+        render();
+
+        /* Only one address can be the default, so turning one on turns
+           the others off rather than leaving two claiming the title. */
+        document.addEventListener('change', function (e) {
+          var t = e.target.closest('[data-addr-setdefault]');
+          if (!t) return;
+          var i = Number(t.getAttribute('data-addr-setdefault'));
+          ADDRESSES.forEach(function (a, n) { a.isDefault = n === i && t.checked; });
+          render();
+        });
+
+        /* Add and Edit are the same card with two words swapped. */
+        var title = document.querySelector('[data-addr-title]');
+        var submit = document.querySelector('[data-addr-submit]');
+        document.addEventListener('click', function (e) {
+          if (e.target.closest('[data-addr-add]')) {
+            title.textContent = 'Add Address';
+            submit.textContent = 'Add Address';
+          } else if (e.target.closest('[data-addr-edit]')) {
+            title.textContent = 'Edit Address';
+            submit.textContent = 'Save Changes';
+          }
+        });
+
+        var form = document.querySelector('[data-addr-form]');
+        if (form) {
+          form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            var close = form.querySelector('[data-close]');
+            if (close) close.click();
+          });
+        }
+
+        document.querySelectorAll('[data-ico]').forEach(function (el) {
+          if (!el.innerHTML.trim()) el.innerHTML = ic(el.getAttribute('data-ico'));
+        });
+      })();
+    </script>
+  </body>
+</html>

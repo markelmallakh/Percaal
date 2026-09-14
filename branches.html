@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Stores — Percaal</title>
+    <meta
+      name="description"
+      content="Percaal stores in Cairo, Giza, Alexandria and the North Coast — addresses, opening hours and directions."
+    />
+    <!-- Tailwind (Play CDN) + faithful port of the project's tailwind.config.ts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="branches" data-path="/branches" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <!-- Shared header is injected here by scripts.js -->
+    <div id="site-header"></div>
+
+    <main class="overflow-x-clip">
+      <!-- ==================== HERO (full-bleed storefront photo) ==================== -->
+      <section class="relative">
+        <img
+          src="images/about-09-mill-shelves.webp"
+          alt="Percaal store interior"
+          class="w-full h-[360px] md:h-[440px] object-cover object-center"
+        />
+        <div class="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/10"></div>
+        <div class="absolute inset-0 flex items-center">
+          <div class="container w-full">
+            <div class="flex flex-col items-start gap-4 max-w-[620px]">
+              <nav aria-label="Breadcrumb" class="flex items-center gap-2 text-sm text-white/80">
+                <a href="index.html" class="hover:text-white transition-colors">Home</a>
+                <span class="text-white/50">/</span>
+                <span class="text-white font-medium">Stores</span>
+              </nav>
+              <h1 class="font-semibold text-[34px] md:text-[56px] leading-[110%] text-white">
+                Come and feel <em>the cloth</em>
+              </h1>
+              <p class="text-base md:text-lg text-white/85 leading-[150%]">
+                From Cairo to the North Coast — every store keeps all three weaves out on the
+                shelf, so you can feel the difference before you choose.
+              </p>
+              <div class="flex flex-wrap items-center gap-3 pt-1">
+                <span class="inline-flex items-center gap-2 rounded bg-white/15 backdrop-blur px-4 py-2 text-sm font-semibold text-white">
+                  <span class="w-2 h-2 rounded-full bg-primary-200"></span> 25+ Branches Across Egypt
+                </span>
+                <span class="inline-flex items-center gap-2 rounded bg-white/15 backdrop-blur px-4 py-2 text-sm font-semibold text-white">
+                  <span class="w-2 h-2 rounded-full bg-cta"></span> 3 Cities
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ==================== Floating filter bar (overlaps the hero) ==================== -->
+      <div class="container relative z-10 -mt-8 md:-mt-14">
+        <div class="bg-white rounded-2xl shadow-custom4 border border-gray-200 p-4 md:p-6 flex flex-col md:flex-row md:items-end gap-4 md:gap-6">
+          <div class="flex-1">
+            <label class="block mb-2 text-sm font-medium text-textSecondary">City</label>
+            <select
+              name="city"
+              data-branch-filter="city"
+              class="w-full h-[52px] px-4 rounded-lg border border-gray-200 bg-white text-textSecondary text-sm focus:outline-none focus:border-primaryDark"
+            >
+              <option value="all">All cities</option>
+              <option>Cairo</option>
+              <option>Giza</option>
+              <option>Alexandria</option>
+              <option>North Coast</option>
+            </select>
+          </div>
+          <div class="flex-1">
+            <label class="block mb-2 text-sm font-medium text-textSecondary">Area</label>
+            <select
+              name="area"
+              data-branch-filter="area"
+              class="w-full h-[52px] px-4 rounded-lg border border-gray-200 bg-white text-textSecondary text-sm focus:outline-none focus:border-primaryDark"
+            >
+              <option value="all">All areas</option>
+              <option>New Cairo</option>
+              <option>Maadi</option>
+              <option>Zamalek</option>
+              <option>Heliopolis</option>
+              <option>Sheikh Zayed</option>
+              <option>Mohandessin</option>
+              <option>Smouha</option>
+              <option>San Stefano</option>
+              <option>Sidi Abdel Rahman</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- ==================== Branch grid ==================== -->
+      <section class="container py-10 md:py-16">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6" id="branch-grid"></div>
+        <p class="hidden text-center text-gray-500 py-16" data-branch-empty>
+          No stores match that selection — try a different city or area.
+        </p>
+      </section>
+    </main>
+
+    <!-- Shared footer is injected here by scripts.js -->
+    <div id="site-footer"></div>
+
+    <!-- Branch data → rendered as cards, with live City/Area filtering -->
+    <script>
+      (function () {
+        // [name, address, hours, phone, city, area]
+        /* Kept in step with STORE_TREE in scripts.js — the checkout's
+           "Pickup from store" picker reads from that, and a store listed
+           here but missing there is a promise the checkout can't keep. */
+        const BRANCHES = [
+          ["Percaal Cairo Festival City", "Cairo Festival City, Level 1, New Cairo", "10:00 AM - 10:00 PM", "+20 2 2618 1100", "Cairo", "New Cairo"],
+          ["Percaal Point 90", "Point 90 Mall, 90th St, New Cairo", "10:00 AM - 10:00 PM", "+20 2 2618 1101", "Cairo", "New Cairo"],
+          ["Percaal Maadi", "Road 9, Maadi, Cairo", "10:00 AM - 9:00 PM", "+20 2 2358 3456", "Cairo", "Maadi"],
+          ["Percaal Zamalek", "16 Brazil St, Zamalek, Cairo", "10:00 AM - 9:00 PM", "+20 2 2735 1234", "Cairo", "Zamalek"],
+          ["Percaal Korba", "Baghdad St, Korba, Heliopolis", "10:00 AM - 9:30 PM", "+20 2 2418 5678", "Cairo", "Heliopolis"],
+          ["Percaal Arkan", "Arkan Plaza, Sheikh Zayed, Giza", "10:00 AM - 10:00 PM", "+20 2 3850 7890", "Giza", "Sheikh Zayed"],
+          ["Percaal Americana Plaza", "Americana Plaza, Sheikh Zayed, Giza", "10:00 AM - 10:00 PM", "+20 2 3850 7891", "Giza", "Sheikh Zayed"],
+          ["Percaal Mohandessin", "Gameat El Dowal St, Mohandessin, Giza", "10:00 AM - 9:00 PM", "+20 2 3336 2200", "Giza", "Mohandessin"],
+          ["Percaal Smouha", "Green Plaza, Smouha, Alexandria", "10:00 AM - 10:00 PM", "+20 3 486 2345", "Alexandria", "Smouha"],
+          ["Percaal San Stefano", "San Stefano Grand Plaza, Level 2, Alexandria", "10:00 AM - 10:00 PM", "+20 3 469 8800", "Alexandria", "San Stefano"],
+          ["Percaal Marassi", "Marina Walk, Marassi, Sidi Abdel Rahman", "11:00 AM - 11:00 PM", "+20 100 400 1155", "North Coast", "Sidi Abdel Rahman"],
+        ];
+
+        const ICON = {
+          pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>',
+          clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+          phone: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92Z"/></svg>',
+          nav: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>',
+        };
+
+        function card([name, address, hours, phone, city, area]) {
+          const tel = phone.replace(/\s/g, "");
+          const mapLink = "https://maps.google.com/?q=" + encodeURIComponent(name + " " + address);
+          return `
+          <article class="branch-card" data-city="${city.toLowerCase()}" data-area="${area.toLowerCase()}">
+            <div class="flex items-start gap-3">
+              <span class="branch-card__pin">${ICON.pin}</span>
+              <div class="min-w-0">
+                <h3 class="font-semibold text-lg leading-[130%] text-textSecondary">${name}</h3>
+                <p class="mt-0.5 text-xs font-medium uppercase tracking-wide text-primary">${city} &middot; ${area}</p>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-2.5 border-t border-gray-200 pt-4">
+              <div class="branch-row">
+                <span class="branch-row__ico">${ICON.pin}</span>
+                <p class="m-0 text-sm leading-[150%] text-gray-700">${address}</p>
+              </div>
+              <div class="branch-row">
+                <span class="branch-row__ico">${ICON.clock}</span>
+                <p class="m-0 text-sm leading-[150%] text-gray-700" dir="ltr">${hours}</p>
+              </div>
+              <div class="branch-row">
+                <span class="branch-row__ico">${ICON.phone}</span>
+                <p class="m-0 text-sm leading-[150%] text-gray-700" dir="ltr">${phone}</p>
+              </div>
+            </div>
+
+            <div class="flex gap-2 mt-auto pt-1">
+              <a href="tel:${tel}" class="btn btn--primary btn--sm flex-1 justify-center">${ICON.phone} Call</a>
+              <a href="${mapLink}" target="_blank" rel="noopener noreferrer" class="btn btn--black btn--sm flex-1 justify-center">${ICON.nav} Directions</a>
+            </div>
+          </article>`;
+        }
+
+        const grid = document.getElementById("branch-grid");
+        if (grid) grid.innerHTML = BRANCHES.map(card).join("");
+
+        // ---- Live filtering ----
+        const cards = Array.from(grid ? grid.children : []);
+        const countEl = document.querySelector("[data-branch-count]");
+        const emptyEl = document.querySelector("[data-branch-empty]");
+        const filters = document.querySelectorAll("[data-branch-filter]");
+        const norm = (v) => (v || "all").trim().toLowerCase();
+
+        function apply() {
+          let city = "all";
+          let area = "all";
+          filters.forEach((f) => {
+            if (f.dataset.branchFilter === "city") city = norm(f.value);
+            if (f.dataset.branchFilter === "area") area = norm(f.value);
+          });
+          let shown = 0;
+          cards.forEach((c) => {
+            const ok =
+              (city === "all" || c.dataset.city === city) &&
+              (area === "all" || c.dataset.area === area);
+            c.style.display = ok ? "" : "none";
+            if (ok) shown++;
+          });
+          if (countEl) {
+            countEl.textContent =
+              shown === cards.length ? "Showing all branches" : "Showing " + shown + " of " + cards.length + " branches";
+          }
+          if (emptyEl) emptyEl.classList.toggle("hidden", shown !== 0);
+        }
+
+        filters.forEach((f) => f.addEventListener("change", apply));
+        apply();
+      })();
+    </script>
+  </body>
+</html>

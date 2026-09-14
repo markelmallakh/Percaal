@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Collection — Percaal</title>
+    <meta name="description" content="Browse the collection: percale bed linen, pillows, towels and home textiles in seven Egyptian cotton colourways." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="category" data-path="/shop" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <div id="site-header"></div>
+
+    <main class="overflow-x-clip">
+      <!-- Category head — Figma 60:4070 "Frame 3006". One 55px row: title +
+           product count on the left, Sort & Filter chip on the right. No
+           breadcrumb, no blurb; the grid speaks for itself. -->
+      <section class="category-head">
+        <div class="category-head__inner">
+          <div class="category-head__title-group">
+            <h1 class="category-head__title" data-cat-title>Collection</h1>
+            <span class="category-head__count" data-result-count></span>
+          </div>
+          <button
+            type="button"
+            class="sortfilter-btn"
+            data-sortfilter-open
+            aria-controls="sortfilter-drawer"
+            aria-expanded="false"
+          >
+            <span class="ico ico-22" data-ico="filter-mail-square"></span>
+            <span>Sort &amp; Filter</span>
+          </button>
+        </div>
+      </section>
+
+      <!-- Grid -->
+      <section class="section section--tight">
+        <div class="mx-auto max-w-[1512px] px-6 lg:px-[60px]">
+          <div class="egrid egrid--4" data-grid></div>
+          <p class="hidden py-24 text-center" data-empty>
+            <span class="display-sm block">Nothing matches those filters.</span>
+            <span class="lede mx-auto mt-3 block">Try clearing a colour, or
+              <a href="shop.html" class="link">browse everything</a>.</span>
+          </p>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Sort & Filter drawer — Figma 60:5226. Right-side panel on the
+         offwhite paper, header + collapsible sections (Sort by, Color,
+         Sizes, Fabric) with radios and checkboxes, and a fixed-bottom
+         Apply CTA / Clear All link that never scroll out of reach.
+         Escape, backdrop, X and Apply all close it. -->
+    <aside id="sortfilter-drawer" class="sfd" data-sortfilter hidden aria-hidden="true">
+      <div class="sfd__backdrop" data-sortfilter-close></div>
+      <div class="sfd__panel" role="dialog" aria-label="Sort and filter">
+        <div class="sfd__head">
+          <h2 class="sfd__title">Sort &amp; Filter</h2>
+          <button type="button" class="sfd__close" data-sortfilter-close aria-label="Close">
+            <span class="ico ico-22" data-ico="cancel-01"></span>
+          </button>
+        </div>
+
+        <div class="sfd__body">
+          <section class="sfd__section is-open" data-sfd-section>
+            <button type="button" class="sfd__legend" data-sfd-toggle aria-expanded="true">
+              <span class="sfd__legend-label">Sort by</span>
+              <span class="sfd__legend-sign" aria-hidden="true"></span>
+            </button>
+            <div class="sfd__section-body">
+              <ul class="sfd__list" role="radiogroup" data-sort-list></ul>
+            </div>
+          </section>
+
+          <section class="sfd__section is-open" data-sfd-section>
+            <button type="button" class="sfd__legend" data-sfd-toggle aria-expanded="true">
+              <span class="sfd__legend-label">
+                Color
+                <span class="sfd__legend-count" data-count-for="colour"></span>
+              </span>
+              <span class="sfd__legend-sign" aria-hidden="true"></span>
+            </button>
+            <div class="sfd__section-body">
+              <ul class="sfd__list" data-filter-group="colour"></ul>
+            </div>
+          </section>
+
+          <section class="sfd__section is-open" data-sfd-section>
+            <button type="button" class="sfd__legend" data-sfd-toggle aria-expanded="true">
+              <span class="sfd__legend-label">
+                Fabric
+                <span class="sfd__legend-count" data-count-for="fabric"></span>
+              </span>
+              <span class="sfd__legend-sign" aria-hidden="true"></span>
+            </button>
+            <div class="sfd__section-body">
+              <ul class="sfd__list" data-filter-group="fabric"></ul>
+            </div>
+          </section>
+        </div>
+
+        <div class="sfd__foot">
+          <button type="button" class="sfd__apply" data-sortfilter-close>Apply</button>
+          <button type="button" class="sfd__clear" data-sortfilter-clear>Clear All</button>
+        </div>
+      </div>
+    </aside>
+
+    <div id="site-footer"></div>
+
+    <script>
+      /* ---------------------------------------------------------------
+         Category page controller.
+
+         Everything is derived from the catalogue in scripts.js, so this
+         page has no product data of its own. ?c= accepts a category, a
+         sub-category OR a fabric key — all three are things a customer
+         might follow a link for, and resolving all three here means the
+         nav, the footer and the homepage can link with whatever term is
+         natural rather than whatever the grid happens to index on.
+         --------------------------------------------------------------- */
+      document.addEventListener("DOMContentLoaded", function () {
+        var P = window.percaalProducts || [];
+        var F = window.percaalFabrics || {};
+        var CW = window.percaalColourways || { map: {}, order: [] };
+        if (!P.length) return;
+
+        var LABELS = {
+          bedding: ["Bedding", "Sheets, duvet covers and toppers in percale and easy-care blend."],
+          pillows: ["Pillows & Cases", "Memory foam and pollydown pillows, with percale cases to match."],
+          towels: ["Towels", "Combed cotton bath, hand and sheet sizes."],
+          "home-decor": ["Home Décor", "Throws, cushion covers and table linen in the house palette."],
+          handmade: ["Handmade", "Spread sheets made by hand in Upper Egypt. Hand wash only, and worth it."],
+          gifting: ["Gifting", "The pieces people are happiest to receive."],
+          "fitted-sheets": ["Fitted Sheets", "Deep-cornered and elasticated, in four Egyptian bed sizes."],
+          "flat-sheets": ["Flat Sheets", "Generously cut so they still tuck after a hot wash."],
+          "duvet-covers": ["Duvet Cover Sets", "Plain and embroidered, with pillow cases included."],
+          duvets: ["Duvets", "Microfiber fill, including a waterproof option."],
+          "mattress-toppers": ["Mattress Toppers", "Memory foam and microfiber, in three sizes."],
+          "pillow-cases": ["Pillow Cases", "Standard size, in all three weaves."],
+          "spread-sheets": ["Spread Sheets", "Machine-made and handmade, for dressing a bed by day."],
+          "tc-400": ["Percale 400", F["tc-400"] ? F["tc-400"].long : ""],
+          "tc-200": ["Percale 200", F["tc-200"] ? F["tc-200"].long : ""],
+          blend: ["Easy-Care Blend", F.blend ? F.blend.long : ""],
+        };
+
+        var params = new URLSearchParams(location.search);
+        var key = params.get("c") || "bedding";
+        var state = {
+          fabrics: F[key] ? [key] : [],
+          colours: params.get("colour") ? [params.get("colour")] : [],
+          sort: "featured",
+        };
+
+        /* The base set: everything this URL is "about", before filters. */
+        function base() {
+          if (F[key]) return P.filter(function (p) { return p.fabrics.indexOf(key) > -1; });
+          return P.filter(function (p) { return p.cat === key || p.sub === key; });
+        }
+
+        var label = LABELS[key] || [key.replace(/-/g, " "), ""];
+        document.title = label[0] + " — Percaal";
+        document.querySelector("[data-cat-title]").textContent = label[0];
+
+        /* Filter rows are built from what the BASE SET actually contains,
+           never from the full palette. Offering a colour that returns zero
+           results is the fastest way to make a shop feel broken. Fabric and
+           Colour render as checkbox lists into the drawer (Figma 60:5206
+           / 60:5345); Sort by renders as a radiogroup into 60:5195. */
+        var SORT_OPTIONS = [
+          { value: "featured", label: "Best Selling" },
+          { value: "name", label: "Newest" },
+          { value: "price-asc", label: "Price Low to High" },
+          { value: "price-desc", label: "Price High to Low" },
+        ];
+
+        function buildChips() {
+          var set = base();
+          var fabrics = [], colours = [];
+          set.forEach(function (p) {
+            p.fabrics.forEach(function (f) { if (fabrics.indexOf(f) < 0) fabrics.push(f); });
+            p.colours.forEach(function (c) { if (colours.indexOf(c) < 0) colours.push(c); });
+          });
+
+          var fg = document.querySelector('[data-filter-group="fabric"]');
+          fg.innerHTML = fabrics
+            .map(function (f) {
+              var name = (F[f] && F[f].name) || f;
+              return (
+                '<li class="sfd__row"><label class="sfd__opt">' +
+                '<input type="checkbox" class="sfd__check" data-fabric="' + f + '">' +
+                '<span class="sfd__opt-label">' + name + '</span>' +
+                '</label></li>'
+              );
+            })
+            .join("");
+
+          var cg = document.querySelector('[data-filter-group="colour"]');
+          cg.innerHTML = colours
+            .map(function (c) {
+              var m = CW.map[c] || { hex: "#ccc", name: c };
+              return (
+                '<li class="sfd__row"><label class="sfd__opt">' +
+                '<input type="checkbox" class="sfd__check" data-colour="' + c + '">' +
+                '<span class="sfd__swatch" style="--sw:' + m.hex + '"></span>' +
+                '<span class="sfd__opt-label">' + m.name + '</span>' +
+                '</label></li>'
+              );
+            })
+            .join("");
+
+          var sl = document.querySelector("[data-sort-list]");
+          if (sl) sl.innerHTML = SORT_OPTIONS
+            .map(function (o) {
+              return (
+                '<li class="sfd__row"><label class="sfd__opt">' +
+                '<input type="radio" name="sfd-sort" class="sfd__radio" data-sort-value="' + o.value + '">' +
+                '<span class="sfd__opt-label">' + o.label + '</span>' +
+                '</label></li>'
+              );
+            })
+            .join("");
+        }
+
+        function paintChips() {
+          document.querySelectorAll("[data-fabric]").forEach(function (b) {
+            b.checked = state.fabrics.indexOf(b.getAttribute("data-fabric")) > -1;
+          });
+          document.querySelectorAll("[data-colour]").forEach(function (b) {
+            b.checked = state.colours.indexOf(b.getAttribute("data-colour")) > -1;
+          });
+          document.querySelectorAll("[data-sort-value]").forEach(function (r) {
+            r.checked = r.getAttribute("data-sort-value") === state.sort;
+          });
+          var fc = document.querySelector('[data-count-for="fabric"]');
+          if (fc) fc.textContent = state.fabrics.length ? String(state.fabrics.length) : "";
+          var cc = document.querySelector('[data-count-for="colour"]');
+          if (cc) cc.textContent = state.colours.length ? String(state.colours.length) : "";
+        }
+
+        function render() {
+          var list = base();
+          if (state.fabrics.length) list = list.filter(function (p) {
+            return state.fabrics.some(function (f) { return p.fabrics.indexOf(f) > -1; });
+          });
+          if (state.colours.length) list = list.filter(function (p) {
+            return state.colours.some(function (c) { return p.colours.indexOf(c) > -1; });
+          });
+
+          if (state.sort === "price-asc") list = list.slice().sort(function (a, b) { return a.from - b.from; });
+          else if (state.sort === "price-desc") list = list.slice().sort(function (a, b) { return b.from - a.from; });
+          else if (state.sort === "name") list = list.slice().sort(function (a, b) { return a.name.localeCompare(b.name); });
+
+          var grid = document.querySelector("[data-grid]");
+          var empty = document.querySelector("[data-empty]");
+          grid.innerHTML = list.map(function (p) { return window.percaalCard(p); }).join("");
+          empty.classList.toggle("hidden", list.length > 0);
+          document.querySelector("[data-result-count]").textContent =
+            list.length + (list.length === 1 ? " Product" : " Products");
+          paintChips();
+          if (window.kInit) window.kInit(grid);
+        }
+
+        function toggleIn(arr, value, on) {
+          var i = arr.indexOf(value);
+          if (on && i < 0) arr.push(value);
+          else if (!on && i > -1) arr.splice(i, 1);
+        }
+        document.addEventListener("change", function (e) {
+          var fb = e.target.closest("[data-fabric]");
+          if (fb) {
+            toggleIn(state.fabrics, fb.getAttribute("data-fabric"), fb.checked);
+            return render();
+          }
+          var cb = e.target.closest("[data-colour]");
+          if (cb) {
+            toggleIn(state.colours, cb.getAttribute("data-colour"), cb.checked);
+            return render();
+          }
+          var sr = e.target.closest("[data-sort-value]");
+          if (sr && sr.checked) {
+            state.sort = sr.getAttribute("data-sort-value");
+            return render();
+          }
+        });
+
+        buildChips();
+        render();
+
+        /* Inline every icon declared with data-ico — same one-liner every
+           page has, so the head chip and the drawer's close button get
+           their glyphs after this page's own DOM is in place. */
+        var ic = window.icon || function () { return ""; };
+        document.querySelectorAll("[data-ico]").forEach(function (el) {
+          el.innerHTML = ic(el.getAttribute("data-ico"));
+        });
+
+        /* Sort & Filter drawer. Open on the head button, close on the
+           backdrop, the X, Escape, or any drawer click that resolves a
+           filter or sort — the panel is small enough that reopening it
+           would feel like ceremony. */
+        var drawer = document.getElementById("sortfilter-drawer");
+        var opener = document.querySelector("[data-sortfilter-open]");
+        function setDrawer(open) {
+          if (!drawer) return;
+          drawer.hidden = !open;
+          drawer.setAttribute("aria-hidden", open ? "false" : "true");
+          if (opener) opener.setAttribute("aria-expanded", open ? "true" : "false");
+          document.body.classList.toggle("is-sortfilter-open", open);
+        }
+        if (opener) opener.addEventListener("click", function () { setDrawer(true); });
+        document.addEventListener("click", function (e) {
+          if (e.target.closest("[data-sortfilter-close]")) return setDrawer(false);
+
+          /* Collapse/expand a section — the +/- glyph is drawn from CSS,
+             the button just flips is-open on its parent section. */
+          var tg = e.target.closest("[data-sfd-toggle]");
+          if (tg) {
+            var sec = tg.closest("[data-sfd-section]");
+            var open = !sec.classList.contains("is-open");
+            sec.classList.toggle("is-open", open);
+            tg.setAttribute("aria-expanded", open ? "true" : "false");
+            return;
+          }
+
+          if (e.target.closest("[data-sortfilter-clear]")) {
+            state.fabrics = [];
+            state.colours = [];
+            state.sort = "featured";
+            render();
+          }
+        });
+        document.addEventListener("keydown", function (e) {
+          if (e.key === "Escape" && drawer && !drawer.hidden) setDrawer(false);
+        });
+      });
+    </script>
+  </body>
+</html>

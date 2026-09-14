@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Checkout — Percaal</title>
+    <meta name="description" content="Enter your delivery details and place your Percaal order." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="checkout" data-path="/checkout" class="antialiased bg-white is-loading">
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <main class="overflow-x-clip">
+      <!-- ==================== CHECKOUT 1 — Figma 102:3685 ====================
+           Two equal 756px halves on a 1512 frame. The left half holds the
+           logo + form; the right half is the Bag Summary panel (offwhite
+           #F6F5F3) that fills the full height. -->
+      <section class="chk">
+
+        <div class="chk__form-col">
+          <a href="index.html" class="chk__logo" aria-label="Percaal home">
+            <img src="images/percaal-landscape-logo.svg" alt="Percaal — Egyptian Cotton" width="194" height="46" />
+          </a>
+
+          <form class="chk__form" data-checkout-form novalidate>
+
+            <!-- Personal Info -->
+            <section class="chk__block">
+              <div class="chk__block-head">
+                <h2 class="chk__block-title">Personal Info</h2>
+                <a href="login.html" class="chk__login">
+                  <span class="ico ico-18" data-ico="user"></span>
+                  <span>Login</span>
+                </a>
+              </div>
+
+              <div class="chk__row chk__row--2">
+                <label class="field">
+                  <span class="field__label">First Name</span>
+                  <input class="field__input" type="text" value="Mark" />
+                </label>
+                <label class="field">
+                  <span class="field__label">Last Name</span>
+                  <input class="field__input" type="text" value="Amir" />
+                </label>
+              </div>
+              <label class="field">
+                <span class="field__label">Your Email Address</span>
+                <input class="field__input" type="email" value="mark.amir@mitchdesigns.com" />
+              </label>
+              <label class="field">
+                <span class="field__label">Your Phone Number</span>
+                <div class="field__phone">
+                  <button type="button" class="field__flag" aria-label="Choose country">
+                    <img src="images/flag-eg.webp" alt="" width="22" height="16" />
+                    <span>+20</span>
+                    <span class="ico ico-16" data-ico="arrow-down-01-sharp"></span>
+                  </button>
+                  <input class="field__input field__input--phone" type="tel" value="01001234567" />
+                </div>
+              </label>
+            </section>
+
+            <!-- Shipping Info -->
+            <section class="chk__block">
+              <h2 class="chk__block-title">Shipping Info</h2>
+
+              <!-- Send as a Gift toggle card — Figma 136:3126 -->
+              <div class="chk__gift" data-gift-card>
+                <div class="chk__gift-head">
+                  <span class="chk__gift-title">
+                    <span class="ico ico-24" data-ico="gift-card"></span>
+                    <span>Send As a Gift</span>
+                  </span>
+                  <label class="chk__gift-toggle">
+                    <input type="checkbox" data-gift-toggle />
+                    <span class="bagsum__toggle" aria-hidden="true"><span class="bagsum__toggle-dot"></span></span>
+                  </label>
+                </div>
+                <div class="chk__gift-body" data-gift-body hidden>
+                  <div class="chk__row chk__row--2">
+                    <label class="field field--small">
+                      <span class="field__label">Recipient Name</span>
+                      <input class="field__input" type="text" placeholder="Salma Alaa" />
+                    </label>
+                    <label class="field field--small">
+                      <span class="field__label">Recipient Phone Number</span>
+                      <div class="field__input field__input--phone-combined">
+                        <button type="button" class="field__ccode" aria-label="Choose country">
+                          <img src="images/flag-eg.webp" alt="" width="16" height="16" />
+                          <span>EG +20</span>
+                          <span class="ico ico-16" data-ico="arrow-down-01-sharp"></span>
+                        </button>
+                        <span class="field__divider" aria-hidden="true"></span>
+                        <input class="field__phone-input" type="tel" placeholder="01001234567" />
+                      </div>
+                    </label>
+                  </div>
+                  <ul class="chk__gift-notes">
+                    <li><span class="ico ico-12" data-ico="checkmark-circle-03"></span><span>When sending as a gift, prices will be removed from the receipts.</span></li>
+                    <li><span class="ico ico-12" data-ico="checkmark-circle-03"></span><span>Your order will be delivered to the selected address.</span></li>
+                    <li><span class="ico ico-12" data-ico="checkmark-circle-03"></span><span>Cash on Delivery is not available for gift orders.</span></li>
+                  </ul>
+                </div>
+              </div>
+
+              <label class="field">
+                <span class="field__label">Choose Country</span>
+                <div class="field__select">
+                  <select class="field__input">
+                    <option>Egypt</option>
+                  </select>
+                  <span class="field__chevron ico ico-16" data-ico="arrow-down-01-sharp"></span>
+                </div>
+              </label>
+
+              <div class="chk__row chk__row--2">
+                <label class="field">
+                  <span class="field__label">Choose City</span>
+                  <div class="field__select">
+                    <select class="field__input">
+                      <option>Cairo</option>
+                      <option>Alexandria</option>
+                    </select>
+                    <span class="field__chevron ico ico-16" data-ico="arrow-down-01-sharp"></span>
+                  </div>
+                </label>
+                <label class="field">
+                  <span class="field__label">Choose Area</span>
+                  <div class="field__select">
+                    <select class="field__input">
+                      <option>New Cairo</option>
+                      <option>Maadi</option>
+                    </select>
+                    <span class="field__chevron ico ico-16" data-ico="arrow-down-01-sharp"></span>
+                  </div>
+                </label>
+              </div>
+
+              <label class="field">
+                <span class="field__label">Enter Address</span>
+                <input class="field__input" type="text" placeholder="32B Kattamya Heights 1" />
+              </label>
+
+              <div class="chk__typerow">
+                <label class="chk__radio">
+                  <input type="radio" name="ship-type" value="apartment" checked />
+                  <span class="chk__radio-dot" aria-hidden="true"></span>
+                  <span>Apartment</span>
+                </label>
+                <label class="chk__radio">
+                  <input type="radio" name="ship-type" value="villa" />
+                  <span class="chk__radio-dot" aria-hidden="true"></span>
+                  <span>Villa</span>
+                </label>
+              </div>
+
+              <div class="chk__row chk__row--3">
+                <label class="field">
+                  <span class="field__label">Building Number</span>
+                  <input class="field__input" type="text" placeholder="32B" />
+                </label>
+                <label class="field">
+                  <span class="field__label">Floor</span>
+                  <input class="field__input" type="text" placeholder="2" />
+                </label>
+                <label class="field">
+                  <span class="field__label">Appartment</span>
+                  <input class="field__input" type="text" placeholder="15" />
+                </label>
+              </div>
+            </section>
+
+            <div data-checkout-actions>
+              <a href="payment.html" class="bagsum__cta chk__next">
+              <span class="bagsum__cta-label">NEXT</span>
+              <span class="ico ico-20" data-ico="arrow-right-01-sharp"></span>
+            </a>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right half — Bag Summary (checkout variant) -->
+        <aside class="chk__summary-col">
+          <div class="bagsum bagsum--checkout" data-order-summary>
+            <div class="bagsum__head">
+              <h2 class="bagsum__title">Bag Summary</h2>
+              <a href="cart.html" class="bagsum__editbag">Edit Bag</a>
+            </div>
+
+            <ul class="bagsum__items">
+              <li class="bagsum__item">
+                <img src="images/product-03-sheet-set-sage.webp" alt="" class="bagsum__item-thumb" />
+                <div class="bagsum__item-body">
+                  <p class="bagsum__item-name">100% Cotton Bed Sheet</p>
+                  <p class="bagsum__item-attrs"><span>120 X 220</span><span class="cartpg__attr-dot" aria-hidden="true"></span><span>Olive</span></p>
+                </div>
+                <p class="bagsum__item-price">4,200.00 EGP</p>
+              </li>
+              <li class="bagsum__item">
+                <img src="images/product-02-towel-set-white.webp" alt="" class="bagsum__item-thumb" />
+                <div class="bagsum__item-body">
+                  <p class="bagsum__item-name">100% Cotton Bed Sheet</p>
+                  <p class="bagsum__item-attrs"><span>120 X 220</span><span class="cartpg__attr-dot" aria-hidden="true"></span><span>Olive</span></p>
+                </div>
+                <p class="bagsum__item-price">4,200.00 EGP</p>
+              </li>
+              <li class="bagsum__item">
+                <img src="images/product-05-pillowcase-pair-burgundy.webp" alt="" class="bagsum__item-thumb" />
+                <div class="bagsum__item-body">
+                  <p class="bagsum__item-name">100% Cotton Bed Sheet</p>
+                  <p class="bagsum__item-attrs"><span>120 X 220</span><span class="cartpg__attr-dot" aria-hidden="true"></span><span>Olive</span></p>
+                </div>
+                <p class="bagsum__item-price">4,200.00 EGP</p>
+              </li>
+            </ul>
+
+            <div class="bagsum__rule"></div>
+
+            <div class="bagsum__body">
+              <label class="bagsum__wallet">
+                <input type="checkbox" class="bagsum__toggle-input" />
+                <span class="bagsum__toggle" aria-hidden="true"><span class="bagsum__toggle-dot"></span></span>
+                <span class="bagsum__wallet-label">Use My Wallet Balance</span>
+                <span class="bagsum__wallet-amount bagsum__wallet-amount--tinted">1,000 EGP</span>
+              </label>
+
+              <!-- Promocode: expands from a plus-ghost into a bordered input;
+                   Apply flips it to an applied chip with a checkmark; X reverts. -->
+              <div class="pinp" data-pinp>
+                <button type="button" class="pinp__ghost" data-pinp-open>
+                  <span class="bagsum__ghost-icon" aria-hidden="true"></span>
+                  <span>Enter Promocode</span>
+                </button>
+                <div class="pinp__open" data-pinp-input>
+                  <div class="pinp__open-head">
+                    <span>Enter Promocode</span>
+                    <button type="button" class="pinp__close" data-pinp-close aria-label="Close">
+                      <span class="ico ico-14" data-ico="cancel-01"></span>
+                    </button>
+                  </div>
+                  <div class="pinp__input">
+                    <input type="text" data-pinp-code placeholder="Welcome 10" />
+                    <button type="button" class="pinp__apply" data-pinp-apply>APPLY</button>
+                  </div>
+                </div>
+                <div class="pinp__applied" data-pinp-applied>
+                  <div class="pinp__applied-row">
+                    <span class="pinp__check ico ico-20" data-ico="checkmark-circle-03"></span>
+                    <span class="pinp__applied-code" data-pinp-code-out>Welcome 10</span>
+                    <button type="button" class="pinp__clear" data-pinp-clear aria-label="Remove promocode">
+                      <span class="ico ico-14" data-ico="cancel-01"></span>
+                    </button>
+                  </div>
+                  <p class="pinp__msg">PROMOCODE ADDED</p>
+                </div>
+              </div>
+
+              <!-- Note: expands from a plus-ghost into a filled input that
+                   holds the note; X reverts. -->
+              <div class="nteinp" data-nteinp>
+                <button type="button" class="nteinp__ghost" data-nteinp-open>
+                  <span class="bagsum__ghost-icon" aria-hidden="true"></span>
+                  <span>Add Order Notes</span>
+                </button>
+                <div class="nteinp__open" data-nteinp-input>
+                  <div class="nteinp__open-head">
+                    <span>Add Order Notes</span>
+                    <button type="button" class="nteinp__close" data-nteinp-close aria-label="Close">
+                      <span class="ico ico-14" data-ico="cancel-01"></span>
+                    </button>
+                  </div>
+                  <div class="nteinp__input">
+                    <input type="text" data-nteinp-value placeholder="Type an order note…" />
+                  </div>
+                </div>
+              </div>
+
+              <div class="bagsum__totals">
+                <div class="bagsum__total-row"><span>Subtotal</span><span>12,000 EGP</span></div>
+                <div class="bagsum__total-row"><span>Shipping Fees</span><span>100 EGP</span></div>
+                <div class="bagsum__total-row"><span>Discount</span><span>-1,000 EGP</span></div>
+                <div class="bagsum__rule"></div>
+                <div class="bagsum__total-row bagsum__total-row--grand"><span>Total</span><span data-summary-total>11,100 EGP</span></div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script>
+      (function () {
+        /* Inline every icon declared with data-ico */
+        var ic = window.icon || function () { return ''; };
+        document.querySelectorAll('[data-ico]').forEach(function (el) {
+          el.innerHTML = ic(el.getAttribute('data-ico'));
+        });
+
+        /* Gift toggle: reveals recipient fields when on. */
+        document.addEventListener('change', function (e) {
+          if (e.target.matches('[data-gift-toggle]')) {
+            var body = document.querySelector('[data-gift-body]');
+            if (body) body.hidden = !e.target.checked;
+          }
+        });
+
+        /* Promocode + Note interactions — click ghost to open, X to
+           revert, Apply to swap into the applied chip. Animation is
+           handled entirely by CSS transitions on the .is-open /
+           .is-applied classes. */
+        document.addEventListener('click', function (e) {
+          var t;
+          if ((t = e.target.closest('[data-pinp-open]'))) {
+            var wrap = t.closest('[data-pinp]');
+            wrap.classList.add('is-open');
+            wrap.classList.remove('is-applied', 'is-error');
+            setTimeout(function () {
+              var input = wrap.querySelector('[data-pinp-code]');
+              if (input) input.focus();
+            }, 60);
+          }
+          if ((t = e.target.closest('[data-pinp-apply]'))) {
+            var wrap2 = t.closest('[data-pinp]');
+            var code = (wrap2.querySelector('[data-pinp-code]') || {}).value || '';
+            code = code.trim() || 'Welcome 10';
+            var out = wrap2.querySelector('[data-pinp-code-out]');
+            if (out) out.textContent = code;
+            wrap2.classList.remove('is-open');
+            wrap2.classList.add('is-applied');
+          }
+          if ((t = e.target.closest('[data-pinp-clear], [data-pinp-close]'))) {
+            var wrap3 = t.closest('[data-pinp]');
+            wrap3.classList.remove('is-open', 'is-applied', 'is-error');
+            var inp = wrap3.querySelector('[data-pinp-code]');
+            if (inp) inp.value = '';
+          }
+          if ((t = e.target.closest('[data-nteinp-open]'))) {
+            var wrap4 = t.closest('[data-nteinp]');
+            wrap4.classList.add('is-open');
+            setTimeout(function () {
+              var input = wrap4.querySelector('[data-nteinp-value]');
+              if (input) input.focus();
+            }, 60);
+          }
+          if ((t = e.target.closest('[data-nteinp-clear], [data-nteinp-close]'))) {
+            var wrap5 = t.closest('[data-nteinp]');
+            wrap5.classList.remove('is-open');
+            var inp2 = wrap5.querySelector('[data-nteinp-value]');
+            if (inp2) inp2.value = '';
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>

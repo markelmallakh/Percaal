@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My Vouchers — Percaal</title>
+    <meta name="description" content="View, add and activate your Percaal vouchers — each one tops up your wallet balance." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="account" data-path="/my-account/vouchers" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <!-- Shared header is injected here by scripts.js -->
+    <div id="site-header"></div>
+
+    <main class="overflow-x-clip bg-gray-100">
+      <!-- Account layout: two-column grid (sidebar collapses above content on mobile) -->
+      <div class="flex lg:flex-row flex-col items-start gap-7 md:gap-10 mx-auto px-4 py-10 md:py-20 max-w-[1392px]">
+        <!-- ============================ ACCOUNT SIDEBAR ============================ -->
+        <!-- ============================ MOBILE ACCOUNT NAV (pills) ============================ -->
+        <!-- Shared account rail (Figma 159:8116), injected by
+             accountMenuHTML() in scripts.js so every account page
+             shows the same menu. -->
+        <div id="account-menu" data-active="wallet" class="w-full lg:w-[384px] shrink-0"></div>
+
+        <!-- ============================ ACCOUNT CONTENT ============================ -->
+        <div class="w-full lg:w-[calc(75%-36px)]" data-vouchers>
+          <nav class="mb-6 flex items-center gap-2 text-sm text-gray-700" aria-label="Breadcrumb">
+            <a href="my-account.html" class="hover:text-primaryDark">My Account</a>
+            <span>/</span>
+            <span class="font-medium text-textSecondary">Vouchers</span>
+          </nav>
+
+          <div class="flex flex-col gap-5 md:gap-7">
+            <!-- Page header -->
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <div class="flex items-center gap-2.5">
+                <h1 class="text-[28px] font-semibold capitalize leading-[50px] text-textSecondary">My Vouchers</h1>
+              </div>
+              <button type="button" data-voucher-add class="btn btn--black btn--md flex items-center gap-2 text-nowrap">
+                <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4 md:h-5 md:w-5"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                Add Voucher
+              </button>
+            </div>
+
+            <!-- Balance strip: the reason vouchers exist -->
+            <div class="flex w-full flex-col items-start justify-between gap-4 rounded border border-gray-300 bg-white px-5 py-5 md:px-8 xl:flex-row xl:items-center">
+              <div class="flex items-center gap-3">
+                <span class="h-[64px] w-[64px] shrink-0">
+                  <img src="icons/wallet-02.svg" alt="" class="h-full w-full object-contain" />
+                </span>
+                <div class="flex flex-col gap-1">
+                  <span class="text-sm text-gray-700">Wallet balance</span>
+                  <span class="text-[28px] font-semibold text-success" data-wallet-balance>EGP 1,250.00</span>
+                </div>
+              </div>
+              <p class="max-w-[360px] text-sm text-gray-700">Activate a voucher and its value is added straight to your wallet balance.</p>
+            </div>
+
+            <!-- Available -->
+            <section class="flex flex-col gap-4">
+              <h2 class="text-xl font-medium text-textSecondary md:text-[18px]">Available Vouchers</h2>
+              <ul class="voucher-list" data-voucher-list="available"></ul>
+              <p class="voucher-empty" data-voucher-empty="available" hidden>No available vouchers yet — add one with a code above.</p>
+            </section>
+
+            <!-- Used -->
+            <section class="flex flex-col gap-4">
+              <h2 class="text-xl font-medium text-textSecondary md:text-[18px]">Old Vouchers</h2>
+              <ul class="voucher-list" data-voucher-list="old"></ul>
+              <p class="voucher-empty" data-voucher-empty="old" hidden>Nothing here yet — used and expired vouchers will show up in this list.</p>
+            </section>
+          </div>
+        </div>
+      </div>
+    </main>
+    <!-- Voucher modal: ONE shell, two bodies (add by code / confirm activation),
+         so there is a single close + backdrop path. Registered in openMap. -->
+    <div data-modal="voucher" class="modal-shell">
+      <div class="w-full max-w-[440px] overflow-hidden rounded-2xl bg-white shadow-custom3" data-modal-box>
+        <!-- Add by code -->
+        <div data-voucher-pane="add">
+          <div class="flex items-center justify-between border-b border-gray-300 px-6 py-4">
+            <h2 class="text-lg font-semibold text-textSecondary">Add Voucher Code</h2>
+            <button type="button" data-close class="text-gray-700 hover:text-primaryDark" aria-label="Close">
+              <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+          <div class="flex flex-col gap-4 px-6 py-6">
+            <!-- Label text + asterisk share ONE flex item; as separate children of
+                 this flex-col label the asterisk dropped to its own line. -->
+            <label class="flex flex-col gap-1.5 text-sm font-medium text-primaryText">
+              <span>Add code<span class="text-cta">*</span></span>
+              <input type="text" data-voucher-code placeholder="e.g. EX150" class="rounded-lg border border-gray-300 px-4 py-2.5 text-blackText focus:border-primaryDark focus:outline-none" />
+            </label>
+            <span class="text-xs font-normal text-gray-700">Code is valid for one time only.</span>
+            <p class="text-sm text-accent-error" data-voucher-error role="alert" hidden></p>
+            <button type="button" data-voucher-submit class="btn btn--primary btn--md w-full justify-center">Add Voucher</button>
+          </div>
+        </div>
+        <!-- Confirm activation -->
+        <div data-voucher-pane="activate" hidden>
+          <div class="flex items-center justify-between border-b border-gray-300 px-6 py-4">
+            <h2 class="text-lg font-semibold text-textSecondary">Activate Voucher</h2>
+            <button type="button" data-close class="text-gray-700 hover:text-primaryDark" aria-label="Close">
+              <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            </button>
+          </div>
+          <div class="flex flex-col items-center gap-4 px-6 py-7 text-center">
+            <span class="h-[92px] w-[92px]"><img src="icons/gift-card.svg" alt="" class="h-full w-full object-contain" /></span>
+            <p class="text-sm text-textSecondary" data-voucher-activate-copy></p>
+            <button type="button" data-voucher-confirm class="btn btn--primary btn--md w-full justify-center">Activate voucher</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- Shared footer is injected here by scripts.js -->
+    <div id="site-footer"></div>
+
+    <!-- Toggle the inline top-up form -->
+    <script>
+      (function () {
+        document.querySelectorAll("[data-toggle-form]").forEach(function (btn) {
+          btn.addEventListener("click", function () {
+            var form = document.getElementById(btn.getAttribute("data-toggle-form"));
+            if (!form) return;
+            form.classList.toggle("hidden");
+            if (!form.classList.contains("hidden")) {
+              form.scrollIntoView({ behavior: "smooth", block: "center" });
+            }
+          });
+        });
+      })();
+    </script>
+  </body>
+</html>

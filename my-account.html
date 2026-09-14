@@ -1,0 +1,181 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Overview — Percaal</title>
+    <meta name="description" content="Your Percaal account: orders, wallet, points and profile in one place." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="account" data-path="/account" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <div id="site-header"></div>
+
+    <main class="overflow-x-clip">
+      <!-- ============ ACCOUNT OVERVIEW (Figma 154:5471) ============
+           384px rail + 32px + 976px panel = 1512. The rail is injected
+           by accountMenuHTML() in scripts.js so all seven account pages
+           share one copy of it. -->
+      <section class="account">
+        <div class="account__inner">
+          <div id="account-menu" data-active="overview"></div>
+
+          <div class="account__main">
+            <div class="acct-head">
+              <nav class="acct-crumb" aria-label="Breadcrumb">
+                <a href="index.html">Home</a>
+                <span class="ico" data-ico="arrow-right-01-sharp" aria-hidden="true"></span>
+                <span class="acct-crumb__here" aria-current="page">Overview</span>
+              </nav>
+              <div class="acct-head__group">
+                <h1 class="acct-title">Overview</h1>
+                <p class="acct-lede">Manage your orders, wallet, and account info right here.</p>
+              </div>
+            </div>
+
+            <div class="acct-stats">
+              <div class="acct-stat">
+                <span class="ico" data-ico="wallet-02"></span>
+                <div>
+                  <p class="acct-stat__label">Wallet Balance</p>
+                  <p class="acct-stat__value" data-acct-wallet>EGP 2,000</p>
+                </div>
+              </div>
+
+              <div class="acct-stat">
+                <span class="ico" data-ico="coins-01"></span>
+                <div>
+                  <p class="acct-stat__label">Points</p>
+                  <p class="acct-stat__value" data-acct-points>8,320 Points</p>
+                </div>
+              </div>
+
+              <div class="acct-stat acct-refer">
+                <div class="acct-refer__body">
+                  <span class="ico" data-ico="user-group"></span>
+                  <div>
+                    <p class="acct-stat__label">Refer Friends</p>
+                    <p class="acct-refer__copy">Share the link with your friends and get exclusive discounts</p>
+                  </div>
+                </div>
+                <button type="button" class="cta cta--brown cta--sentence acct-refer__cta" data-refer-copy>
+                  <span class="cta__icon ico" data-ico="copy-01"></span>
+                  <span>Copy Link</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="acct-card">
+              <div class="acct-card__head">
+                <h2 class="acct-card__title">
+                  <span class="ico" data-ico="shopping-bag-03"></span>Latest Orders
+                </h2>
+                <a href="my-account-orders.html" class="link-more">View All
+                  <span class="ico link-more__icon" data-ico="arrow-right-02-round"></span>
+                </a>
+              </div>
+              <span class="acct-card__rule" aria-hidden="true"></span>
+
+              <div class="otable">
+                <div class="otable__row otable__head">
+                  <span>Order Number</span>
+                  <span>Date</span>
+                  <span>Status</span>
+                  <span>Total</span>
+                  <span></span>
+                </div>
+                <div class="otable" data-orders='[
+                  {"id":"#30941","date":"March 28, 2023","status":"preparing","total":"EGP 25,490.00"},
+                  {"id":"#30941","date":"March 28, 2023","status":"way","total":"EGP 25,490.00"},
+                  {"id":"#30941","date":"March 28, 2023","status":"delivered","total":"EGP 25,490.00"}
+                ]'></div>
+              </div>
+            </div>
+
+            <div class="acct-pair">
+              <div class="acct-info">
+                <div class="acct-info__head">
+                  <h2 class="acct-info__title"><span class="ico" data-ico="user"></span>My Profile</h2>
+                  <a href="my-account-profile.html" class="acct-info__edit" aria-label="Edit profile">
+                    <span class="ico" data-ico="edit-02"></span>
+                  </a>
+                </div>
+                <span class="acct-info__rule" aria-hidden="true"></span>
+                <div class="acct-info__list">
+                  <p data-acct-name>Sarah Dawood</p>
+                  <p data-acct-phone>+2 01148822922</p>
+                  <p data-acct-email>sarah.dawood@gmail.com</p>
+                </div>
+              </div>
+
+              <div class="acct-info">
+                <div class="acct-info__head">
+                  <h2 class="acct-info__title"><span class="ico" data-ico="location-10"></span><span data-acct-addr-label>Home</span></h2>
+                  <a href="my-account-addresses.html" class="acct-info__edit" aria-label="Edit address">
+                    <span class="ico" data-ico="edit-02"></span>
+                  </a>
+                </div>
+                <span class="acct-info__rule" aria-hidden="true"></span>
+                <div class="acct-info__list">
+                  <p data-acct-addr>32B Kattamya Heights 1, New Cairo, Cario, Egypt</p>
+                </div>
+                <div class="acct-meta">
+                  <div>
+                    <span class="acct-meta__label">Floor</span>
+                    <span class="acct-meta__value" data-acct-floor>3</span>
+                  </div>
+                  <div>
+                    <span class="acct-meta__label">Apartment</span>
+                    <span class="acct-meta__value" data-acct-apt>302</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script>
+      (function () {
+        /* Inline every icon declared with data-ico. The order rows are
+           drawn by initOrderTables() in scripts.js and arrive with
+           their arrow already inlined. */
+        var ic = window.icon || function () { return ''; };
+        document.querySelectorAll('[data-ico]').forEach(function (el) {
+          el.innerHTML = ic(el.getAttribute('data-ico'));
+        });
+
+        /* Referral link copy. Falls back silently where the clipboard
+           API is unavailable (http origins, older browsers). */
+        var copyBtn = document.querySelector('[data-refer-copy]');
+        if (copyBtn && navigator.clipboard) {
+          copyBtn.addEventListener('click', function () {
+            navigator.clipboard.writeText(location.origin + '/?ref=sarah').then(function () {
+              var label = copyBtn.querySelector('span:last-child');
+              var was = label.textContent;
+              label.textContent = 'Copied';
+              setTimeout(function () { label.textContent = was; }, 2000);
+            }, function () {});
+          });
+        }
+      })();
+    </script>
+  </body>
+</html>

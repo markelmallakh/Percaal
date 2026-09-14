@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>About Percaal — Egyptian Cotton</title>
+    <meta
+      name="description"
+      content="Percaal was created with a simple vision: to bring timeless design and refined elegance into one curated space of Egyptian cotton textiles."
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="about" data-path="/about" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <div id="site-header"></div>
+
+    <!-- ============ ABOUT (Figma 178:7938) ============
+         Every photograph on this page drifts as you scroll. The motion
+         is scroll-POSITION driven by initParallax() in scripts.js, so
+         going back up replays it in reverse, and the resting offsets in
+         styles.css are what shows under prefers-reduced-motion. -->
+    <main class="overflow-x-clip abt">
+      <!-- Intro + the two tilted plates -->
+      <section class="abt-intro" data-parallax>
+        <p class="abt-intro__eyebrow">Our Story</p>
+        <h1 class="abt-intro__title">About Percaal</h1>
+        <p class="abt-intro__lede">
+          Percaal was created with a simple vision — to bring timeless design and
+          refined elegance into one curated space. We believe the cloth you live
+          with is more than something you use: it is a way to express care,
+          individuality and personal style. Our collections are carefully
+          selected to reflect modern living while maintaining a sense of
+          classic sophistication.
+        </p>
+
+        <!-- Figma 179:6936 draws this as two variants: overlapped and
+             tilted, then flat and side by side. data-scrub runs between
+             them with the scroll and unwinds on the way back up. The
+             drift here is deliberately small so it reads as weight
+             rather than fighting the expansion. -->
+        <div class="abt-collage" data-scrub data-scrub-distance="520">
+          <span class="abt-collage__plate abt-collage__plate--a"
+                data-parallax-item data-parallax-base="-14" data-parallax-amp="26">
+            <img src="images/about-04-design-sketch.webp" alt="A pattern drawn by hand on the cutting table" loading="lazy" />
+          </span>
+          <span class="abt-collage__plate abt-collage__plate--b"
+                data-parallax-item data-parallax-base="14" data-parallax-amp="-26">
+            <img src="images/about-05-team-worktable.webp" alt="The Percaal team at the worktable" loading="lazy" />
+          </span>
+        </div>
+      </section>
+
+      <!-- Our Philosophy -->
+      <section class="abt-phil" data-parallax>
+        <img class="abt-phil__hero" src="images/about-02-bedroom.webp"
+             alt="A bed dressed in Percaal linen" loading="lazy"
+             data-parallax-item data-parallax-base="0" data-parallax-amp="40" />
+
+        <div class="abt-phil__col">
+          <div>
+            <h2 class="abt-label">Our Philosophy</h2>
+            <p class="abt-body">
+              At Percaal, we focus on pieces that combine quality, comfort and
+              elegance. Each item is chosen with attention to detail, from the
+              fibre to the finish, so that every piece feels effortless to live
+              with and easy to care for.
+            </p>
+          </div>
+
+          <div class="abt-phil__pair">
+            <img src="images/about-10-cushion-hands.webp" alt="A cushion being smoothed by hand" loading="lazy"
+                 data-parallax-item data-parallax-base="20" data-parallax-amp="-34" />
+            <img src="images/about-11-folding-linens.webp" alt="Folded linens stacked on a shelf" loading="lazy"
+                 data-parallax-item data-parallax-base="-20" data-parallax-amp="34" />
+          </div>
+        </div>
+      </section>
+
+      <!-- Message from the Founder -->
+      <section class="abt-founder" data-parallax>
+        <div class="abt-founder__card">
+          <h2 class="abt-label">Message from the Founder</h2>
+          <p class="abt-body">
+            At Percaal, my vision has always been to create a space where people
+            can discover textiles that feel elegant, authentic and truly
+            personal. Every piece in our collection is carefully selected with
+            attention to quality, craftsmanship and timeless style. My goal is to
+            offer more than cloth — a curated experience that helps every home
+            feel considered, comfortable and effortlessly its own.
+          </p>
+          <p class="abt-founder__sign">Sally Helmy</p>
+        </div>
+        <!-- Scaled slightly over its frame so the drift never uncovers an
+             edge of the picture. -->
+        <div class="abt-founder__media">
+          <img src="images/about-01-mill-portrait.webp" alt="Sally Helmy at the mill" loading="lazy"
+               data-parallax-item data-parallax-base="0" data-parallax-amp="26" />
+        </div>
+      </section>
+
+      <!-- The four marks -->
+      <section class="abt-marks">
+        <div class="abt-marks__row">
+          <div class="abt-mark">
+            <span class="abt-mark__art"><span class="ico" data-ico="about-collections"></span></span>
+            <p class="abt-mark__label">Curated Collections</p>
+          </div>
+          <div class="abt-mark">
+            <span class="abt-mark__art"><span class="ico" data-ico="about-fabric"></span></span>
+            <p class="abt-mark__label">Premium Quality Fabrics</p>
+          </div>
+          <div class="abt-mark">
+            <span class="abt-mark__art"><span class="ico" data-ico="about-shipping"></span></span>
+            <p class="abt-mark__label">Global Shipping</p>
+          </div>
+          <div class="abt-mark">
+            <span class="abt-mark__art"><span class="ico" data-ico="about-detail"></span></span>
+            <p class="abt-mark__label">Attention to Detail</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Worldwide Shipping -->
+      <section class="abt-ship" data-parallax>
+        <div class="abt-ship__media">
+          <img src="images/about-03-packaging.webp" alt="A Percaal order boxed for shipping" loading="lazy"
+               data-parallax-item data-parallax-base="0" data-parallax-amp="34" />
+        </div>
+        <div>
+          <h2 class="abt-label">Worldwide Shipping</h2>
+          <p class="abt-body">
+            At Percaal, we are proud to bring our collections to homes around the
+            world. Our team carefully prepares and ships every order to ensure it
+            arrives safely and in perfect condition. Wherever you are, we strive
+            to deliver a smooth and reliable shipping experience so you can enjoy
+            our pieces with confidence. Delivery times and shipping options vary
+            depending on your location and are confirmed during checkout.
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script>
+      (function () {
+        var ic = window.icon || function () { return ''; };
+        document.querySelectorAll('[data-ico]').forEach(function (el) {
+          el.innerHTML = ic(el.getAttribute('data-ico'));
+        });
+      })();
+    </script>
+  </body>
+</html>

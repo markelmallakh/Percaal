@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Thank You — Percaal</title>
+    <meta name="description" content="Your Percaal order has been placed successfully." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="thanks" data-path="/thanks" class="antialiased bg-white is-loading">
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <div id="site-header"></div>
+
+    <main class="overflow-x-clip">
+      <!-- ==================== THANK YOU — Figma 117:6456 ====================
+           Two-column receipt: order confirmation + personal/shipping
+           summary on the left, order recap + totals + "paid with" chip
+           on the right (offwhite Bag Summary panel). -->
+      <section class="thanks">
+        <div class="thanks__inner">
+
+          <div class="thanks__col thanks__col--left">
+            <div class="thanks__hero">
+              <span class="thanks__badge ico ico-32" data-ico="checkmark-badge-03"></span>
+              <h1 class="thanks__title">Thank You</h1>
+            </div>
+            <p class="thanks__sub">Your Order has been placed successfully</p>
+
+            <section class="thanks__block">
+              <h2 class="thanks__block-title">Personal Info</h2>
+              <div class="thanks__item">
+                <p class="thanks__item-name">Mark Amir</p>
+                <p class="thanks__item-meta">
+                  <span>+2 01148822922</span>
+                  <span class="cartpg__attr-dot" aria-hidden="true"></span>
+                  <span>mark.amir@gmail.com</span>
+                </p>
+              </div>
+            </section>
+
+            <section class="thanks__block">
+              <h2 class="thanks__block-title">Shipping Info</h2>
+              <div class="thanks__item">
+                <p class="thanks__item-label">Address</p>
+                <p class="thanks__item-value">32B Kattamya Heights 1, New Cairo, Cario, Egypt</p>
+              </div>
+              <div class="thanks__gift">
+                <p class="thanks__gift-label">Send As A Gift to</p>
+                <p class="thanks__gift-value">
+                  <span>Salma Alaa</span>
+                  <span class="cartpg__attr-dot" aria-hidden="true"></span>
+                  <span>+2010012345678</span>
+                </p>
+              </div>
+            </section>
+          </div>
+
+          <aside class="thanks__col thanks__col--right">
+            <div class="bagsum bagsum--receipt">
+              <div class="bagsum__head">
+                <h2 class="bagsum__title">Order #2890</h2>
+              </div>
+
+              <ul class="bagsum__items">
+                <li class="bagsum__item">
+                  <img src="images/product-03-sheet-set-sage.webp" alt="" class="bagsum__item-thumb" />
+                  <div class="bagsum__item-body">
+                    <p class="bagsum__item-name">100% Cotton Bed Sheet</p>
+                    <p class="bagsum__item-attrs"><span>120 X 220</span><span class="cartpg__attr-dot" aria-hidden="true"></span><span>Olive</span></p>
+                  </div>
+                  <p class="bagsum__item-price">4,200.00 EGP</p>
+                </li>
+                <li class="bagsum__item">
+                  <img src="images/product-02-towel-set-white.webp" alt="" class="bagsum__item-thumb" />
+                  <div class="bagsum__item-body">
+                    <p class="bagsum__item-name">100% Cotton Bed Sheet</p>
+                    <p class="bagsum__item-attrs"><span>120 X 220</span><span class="cartpg__attr-dot" aria-hidden="true"></span><span>Olive</span></p>
+                  </div>
+                  <p class="bagsum__item-price">4,200.00 EGP</p>
+                </li>
+                <li class="bagsum__item">
+                  <img src="images/product-05-pillowcase-pair-burgundy.webp" alt="" class="bagsum__item-thumb" />
+                  <div class="bagsum__item-body">
+                    <p class="bagsum__item-name">100% Cotton Bed Sheet</p>
+                    <p class="bagsum__item-attrs"><span>120 X 220</span><span class="cartpg__attr-dot" aria-hidden="true"></span><span>Olive</span></p>
+                  </div>
+                  <p class="bagsum__item-price">4,200.00 EGP</p>
+                </li>
+              </ul>
+
+              <div class="bagsum__totals">
+                <div class="bagsum__total-row"><span>Subtotal</span><span>12,000 EGP</span></div>
+                <div class="bagsum__total-row"><span>Shipping Fees</span><span>100 EGP</span></div>
+                <div class="bagsum__total-row"><span>Discount</span><span>-1,000 EGP</span></div>
+                <div class="bagsum__rule"></div>
+                <div class="bagsum__total-row bagsum__total-row--grand"><span>Total</span><span>11,100 EGP</span></div>
+              </div>
+
+              <div class="thanks__paid">
+                <span>Paid With Credit Card</span>
+                <span class="thanks__paid-logos">
+                  <img src="images/payment-method-mastercard.webp" alt="Mastercard" width="42" height="26" />
+                  <img src="images/payment-method-visa.webp" alt="Visa" width="42" height="26" />
+                </span>
+              </div>
+            </div>
+          </aside>
+
+        </div>
+      </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script>
+      (function () {
+        var ic = window.icon || function () { return ''; };
+        document.querySelectorAll('[data-ico]').forEach(function (el) {
+          el.innerHTML = ic(el.getAttribute('data-ico'));
+        });
+      })();
+    </script>
+  </body>
+</html>

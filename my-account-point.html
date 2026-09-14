@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My Points — Percaal</title>
+    <meta name="description" content="Track your loyalty points, membership tier and rewards at Percaal." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="account" data-path="/my-account/point" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <!-- Shared header is injected here by scripts.js -->
+    <div id="site-header"></div>
+
+    <main class="overflow-x-clip bg-gray-100">
+      <!-- Account layout: two-column grid (sidebar collapses above content on mobile) -->
+      <div class="flex lg:flex-row flex-col items-start gap-7 md:gap-10 mx-auto px-4 py-10 md:py-20 max-w-[1392px]">
+        <!-- ============================ ACCOUNT SIDEBAR ============================ -->
+        <!-- ============================ MOBILE ACCOUNT NAV (pills) ============================ -->
+        <!-- Shared account rail (Figma 159:8116), injected by
+             accountMenuHTML() in scripts.js so every account page
+             shows the same menu. -->
+        <div id="account-menu" data-active="points" class="w-full lg:w-[384px] shrink-0"></div>
+
+        <!-- ============================ ACCOUNT CONTENT ============================ -->
+        <div class="w-full lg:w-[calc(75%-36px)]">
+          <nav class="mb-6 flex items-center gap-2 text-sm text-gray-700" aria-label="Breadcrumb">
+            <a href="my-account.html" class="hover:text-primaryDark">My Account</a>
+            <span>/</span>
+            <span class="font-medium text-textSecondary">Points</span>
+          </nav>
+
+          <div class="flex flex-col gap-5 md:gap-7">
+            <!-- Page header -->
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <div class="flex items-center gap-2.5">
+                <h1 class="text-[28px] font-semibold capitalize leading-[50px] text-textSecondary">My Points</h1>
+              </div>
+              <!-- Redeem CTA — sits opposite the headline (parent is justify-between) -->
+              <button type="button" data-open="redeem" class="btn btn--black btn--md flex items-center gap-2 text-nowrap">
+                <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4 md:h-5 md:w-5"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7ZM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Redeem Points
+              </button>
+            </div>
+
+            <!-- Points summary card (dark StyledCard) with progress + redeem -->
+            <section>
+              <div class="rounded border border-gray-300 bg-primary-200 px-5 py-6 md:px-8">
+                <div class="flex flex-col items-start justify-between gap-2 xl:flex-row xl:items-center xl:gap-[37px]">
+                  <div class="flex w-full flex-col items-start gap-2 xl:flex-row xl:items-center">
+                    <span class="h-[80px] w-[80px] shrink-0">
+                      <img src="icons/coins-01.svg" alt="Points" width="80" height="80" class="object-contain" />
+                    </span>
+                    <div class="flex w-full flex-col gap-2">
+                      <div class="flex items-center gap-2">
+                        <h3 class="text-sm font-semibold text-primaryColor md:text-xl">Available Points</h3>
+                      </div>
+                      <div class="flex w-full flex-col gap-1.5">
+                        <span class="my-2 text-[32px] font-semibold text-primaryDark"><span data-points-balance>3,200</span> points</span>
+                        <!-- progress toward the next tier -->
+                        <div class="h-2.5 w-full overflow-hidden rounded-full bg-white">
+                          <div class="h-full rounded-full bg-primaryDark" style="width: 80%"></div>
+                        </div>
+                        <div class="text-end text-sm font-medium text-primaryColor">800 points to Platinum</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <!-- Membership tiers overview -->
+            <section class="flex flex-col gap-4">
+              <h2 class="text-xl font-medium text-textSecondary md:text-[18px]">Membership Tiers</h2>
+              <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+                <div class="flex items-center gap-3 rounded border-2 border-gray-300 bg-white p-4">
+                  <span data-tier-badge="silver"></span>
+                  <span class="text-sm text-gray-700">0 – 1,999 pts</span>
+                </div>
+                <div class="flex items-center gap-3 rounded border-2 border-primaryColor bg-white p-4 ring-2 ring-primaryColor/30">
+                  <span data-tier-badge="golden"></span>
+                  <span class="text-sm font-medium text-textSecondary">2,000 – 3,999 pts</span>
+                </div>
+                <div class="flex items-center gap-3 rounded border-2 border-gray-300 bg-white p-4">
+                  <span data-tier-badge="platinum"></span>
+                  <span class="text-sm text-gray-700">4,000+ pts</span>
+                </div>
+              </div>
+            </section>
+
+            <!-- How to earn points (PointsGuide) -->
+            <section class="flex flex-col gap-4">
+              <h2 class="text-xl font-medium text-textSecondary md:text-[18px]">How to Earn Points</h2>
+              <!-- Earn-points cards: illustration, name, then the value as a
+                   pink pill. Add .is-earned to a card the customer has already
+                   collected — it greys out and takes a green tick. -->
+              <div class="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
+                <div class="earn-card is-earned">
+                  <span class="earn-card__art">
+                    <img src="icons/user.svg" alt="" width="110" height="110" />
+                    <span class="earn-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                    <span class="sr-only">Already earned</span>
+                  </span>
+                  <h4 class="earn-card__title">Create Account</h4>
+                  <span class="earn-card__pill">50 Points</span>
+                </div>
+                <div class="earn-card">
+                  <span class="earn-card__art"><img src="icons/scooter-02.svg" alt="" width="110" height="110" /></span>
+                  <h4 class="earn-card__title">Purchase</h4>
+                  <span class="earn-card__pill">1 Point / 10 EGP</span>
+                </div>
+                <div class="earn-card">
+                  <span class="earn-card__art"><img src="icons/gift-card.svg" alt="" width="110" height="110" /></span>
+                  <h4 class="earn-card__title">Birthday Gift</h4>
+                  <span class="earn-card__pill">100 Points</span>
+                </div>
+                <div class="earn-card">
+                  <h4 class="earn-card__title">Refer Friends</h4>
+                  <span class="earn-card__pill">50 Points</span>
+                </div>
+              </div>
+            </section>
+
+            <!-- Redeem section (mirrors the redemption success screen) -->
+            <section>
+              <div class="flex flex-col items-center gap-6 rounded border border-gray-300 bg-white px-5 py-8 text-center md:flex-row md:gap-8 md:px-8 md:text-start">
+                <div class="flex flex-col items-center gap-3 md:items-start">
+                  <h2 class="text-xl font-semibold text-textSecondary md:text-2xl">Turn Points Into Wallet Credit</h2>
+                  <p class="max-w-[520px] text-sm text-gray-700 md:text-base">You are going to redeem <span class="font-semibold text-textSecondary"><span data-points-balance>3,200</span> points</span> to your wallet, with an estimated value of <span class="font-semibold text-success" data-points-egp>EGP 160.00</span>. Credit is applied instantly and can be used at checkout.</p>
+                </div>
+              </div>
+            </section>
+
+            <!-- Points history -->
+            <section>
+              <div class="rounded border border-gray-300 bg-white px-5 py-6 md:px-8">
+                <div class="overflow-auto styled-scrollbar">
+                  <table class="w-full border-collapse">
+                    <thead class="border-b border-beige-500">
+                      <tr><th colspan="4" class="text-start"><h2 class="mb-4 whitespace-nowrap text-xl font-medium md:text-[18px] xl:mb-[22px]">Points History</h2></th></tr>
+                    </thead>
+                    <thead class="border-b border-beige-500">
+                      <tr>
+                        <th class="whitespace-nowrap p-4 text-start font-bold text-textSecondary md:text-base">Points</th>
+                        <th class="whitespace-nowrap p-4 text-start font-bold text-textSecondary md:text-base">Date</th>
+                        <th class="whitespace-nowrap p-4 text-start font-bold text-textSecondary md:text-base">Reason</th>
+                        <th class="whitespace-nowrap p-4 text-start font-bold text-textSecondary md:text-base">Total points</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td class="flex items-center gap-2 whitespace-nowrap p-4 text-sm font-medium text-success xl:gap-3"><span class="h-3 w-3 md:h-4 md:w-4"><svg viewBox="0 0 24 24" fill="none" class="w-full"><path d="M12 19V5M6 11l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>+320</span></td>
+                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">28 Jun 2026</td>
+                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">Order #10482</td>
+                        <td class="whitespace-nowrap p-4 text-sm font-semibold text-primaryDark md:text-lg">3,200 pts</td>
+                      </tr>
+                      <tr>
+                        <td class="flex items-center gap-2 whitespace-nowrap p-4 text-sm font-medium text-cardbadgecolor xl:gap-3"><span class="h-3 w-3 md:h-4 md:w-4"><svg viewBox="0 0 24 24" fill="none" class="w-full"><path d="M12 5v14M6 13l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>-3,000</span></td>
+                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">21 Jun 2026</td>
+                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">Redeemed to wallet</td>
+                        <td class="whitespace-nowrap p-4 text-sm font-semibold text-primaryDark md:text-lg">2,880 pts</td>
+                      </tr>
+                      <tr>
+                        <td class="flex items-center gap-2 whitespace-nowrap p-4 text-sm font-medium text-success xl:gap-3"><span class="h-3 w-3 md:h-4 md:w-4"><svg viewBox="0 0 24 24" fill="none" class="w-full"><path d="M12 19V5M6 11l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>+100</span></td>
+                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">12 Jun 2026</td>
+                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">Referred a friend</td>
+                        <td class="whitespace-nowrap p-4 text-sm font-semibold text-primaryDark md:text-lg">5,880 pts</td>
+                      </tr>
+                      <tr>
+                        <td class="flex items-center gap-2 whitespace-nowrap p-4 text-sm font-medium text-success xl:gap-3"><span class="h-3 w-3 md:h-4 md:w-4"><svg viewBox="0 0 24 24" fill="none" class="w-full"><path d="M12 19V5M6 11l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>+260</span></td>
+                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">05 Jun 2026</td>
+                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">Order #10318</td>
+                        <td class="whitespace-nowrap p-4 text-sm font-semibold text-primaryDark md:text-lg">5,780 pts</td>
+                      </tr>
+                      <tr>
+                        <td class="flex items-center gap-2 whitespace-nowrap p-4 text-sm font-medium text-success xl:gap-3"><span class="h-3 w-3 md:h-4 md:w-4"><svg viewBox="0 0 24 24" fill="none" class="w-full"><path d="M12 19V5M6 11l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>+500</span></td>
+                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">01 May 2026</td>
+                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">Welcome bonus</td>
+                        <td class="whitespace-nowrap p-4 text-sm font-semibold text-primaryDark md:text-lg">5,520 pts</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Shared footer is injected here by scripts.js -->
+    <div id="site-footer"></div>
+
+    <!-- Redeem popup. A .modal-shell so the shared plumbing in scripts.js
+         drives it: data-open="redeem" opens it, [data-close] and backdrop
+         clicks (and Escape) close it. -->
+    <div data-modal="redeem" class="modal-shell">
+      <div class="flex w-full max-w-[460px] flex-col overflow-hidden rounded-2xl bg-white shadow-custom3" data-modal-box>
+        <div class="flex shrink-0 items-start justify-between gap-3 px-5 pt-5">
+          <div>
+            <h2 class="text-lg font-semibold text-textSecondary">Redeem Points</h2>
+            <p class="text-xs text-gray-500">Turn your points into wallet credit.</p>
+          </div>
+          <button type="button" data-close aria-label="Close" class="grid h-8 w-8 place-items-center rounded-full text-textSecondary hover:bg-neutral-100">
+            <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+
+        <div class="flex flex-col gap-3 px-5 py-5">
+          <span class="redeem-balance self-start">
+            <img src="icons/coins-01.svg" alt="" />
+            <span data-redeem-balance>3,200</span> Points
+          </span>
+
+          <label class="redeem-field">
+            <span class="flex-1">
+              <span class="redeem-field__label">Enter Points Amount</span>
+              <input type="text" inputmode="numeric" value="1,500" data-redeem-input aria-label="Points to redeem" />
+            </span>
+            <button type="button" class="redeem-field__all" data-redeem-all>All Points</button>
+          </label>
+
+          <!-- 20 points = EGP 1, the rate the page states above -->
+          <p class="text-sm text-gray-700"><span data-redeem-value>EGP 75.00</span></p>
+          <p class="text-xs text-error" data-redeem-error hidden>You don't have that many points.</p>
+        </div>
+
+        <div class="flex shrink-0 items-center gap-3 border-t border-gray-300 px-5 py-4">
+          <button type="button" data-close class="btn btn--secondary btn--md">Cancel</button>
+          <button type="button" class="btn btn--primary btn--md ms-auto" data-redeem-confirm>Confirm Redeem</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      /* Redeem popup: keeps the EGP value in step with the entered points
+         and clamps to the balance. 20 points = EGP 1 (the rate stated on
+         the page). Demo only — Confirm just acknowledges. */
+      (function () {
+        const modal = document.querySelector('[data-modal="redeem"]');
+        if (!modal) return;
+        const POINTS_PER_EGP = 20;
+        /* live for the session: redeeming moves value from one to the other */
+        const state = { balance: 3200, wallet: 1500 };
+        const input = modal.querySelector("[data-redeem-input]");
+        const valueEl = modal.querySelector("[data-redeem-value]");
+        const errEl = modal.querySelector("[data-redeem-error]");
+        const confirm = modal.querySelector("[data-redeem-confirm]");
+        const group = (n) => n.toLocaleString("en-US");
+        const parse = () => parseInt(String(input.value).replace(/[^\d]/g, ""), 10) || 0;
+
+        function sync() {
+          const pts = parse();
+          const over = pts > state.balance;
+          errEl.hidden = !over;
+          valueEl.textContent = "EGP " + (pts / POINTS_PER_EGP).toFixed(2);
+          confirm.disabled = over || pts <= 0;
+          confirm.classList.toggle("opacity-40", confirm.disabled);
+          confirm.classList.toggle("pointer-events-none", confirm.disabled);
+        }
+        input.addEventListener("input", () => {
+          const pts = parse();
+          /* re-group as they type, keeping the caret at the end */
+          input.value = pts ? group(pts) : "";
+          sync();
+        });
+        modal.querySelector("[data-redeem-all]").addEventListener("click", () => {
+          input.value = group(state.balance);
+          sync();
+        });
+        confirm.addEventListener("click", () => {
+          const pts = parse();
+          if (!pts || pts > state.balance) return;
+          const egp = pts / POINTS_PER_EGP;
+
+          /* celebrate from the button itself */
+          const r = confirm.getBoundingClientRect();
+          if (window.kBurst) window.kBurst(r.left + r.width / 2, r.top + r.height / 2, { count: 90, spread: 240 });
+
+          /* move the value: points out, wallet credit in */
+          state.balance -= pts;
+          state.wallet += egp;
+          paintBalances();
+
+          const close = modal.querySelector("[data-close]");
+          if (close) close.click();
+          setTimeout(() => spotlightWallet(pts, egp, state.wallet - egp, state.wallet), 480);
+        });
+
+        /* ---- balances ---- */
+        function paintBalances() {
+          document.querySelectorAll("[data-points-balance]").forEach((el) => (el.textContent = group(state.balance)));
+          modal.querySelector("[data-redeem-balance]").textContent = group(state.balance);
+          document.querySelectorAll("[data-points-egp]").forEach(
+            (el) => (el.textContent = "EGP " + (state.balance / POINTS_PER_EGP).toFixed(2))
+          );
+          /* the Wallet nav tag is where the credit visibly lands, so it has
+             to move too -- otherwise the spotlight points at a stale figure */
+          document.querySelectorAll("[data-wallet-tab] .acct-count").forEach(
+            (el) => (el.textContent = "EGP " + group(Math.round(state.wallet)))
+          );
+          input.value = state.balance ? group(Math.min(parse() || state.balance, state.balance)) : "0";
+          sync();
+        }
+
+        /* ---- spotlight: dim the page, light the Wallet tab, explain ---- */
+        function spotlightWallet(pts, egp, walletFrom, walletTo) {
+          const target =
+            [...document.querySelectorAll("[data-wallet-tab]")].find((el) => el.offsetParent !== null) ||
+            document.querySelector("[data-wallet-tab]");
+          if (!target) return;
+
+          const wrap = document.createElement("div");
+          wrap.className = "spotlight";
+          wrap.innerHTML =
+            '<div class="spotlight__veil"></div>' +
+            '<div class="spotlight__tip">' +
+            "<p>Points received on your wallet</p>" +
+            "<small>" + group(pts) + " points became EGP " + egp.toFixed(2) + ". It's ready to use at checkout.</small>" +
+            '<button type="button">Got it</button>' +
+            "</div>";
+          document.body.appendChild(wrap);
+
+          /* Lift a CLONE, not the tab itself. The account sidebar is
+             position:sticky, which creates a stacking context, so any
+             z-index on the real link is trapped inside it and the tab
+             stayed under the veil. The clone is parented to <body>, so
+             nothing can trap it. */
+          const clone = target.cloneNode(true);
+          clone.classList.add("is-spotlit");
+          clone.removeAttribute("href");
+          clone.removeAttribute("data-wallet-tab");
+          clone.setAttribute("aria-hidden", "true");
+          clone.tabIndex = -1;
+          wrap.appendChild(clone);
+
+          target.scrollIntoView({ block: "center", behavior: "smooth" });
+
+          const tip = wrap.querySelector(".spotlight__tip");
+          const place = () => {
+            const t = target.getBoundingClientRect();
+            /* the clone sits exactly over the real tab */
+            clone.style.top = t.top + "px";
+            clone.style.left = t.left + "px";
+            clone.style.width = t.width + "px";
+            clone.style.height = t.height + "px";
+            /* tooltip sits under it, clamped inside the viewport */
+            const top = Math.min(t.bottom + 12, innerHeight - tip.offsetHeight - 12);
+            const left = Math.min(Math.max(12, t.left), innerWidth - tip.offsetWidth - 12);
+            tip.style.top = top + "px";
+            tip.style.left = left + "px";
+          };
+          place();
+
+          /* The tag starts on the OLD balance and counts up to the new one
+             once the spotlight is visible, so the credit is seen landing
+             rather than just being reported. The real tab underneath is
+             already on the new figure. */
+          const tag = clone.querySelector(".acct-count");
+          const money = (n) => "EGP " + group(Math.round(n));
+          if (tag) tag.textContent = money(walletFrom);
+          const countUp = () => {
+            if (!tag) return;
+            if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+              tag.textContent = money(walletTo);
+              return;
+            }
+            const dur = 900;
+            const t0 = performance.now();
+            const ease = (t) => 1 - Math.pow(1 - t, 3);
+            const step = (now) => {
+              const k = Math.min(1, (now - t0) / dur);
+              tag.textContent = money(walletFrom + (walletTo - walletFrom) * ease(k));
+              if (k < 1) requestAnimationFrame(step);
+              else tag.classList.add("is-counted");
+            };
+            requestAnimationFrame(step);
+          };
+
+          requestAnimationFrame(() => {
+            place();
+            wrap.classList.add("is-on");
+            setTimeout(countUp, 260);
+          });
+          addEventListener("resize", place);
+          addEventListener("scroll", place, true);
+          /* smooth-scroll keeps moving after we place it once */
+          const settle = setInterval(place, 60);
+          setTimeout(() => clearInterval(settle), 1200);
+
+          const dismiss = () => {
+            removeEventListener("resize", place);
+            removeEventListener("scroll", place, true);
+            wrap.classList.remove("is-on");
+            setTimeout(() => wrap.remove(), 320);
+          };
+          wrap.querySelector("button").addEventListener("click", dismiss);
+          wrap.querySelector(".spotlight__veil").addEventListener("click", dismiss);
+          addEventListener("keydown", function esc(e) {
+            if (e.key === "Escape") { dismiss(); removeEventListener("keydown", esc); }
+          });
+        }
+
+        sync();
+      })();
+    </script>
+  </body>
+</html>

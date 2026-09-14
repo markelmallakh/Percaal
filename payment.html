@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Payment — Percaal</title>
+    <meta name="description" content="Choose your payment method and place your Percaal order." />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="checkout" data-path="/payment" class="antialiased bg-white is-loading">
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <main class="overflow-x-clip">
+      <!-- ============ PAYMENT — Figma 117:5055 ============
+           Two 756px halves. Left: logo + Secure Payment form with three
+           method rows (Credit Card / Cash on Delivery / Wallet Balance).
+           Right: shared Bag Summary panel. -->
+      <section class="chk">
+
+        <div class="chk__form-col">
+          <a href="index.html" class="chk__logo" aria-label="Percaal home">
+            <img src="images/percaal-landscape-logo.svg" alt="Percaal — Egyptian Cotton" width="194" height="46" />
+          </a>
+
+          <form class="chk__form" data-payment-form novalidate>
+            <section class="chk__block">
+              <h2 class="chk__block-title">Secure Payment</h2>
+
+              <!-- Credit Card method -->
+              <div class="paym" data-paym data-active="card">
+                <div class="paym__row">
+                  <label class="chk__radio paym__radio">
+                    <input type="radio" name="pay" value="card" checked data-paym-radio />
+                    <span class="chk__radio-dot" aria-hidden="true"></span>
+                    <span>Credit Card</span>
+                  </label>
+                  <div class="paym__logos">
+                    <img src="images/payment-method-mastercard.webp" alt="Mastercard" width="42" height="26" />
+                    <img src="images/payment-method-visa.webp" alt="Visa" width="42" height="26" />
+                  </div>
+                </div>
+                <div class="paym__body" data-paym-body>
+                  <label class="field field--small">
+                    <span class="field__label">Card Number</span>
+                    <input class="field__input" type="text" inputmode="numeric" value="5217 9280 2036 8393" />
+                  </label>
+                  <div class="chk__row chk__row--2">
+                    <label class="field field--small">
+                      <span class="field__label">Expiry Date</span>
+                      <input class="field__input" type="text" placeholder="MM/YY" value="12/28" />
+                    </label>
+                    <label class="field field--small">
+                      <span class="field__label">CVV</span>
+                      <input class="field__input" type="text" inputmode="numeric" value="123" />
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="paym__rule"></div>
+
+              <!-- Cash On Delivery -->
+              <div class="paym" data-paym>
+                <div class="paym__row">
+                  <label class="chk__radio paym__radio">
+                    <input type="radio" name="pay" value="cod" data-paym-radio />
+                    <span class="chk__radio-dot" aria-hidden="true"></span>
+                    <span>Cash On Delivery</span>
+                  </label>
+                  <span class="ico ico-24 paym__icon" data-ico="cash-02"></span>
+                </div>
+              </div>
+
+              <div class="paym__rule"></div>
+
+              <!-- Wallet Balance -->
+              <div class="paym" data-paym>
+                <div class="paym__row">
+                  <label class="chk__radio paym__radio">
+                    <input type="radio" name="pay" value="wallet" data-paym-radio />
+                    <span class="chk__radio-dot" aria-hidden="true"></span>
+                    <span>Wallet Balance</span>
+                    <span class="bagsum__wallet-amount bagsum__wallet-amount--tinted paym__amount">1,000 EGP</span>
+                  </label>
+                  <span class="ico ico-24 paym__icon" data-ico="wallet-02"></span>
+                </div>
+              </div>
+            </section>
+
+            <div data-checkout-actions>
+              <a href="thanks.html" class="bagsum__cta chk__next">
+              <span class="bagsum__cta-label">PLACE ORDER</span>
+              <span class="ico ico-20" data-ico="arrow-right-01-sharp"></span>
+            </a>
+            </div>
+          </form>
+        </div>
+
+        <!-- Bag Summary — same panel as checkout 1 -->
+        <aside class="chk__summary-col">
+          <div class="bagsum bagsum--checkout" data-order-summary>
+            <div class="bagsum__head">
+              <h2 class="bagsum__title">Bag Summary</h2>
+              <a href="cart.html" class="bagsum__editbag">Edit Bag</a>
+            </div>
+
+            <ul class="bagsum__items">
+              <li class="bagsum__item">
+                <img src="images/product-03-sheet-set-sage.webp" alt="" class="bagsum__item-thumb" />
+                <div class="bagsum__item-body">
+                  <p class="bagsum__item-name">100% Cotton Bed Sheet</p>
+                  <p class="bagsum__item-attrs"><span>120 X 220</span><span class="cartpg__attr-dot" aria-hidden="true"></span><span>Olive</span></p>
+                </div>
+                <p class="bagsum__item-price">4,200.00 EGP</p>
+              </li>
+              <li class="bagsum__item">
+                <img src="images/product-02-towel-set-white.webp" alt="" class="bagsum__item-thumb" />
+                <div class="bagsum__item-body">
+                  <p class="bagsum__item-name">100% Cotton Bed Sheet</p>
+                  <p class="bagsum__item-attrs"><span>120 X 220</span><span class="cartpg__attr-dot" aria-hidden="true"></span><span>Olive</span></p>
+                </div>
+                <p class="bagsum__item-price">4,200.00 EGP</p>
+              </li>
+              <li class="bagsum__item">
+                <img src="images/product-05-pillowcase-pair-burgundy.webp" alt="" class="bagsum__item-thumb" />
+                <div class="bagsum__item-body">
+                  <p class="bagsum__item-name">100% Cotton Bed Sheet</p>
+                  <p class="bagsum__item-attrs"><span>120 X 220</span><span class="cartpg__attr-dot" aria-hidden="true"></span><span>Olive</span></p>
+                </div>
+                <p class="bagsum__item-price">4,200.00 EGP</p>
+              </li>
+            </ul>
+
+            <div class="bagsum__rule"></div>
+
+            <div class="bagsum__body">
+              <label class="bagsum__wallet">
+                <input type="checkbox" class="bagsum__toggle-input" />
+                <span class="bagsum__toggle" aria-hidden="true"><span class="bagsum__toggle-dot"></span></span>
+                <span class="bagsum__wallet-label">Use My Wallet Balance</span>
+                <span class="bagsum__wallet-amount bagsum__wallet-amount--tinted">1,000 EGP</span>
+              </label>
+
+              <button type="button" class="bagsum__ghost">
+                <span class="bagsum__ghost-icon" aria-hidden="true"></span>
+                <span>Add Order Notes</span>
+              </button>
+
+              <div class="bagsum__totals">
+                <div class="bagsum__total-row"><span>Subtotal</span><span>12,000 EGP</span></div>
+                <div class="bagsum__total-row"><span>Shipping Fees</span><span>100 EGP</span></div>
+                <div class="bagsum__total-row"><span>Discount</span><span>-1,000 EGP</span></div>
+                <div class="bagsum__rule"></div>
+                <div class="bagsum__total-row bagsum__total-row--grand"><span>Total</span><span data-summary-total>11,100 EGP</span></div>
+              </div>
+            </div>
+          </div>
+        </aside>
+      </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script>
+      (function () {
+        var ic = window.icon || function () { return ''; };
+        document.querySelectorAll('[data-ico]').forEach(function (el) {
+          el.innerHTML = ic(el.getAttribute('data-ico'));
+        });
+
+        /* Payment method selection: flip .is-active on the container so
+           the chosen method's body (only Credit Card has one) is shown. */
+        function syncActive() {
+          var checked = document.querySelector('[data-paym-radio]:checked');
+          document.querySelectorAll('[data-paym]').forEach(function (row) {
+            row.classList.toggle('is-active', row.contains(checked));
+          });
+        }
+        document.addEventListener('change', function (e) {
+          if (e.target.matches('[data-paym-radio]')) syncActive();
+        });
+        syncActive();
+      })();
+    </script>
+  </body>
+</html>

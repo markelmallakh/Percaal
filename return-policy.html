@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Return Policy — Percaal</title>
+    <meta
+      name="description"
+      content="How to return or exchange a Percaal order — fourteen days, unwashed and in its original packaging."
+    />
+    <!-- Tailwind (Play CDN) + faithful port of the project's tailwind.config.ts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="return" data-path="/return-policy" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <!-- Shared header is injected here by scripts.js -->
+    <div id="site-header"></div>
+
+    <main class="overflow-x-clip">
+      <section class="corporate-container">
+        <div class="container px-4">
+          <div class="mx-auto max-w-[960px]">
+            <!-- Breadcrumb -->
+            <nav aria-label="Breadcrumb" class="py-6">
+              <ol class="flex flex-wrap items-center gap-x-1 gap-y-2 text-xs capitalize text-primaryDark">
+                <li class="whitespace-nowrap">
+                  <a href="index.html" class="hover:text-accent-600">Home</a>
+                  <span class="inline-block ms-2 w-3 h-3 align-middle"><svg viewBox="0 0 24 24" fill="none" class="w-3 h-3"><path d="m9 6 6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+                </li>
+                <li class="whitespace-nowrap opacity-50">Return Policy</li>
+              </ol>
+            </nav>
+
+            <!-- Title + last updated -->
+            <h1 class="mb-2 text-3xl font-semibold md:text-4xl text-textSecondary">Return Policy</h1>
+            <p class="mb-8 text-sm font-medium text-gray-700">Last updated: 1 June 2026</p>
+
+            <!-- Legal content (placeholder) -->
+            <div class="wysiwyg max-w-none">
+              <p>This Return Policy is a placeholder template describing how we handle returns, exchanges and refunds. Unwashed items in their original packaging may be returned within fourteen days of delivery; handmade pieces are made to order and are final sale. Please replace this text with your finalised, legally reviewed policy before going live.</p>
+
+              <h3>1. Our Freshness Guarantee</h3>
+              <p>Every order is baked and packed with care so that it reaches you in perfect condition. If your product arrives damaged, spoiled or not as described, we will make it right with a replacement or refund.</p>
+
+              <h3>2. Eligibility for Refunds &amp; Replacements</h3>
+              <p>You may be eligible for a refund or replacement in the following cases:</p>
+              <ul>
+                <li>The product arrived damaged or in unsatisfactory condition.</li>
+                <li>You received the wrong item or an incomplete order.</li>
+                <li>The product quality did not meet our published standards.</li>
+              </ul>
+
+              <h3>3. Non-Returnable Items</h3>
+              <p>Items that have been washed, used or removed from their packaging cannot be returned for hygiene reasons. Handmade pieces cannot be refunded once production has begun, except in the cases listed above.</p>
+
+              <h3>4. How to Report an Issue</h3>
+              <p>Please contact our customer care team within 24 hours of receiving your order. To help us resolve your request quickly, kindly provide:</p>
+              <ul>
+                <li>Your order number and the date of delivery.</li>
+                <li>A short description of the issue.</li>
+                <li>Clear photos of the product and its packaging, where possible.</li>
+              </ul>
+
+              <h3>5. Refund Method &amp; Timelines</h3>
+              <p>Approved refunds are issued to your original payment method or, where you prefer, as store credit to your wallet. Card refunds are typically processed within 7 to 14 business days, depending on your bank.</p>
+
+              <h3>6. Cancelled or Missed Deliveries</h3>
+              <p>If a delivery cannot be completed because no one was available at the address, we will attempt to contact you to reschedule. Additional delivery charges may apply for repeat attempts.</p>
+
+              <h3>7. Contact Us</h3>
+              <p>For any questions about refunds, replacements or the status of a request, please reach out to our team through the contact page and we will be glad to assist.</p>
+            </div>
+
+            <a href="contact-us.html" class="mt-6 inline-block text-primaryDark hover:text-accent-600">Contact Our Team</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Shared footer is injected here by scripts.js -->
+    <div id="site-footer"></div>
+  </body>
+</html>

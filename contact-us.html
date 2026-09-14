@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Contact Us — Percaal</title>
+    <meta
+      name="description"
+      content="Questions about our collections, styling help or an order in progress — the Percaal team is one message away."
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="contact" data-path="/contact-us" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <div id="site-header"></div>
+
+    <main class="overflow-x-clip">
+      <!-- ============ CONTACT (Figma 183:7399) ============
+           Two columns, 660 + 672, and nothing else — no breadcrumb and
+           no hero image: the design opens on the headline. -->
+      <section class="contact">
+        <div class="contact__inner">
+          <div>
+            <p class="contact__eyebrow">Contact Us</p>
+            <h1 class="contact__title">We'd Love to Hear From You</h1>
+            <p class="contact__lede">
+              Whether you have a question about our collections, need styling
+              assistance, or want to learn more about our store, our team is here
+              to help. Reach out to us anytime and we'll be happy to assist you.
+            </p>
+
+            <span class="contact__rule" aria-hidden="true"></span>
+
+            <div class="contact__links">
+              <a class="contact__link" href="tel:+201004733588">
+                <span class="ico" data-ico="call-ringing-02"></span>
+                <span dir="ltr">(+2) 01004733588</span>
+              </a>
+              <a class="contact__link" href="mailto:info@percaal.com">
+                <span class="ico" data-ico="mail-open"></span>
+                <span>info@percaal.com</span>
+              </a>
+            </div>
+          </div>
+
+          <form class="contact__card" data-demo-form="Message sent — we'll be in touch.">
+            <h2 class="contact__card-title">Send Us A Message</h2>
+
+            <div class="contact__row">
+              <div class="field field--small">
+                <label class="field__label" for="c-first">First Name</label>
+                <input class="field__input" type="text" id="c-first" name="first-name" autocomplete="given-name" required />
+              </div>
+              <div class="field field--small">
+                <label class="field__label" for="c-last">Last Name</label>
+                <input class="field__input" type="text" id="c-last" name="last-name" autocomplete="family-name" required />
+              </div>
+            </div>
+
+            <div class="field field--small">
+              <label class="field__label" for="c-email">Your Email Address</label>
+              <input class="field__input" type="email" id="c-email" name="email" autocomplete="email" required />
+            </div>
+
+            <div class="field field--small">
+              <label class="field__label" for="c-phone">Your Phone Number</label>
+              <div class="field__input field__input--phone-combined">
+                <button type="button" class="field__ccode" aria-label="Choose country">
+                  <img src="images/flag-eg.webp" alt="" width="16" height="16" />
+                  <span>EG +20</span>
+                  <span class="ico ico-16" data-ico="arrow-down-01-sharp"></span>
+                </button>
+                <span class="field__divider" aria-hidden="true"></span>
+                <input class="field__phone-input" type="tel" id="c-phone" name="phone" inputmode="numeric" autocomplete="tel" placeholder="01001234567" />
+              </div>
+            </div>
+
+            <div class="field field--small">
+              <label class="field__label" for="c-topic">Inquiry Type</label>
+              <div class="field__select">
+                <select class="field__input" id="c-topic" name="topic">
+                  <option>General question</option>
+                  <option>An order in progress</option>
+                  <option>Sizing &amp; fabric advice</option>
+                  <option>Bulk &amp; trade enquiry</option>
+                  <option>Something else</option>
+                </select>
+                <span class="field__chevron ico ico-16" data-ico="arrow-down-01-sharp" aria-hidden="true"></span>
+              </div>
+            </div>
+
+            <div class="field field--small contact__message">
+              <label class="field__label" for="c-message">Leave Your Message</label>
+              <textarea class="field__input" id="c-message" name="message" rows="4"></textarea>
+            </div>
+
+            <button type="submit" class="cta cta--brown cta--sentence cta--lg contact__send">Send Your Message</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script>
+      (function () {
+        var ic = window.icon || function () { return ''; };
+        document.querySelectorAll('[data-ico]').forEach(function (el) {
+          el.innerHTML = ic(el.getAttribute('data-ico'));
+        });
+      })();
+    </script>
+  </body>
+</html>

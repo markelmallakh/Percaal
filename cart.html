@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Your Bag — Percaal</title>
+    <meta name="description" content="Review your Percaal bag, apply a promo code and continue to checkout." />
+    <!-- Tailwind (Play CDN) + faithful port of the project's tailwind.config.ts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="cart" data-path="/cart" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <!-- Shared header is injected here by scripts.js -->
+    <div id="site-header"></div>
+
+    <!-- overflow-x-clip (not -hidden): clips horizontal overflow WITHOUT creating a
+         scroll container, so the sticky order summary can stick to the viewport.
+         With -hidden, overflow-y computes to `auto` and sticky anchors to <main>
+         instead — which silently does nothing. -->
+    <main class="overflow-x-clip">
+      <!-- ============================ CART — Figma 92:1559 ============================
+           Two columns on 1512 frame: line items (700px) on the left, an
+           off-white Bag Summary panel (592px) on the right; a Related
+           Products carousel below. -->
+      <section class="cartpg">
+        <div class="cartpg__inner">
+          <!-- ---------- Left column ---------- -->
+          <div class="cartpg__col cartpg__col--left">
+            <h1 class="cartpg__title">
+              My Shopping Bag
+              <span class="cartpg__count" data-cart-page-count>3</span>
+            </h1>
+
+            <ul data-cart-list class="cartpg__list">
+              <!-- Each row: 122×152 image + name/attrs/price stacked, and
+                   a boxed [-] N [+] stepper on the right. -->
+              <li data-cart-row data-unit-price="1980" class="cartpg__row">
+                <a href="product.html" class="cartpg__thumb-link">
+                  <img src="images/product-01-sheet-set-ivory.webp" alt="Percale 400 Fitted Sheet" class="cartpg__thumb" />
+                </a>
+                <div class="cartpg__body">
+                  <a href="product.html" class="cartpg__name-link">
+                    <h2 class="cartpg__name">Percale 400 Fitted Sheet</h2>
+                  </a>
+                  <p class="cartpg__attrs">
+                    <span>180×200 (King)</span>
+                    <span class="cartpg__attr-dot" aria-hidden="true"></span>
+                    <span>Off-white</span>
+                  </p>
+                  <p class="cartpg__price" data-line-total>4,200.00 EGP</p>
+                </div>
+                <div data-stepper data-removable class="cartpg__stepper">
+                  <button type="button" data-step="-1" class="cartpg__step" aria-label="Decrease quantity"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+                  <span data-qty class="cartpg__qty">1</span>
+                  <button type="button" data-step="1" class="cartpg__step" aria-label="Increase quantity"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+                </div>
+              </li>
+
+              <li data-cart-row data-unit-price="460" class="cartpg__row">
+                <a href="product.html" class="cartpg__thumb-link">
+                  <img src="images/product-04-duvet-set-blue.webp" alt="Percale 200 Pillow Case" class="cartpg__thumb" />
+                </a>
+                <div class="cartpg__body">
+                  <a href="product.html" class="cartpg__name-link">
+                    <h2 class="cartpg__name">Percale 200 Pillow Case</h2>
+                  </a>
+                  <p class="cartpg__attrs">
+                    <span>Standard</span>
+                    <span class="cartpg__attr-dot" aria-hidden="true"></span>
+                    <span>Light Blue</span>
+                  </p>
+                  <p class="cartpg__price" data-line-total>920.00 EGP</p>
+                </div>
+                <div data-stepper data-removable class="cartpg__stepper">
+                  <button type="button" data-step="-1" class="cartpg__step" aria-label="Decrease quantity"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+                  <span data-qty class="cartpg__qty">2</span>
+                  <button type="button" data-step="1" class="cartpg__step" aria-label="Increase quantity"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+                </div>
+              </li>
+
+              <li data-cart-row data-unit-price="1180" class="cartpg__row">
+                <a href="product.html" class="cartpg__thumb-link">
+                  <img src="images/product-06-pillow-taupe.webp" alt="Memory Foam Pillow" class="cartpg__thumb" />
+                </a>
+                <div class="cartpg__body">
+                  <a href="product.html" class="cartpg__name-link">
+                    <h2 class="cartpg__name">Memory Foam Pillow</h2>
+                  </a>
+                  <p class="cartpg__attrs">
+                    <span>Standard</span>
+                  </p>
+                  <p class="cartpg__price" data-line-total>1,180.00 EGP</p>
+                </div>
+                <div data-stepper data-removable class="cartpg__stepper">
+                  <button type="button" data-step="-1" class="cartpg__step" aria-label="Decrease quantity"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+                  <span data-qty class="cartpg__qty">1</span>
+                  <button type="button" data-step="1" class="cartpg__step" aria-label="Increase quantity"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+                </div>
+              </li>
+            </ul>
+          </div>
+
+          <!-- ---------- Right column: Bag Summary panel (Figma 101:3395) ---------- -->
+          <aside class="cartpg__col cartpg__col--right">
+            <div class="bagsum">
+              <h2 class="bagsum__title">Bag Summary</h2>
+
+              <div class="bagsum__body">
+                <label class="bagsum__wallet">
+                  <input type="checkbox" class="bagsum__toggle-input" />
+                  <span class="bagsum__toggle" aria-hidden="true"><span class="bagsum__toggle-dot"></span></span>
+                  <span class="bagsum__wallet-label">Use My Wallet Balance</span>
+                  <span class="bagsum__wallet-amount">1,000 EGP</span>
+                </label>
+
+                <button type="button" class="bagsum__ghost" data-open-promo>
+                  <span class="bagsum__ghost-icon" aria-hidden="true"></span>
+                  <span>Enter Promocode</span>
+                </button>
+                <button type="button" class="bagsum__ghost" data-open-note>
+                  <span class="bagsum__ghost-icon" aria-hidden="true"></span>
+                  <span>Add Order Notes</span>
+                </button>
+
+                <div class="bagsum__totals">
+                  <div class="bagsum__total-row"><span>Subtotal</span><span data-summary-subtotal>12,000 EGP</span></div>
+                  <div class="bagsum__total-row"><span>Shipping Fees</span><span data-summary-delivery>100 EGP</span></div>
+                  <div class="bagsum__total-row" data-summary-discount-row hidden><span>Discount</span><span data-summary-discount></span></div>
+                  <div class="bagsum__rule"></div>
+                  <div class="bagsum__total-row bagsum__total-row--grand">
+                    <span>Total</span>
+                    <span data-summary-total>11,100 EGP</span>
+                  </div>
+                </div>
+              </div>
+
+              <a href="checkout.html" class="bagsum__cta">
+                <span class="bagsum__cta-label">CHECKOUT</span>
+                <span class="bagsum__cta-amount" data-summary-total-cta>11,100 EGP</span>
+              </a>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- Related Products carousel — Figma 99:3237. Title on its own row;
+           a 5-up rail underneath. -->
+      <section class="cartpg__related">
+        <div class="cartpg__related-head">
+          <h2 class="cartpg__related-title">Related Products</h2>
+        </div>
+        <div class="cartpg__related-grid egrid egrid--4" data-shelf="flat-sheet,duvet,mattress-topper,bath-towel"></div>
+      </section>
+
+      <!-- Empty-cart state (hidden mockup — swap with the filled view when the cart is empty)
+      <div class="flex flex-col justify-center items-center gap-5 h-full min-h-72">
+        <span class="inline-block w-6 h-8 text-primaryDark">
+          <svg viewBox="0 0 24 24" fill="none" class="w-6 h-8"><path d="M2.5 3h1.6c.5 0 .93.35 1.03.84l.34 1.66m0 0 1.4 6.86c.16.8.87 1.37 1.68 1.37h7.9c.79 0 1.48-.54 1.66-1.31l1.3-5.4a.85.85 0 0 0-.83-1.05H5.47M9 20a1 1 0 1 1-2 0 1 1 0 0 1 2 0Zm9 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <div class="font-medium text-blackText text-2xl">Your bag is empty</div>
+        <a href="shop.html" class="inline-flex items-center gap-2 text-primaryDark font-medium">Continue shopping →</a>
+      </div>
+      -->
+    </main>
+
+    <!-- Shared footer is injected here by scripts.js -->
+    <div id="site-footer"></div>
+
+  </body>
+</html>

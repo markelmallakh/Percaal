@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Percaal — Egyptian Cotton</title>
+    <meta
+      name="description"
+      content="Percaal — Egyptian cotton bedding, towels, décor and household textiles. Designed in Egypt, made to last."
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tw-config.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+    <script src="icons.js"></script>
+    <script defer src="scripts.js"></script>
+  </head>
+  <body data-page="home" data-path="/" class="antialiased bg-white is-loading">
+    <!-- Loader curtain. First child of <body> on every page so it paints
+         with the first frame; initLoader() in scripts.js lifts it once fonts
+         and the fold are ready. See styles.css "LOADER + ARRIVAL". -->
+    <div class="loader" data-loader aria-hidden="true">
+      <div class="loader__inner">
+        <img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />
+        <span class="loader__line"></span>
+      </div>
+    </div>
+
+    <div id="site-header"></div>
+
+    <!-- overflow-x-clip, never -hidden: -hidden turns this into a scroll
+         container and silently kills position:sticky inside it. -->
+    <main class="overflow-x-clip">
+
+      <!-- ============ HERO  (Figma 25:54169 · 1512 × 754) ============
+           The design's hero is a video, so it is one here too: muted,
+           looped and playsinline so iOS renders it in place instead of
+           taking over the screen. A poster frame covers the load gap. -->
+      <section class="hero">
+        <div class="hero__media">
+          <video
+            src="images/homepage-percaal-hero.mp4"
+            poster="images/product-08-sheet-set-white-styled.webp"
+            autoplay muted loop playsinline
+            aria-label="Percaal linens in a sunlit bedroom"
+          ></video>
+        </div>
+
+        <!-- ============ FEATURED PRODUCT  (Figma 60:3863 / 60:3809) ============
+             The glass tile over the hero. Closed it shows the tray and a +;
+             opening it fans out the three pieces that appear in the hero
+             film. Thumbs 2 and 3 stay in the DOM collapsed to 0.81px — that
+             is how the closed variant is built in Figma, and it is what lets
+             the panel grow with its contents instead of animating a fixed
+             width. See styles.css "FEATURED PRODUCT HOTSPOT". -->
+        <div class="featured" data-featured>
+          <a href="product.html?p=wooden-tray" class="featured__thumb featured__thumb--contain" aria-label="Wooden serving tray">
+            <img src="images/hero-featured-01-tray.webp" alt="Wooden serving tray" width="81" height="108" />
+          </a>
+          <a href="product.html?p=ceramic-mug" class="featured__thumb featured__thumb--extra" aria-label="Speckled ceramic mug">
+            <img src="images/hero-featured-02-mug.webp" alt="Speckled ceramic mug" width="81" height="108" loading="lazy" />
+          </a>
+          <a href="product.html?p=cotton-duvet-set" class="featured__thumb featured__thumb--extra" aria-label="Percaal bed linen in pale blue">
+            <img src="images/hero-featured-03-bedding.webp" alt="Percaal bed linen in pale blue" width="81" height="108" loading="lazy" />
+          </a>
+          <button type="button" class="featured__toggle" data-featured-toggle
+                  aria-expanded="false" aria-label="Show the products in this film">
+            <span class="featured__plus" data-ico="plus-sign"></span>
+            <span class="featured__minus" data-ico="minus-sign"></span>
+          </button>
+        </div>
+
+        <div class="hero__inner">
+          <h1 class="hero__title">Summer Collection</h1>
+          <p class="hero__sub">Designed for sun-filled moments.</p>
+          <a href="shop-category.html?c=bedding" class="cta cta--white hero__cta">Discover Collection</a>
+        </div>
+      </section>
+
+      <!-- ============ SUB BANNERS  (Figma 27:54370) ============ -->
+      <section class="subbanners">
+        <!-- --baked: this plate ships with its caption rendered into the
+               photograph, so the live caption below is kept for assistive tech
+               and hidden visually. See styles.css "BAKED-IN CAPTIONS". -->
+          <a href="shop-category.html?c=decor" class="subbanner subbanner--baked">
+          <img src="images/banner-02-decor-accessories.webp" alt="Décor and accessories styled in a living room" />
+          <span class="subbanner__body">
+            <span>
+              <span class="subbanner__title">Décor &amp; Accessories</span>
+              <span class="subbanner__sub">Details that bring a room to life.</span>
+            </span>
+            <span class="subbanner__go ico ico-24" data-ico="chevron-right"></span>
+          </span>
+        </a>
+        <a href="shop-category.html?c=household" class="subbanner subbanner--baked">
+          <img src="images/banner-01-household.webp" alt="A dressed table with linen and ceramics" />
+          <span class="subbanner__body">
+            <span>
+              <span class="subbanner__title">Household</span>
+              <span class="subbanner__sub">Beautiful essentials for better living</span>
+            </span>
+            <span class="subbanner__go ico ico-24" data-ico="chevron-right"></span>
+          </span>
+        </a>
+      </section>
+
+      <!-- ============ EXPLORE COLLECTIONS  (Figma 59:1231) ============ -->
+      <section class="band band--grey">
+        <div class="band__head">
+          <h2 class="band__title">Explore Collections</h2>
+        </div>
+        <div class="rail" data-rail>
+          <button type="button" class="rail__btn rail__btn--prev" data-rail-prev aria-label="Previous" data-ico="arrow-left-01-sharp"></button>
+          <div class="rail__track" data-rail-track data-collections></div>
+          <button type="button" class="rail__btn rail__btn--next" data-rail-next aria-label="Next" data-ico="arrow-right-01-sharp"></button>
+        </div>
+      </section>
+
+      <!-- ============ DISCOVER MORE  (Figma 32:55044) ============ -->
+      <section class="band">
+        <div class="band__head">
+          <h2 class="band__title">Discover More</h2>
+          <div class="tabstrip" data-shelf-tabs>
+            <button type="button" data-shelf-tab="new">New In</button>
+            <button type="button" data-shelf-tab="best" class="is-active">Best Selling</button>
+            <button type="button" data-shelf-tab="staff">Staff Picks</button>
+          </div>
+        </div>
+        <div class="rail" data-rail>
+          <button type="button" class="rail__btn rail__btn--prev" data-rail-prev aria-label="Previous" data-ico="arrow-left-01-sharp"></button>
+          <div class="rail__track" data-rail-track data-shelf="best"></div>
+          <button type="button" class="rail__btn rail__btn--next" data-rail-next aria-label="Next" data-ico="arrow-right-01-sharp"></button>
+        </div>
+      </section>
+
+      <!-- ============ OUR STORY  (Figma 32:55145) ============ -->
+      <section class="band">
+        <div class="story">
+          <div>
+            <p class="story__eyebrow">Our Story</p>
+            <!-- One paragraph, two tones — the opening clause is ink and the
+                 rest is grey. It is a single flowing sentence in the design,
+                 so it must stay one <p>. -->
+            <p class="story__lead">
+              <b>At Percaal, fashion is personal, effortless, and thoughtfully curated.
+              Inspired by Egyptian cottons,</b> our collections bring together luxurious
+              textures, enduring quality, and understated elegance designed to feel
+              timeless and unmistakably yours.
+            </p>
+            <a href="about.html" class="link-more story__link">
+              Know More
+              <span class="link-more__icon ico ico-20" data-ico="arrow-right-02-round"></span>
+            </a>
+          </div>
+          <!-- Opposite amplitudes: the upper plate settles down 100px over the
+               section's pass through the viewport while the lower one rises
+               100px, so they trade places. Scroll-position driven, so
+               scrolling back up reverses it. -->
+          <div class="story__art" data-parallax>
+            <img src="images/about-09-mill-shelves.webp" alt="Bolts of cotton in the mill" loading="lazy"
+                 data-parallax-item data-parallax-base="-30" data-parallax-amp="70" />
+            <img src="images/about-01-mill-portrait.webp" alt="A Percaal maker at the mill" loading="lazy"
+                 data-parallax-item data-parallax-base="30" data-parallax-amp="-70" />
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ BENEFITS  (Figma 60:3123) ============ -->
+      <section>
+        <div class="benefits">
+          <div class="benefit">
+            <span class="benefit__art">
+              <img class="benefit__dot" src="icons/feature/dot.svg" alt="" width="25" height="25" />
+              <img class="benefit__glyph" src="icons/feature/curated-collections.svg" alt="" width="41" height="45" />
+            </span>
+            <span class="benefit__label">Curated Collections</span>
+          </div>
+          <div class="benefit">
+            <span class="benefit__art">
+              <img class="benefit__dot" src="icons/feature/dot.svg" alt="" width="25" height="25" />
+              <img class="benefit__glyph" src="icons/feature/premium-fabrics.svg" alt="" width="52" height="52" />
+            </span>
+            <span class="benefit__label">Premium Quality Fabrics</span>
+          </div>
+          <div class="benefit">
+            <span class="benefit__art">
+              <img class="benefit__dot" src="icons/feature/dot.svg" alt="" width="25" height="25" />
+              <img class="benefit__glyph" src="icons/feature/global-shipping.svg" alt="" width="45" height="43" />
+            </span>
+            <span class="benefit__label">Global Shipping</span>
+          </div>
+          <div class="benefit">
+            <span class="benefit__art">
+              <img class="benefit__dot" src="icons/feature/dot.svg" alt="" width="25" height="25" />
+              <img class="benefit__glyph" src="icons/feature/attention-to-detail.svg" alt="" width="52" height="52" />
+            </span>
+            <span class="benefit__label">Attention to Detail</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ RECENTLY VIEWED  (Figma 39:55261) ============ -->
+      <section class="band band--paper">
+        <div class="band__head">
+          <h2 class="band__title">Recently Viewed</h2>
+        </div>
+        <div class="rail" data-rail>
+          <button type="button" class="rail__btn rail__btn--prev" data-rail-prev aria-label="Previous" data-ico="arrow-left-01-sharp"></button>
+          <div class="rail__track" data-rail-track data-shelf="recent"></div>
+          <button type="button" class="rail__btn rail__btn--next" data-rail-next aria-label="Next" data-ico="arrow-right-01-sharp"></button>
+        </div>
+      </section>
+
+      <!-- ============ OUR BLOG  (Figma 39:55347) ============ -->
+      <section class="band band--grey">
+        <div class="band__head">
+          <h2 class="band__title">Our Blog</h2>
+        </div>
+        <div class="rail" data-rail>
+          <div class="rail__track" data-rail-track data-blograil></div>
+        </div>
+        <div class="faq" style="margin-top: 32px">
+          <a href="blogs.html" class="link-more">
+            Read More
+            <span class="link-more__icon ico ico-20" data-ico="arrow-right-02-round"></span>
+          </a>
+        </div>
+      </section>
+
+      <!-- ============ FAQ  (Figma 59:1283) ============ -->
+      <section class="band band--paper">
+        <div class="band__head">
+          <h2 class="band__title">Frequently Asked Questions</h2>
+        </div>
+        <div class="faq">
+          <div class="faq__list" data-home-faq data-faq></div>
+          <a href="faqs.html" class="link-more faq__more">
+            View All FAQs
+            <span class="link-more__icon ico ico-20" data-ico="arrow-right-02-round"></span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <div id="site-footer"></div>
+
+    <script>
+      /* -------------------------------------------------------------------
+         Home page content.
+
+         Collections, blog posts and the FAQ list live here because they are
+         page copy rather than catalogue data — the product rails read from
+         the shared catalogue in scripts.js instead, so a price shown here
+         can never disagree with the same product on the shop grid.
+         ------------------------------------------------------------------- */
+      document.addEventListener("DOMContentLoaded", function () {
+        var ic = window.icon || function () { return ""; };
+
+        /* --- Explore Collections ---------------------------------------- */
+        var COLLECTIONS = [
+          ["New In", "images/category-01-linens.webp", "shop-category.html?c=new"],
+          ["Bedding", "images/category-02-bedding.webp", "shop-category.html?c=bedding"],
+          ["Décor & Accessories", "images/category-03-decor.webp", "shop-category.html?c=decor"],
+          ["Towels", "images/category-04-towels.webp", "shop-category.html?c=towels"],
+          ["Household", "images/category-05-table-linen.webp", "shop-category.html?c=household"],
+        ];
+        var cmount = document.querySelector("[data-collections]");
+        if (cmount) {
+          cmount.innerHTML = COLLECTIONS.map(function (c) {
+            return (
+              '<a class="ccard" href="' + c[2] + '">' +
+              '<span class="ccard__media"><img src="' + c[1] + '" alt="' + c[0] + '" loading="lazy" /></span>' +
+              '<span class="ccard__row"><span class="ccard__label">' + c[0] + "</span>" +
+              '<span class="ccard__go ico ico-18">' + ic("arrow-right-02-sharp") + "</span></span></a>"
+            );
+          }).join("");
+        }
+
+        /* --- Our Blog ---------------------------------------------------- */
+        var POSTS = [
+          ["5 Tips to Elevate Your Everyday Style", "15 Feb 2026", "images/blog-post-03-cotton-field.webp"],
+          ["BRANDROOM New Collaboration", "15 Feb 2026", "images/blog-post-01-showroom.webp"],
+          ["Our New Store Is Now Open in Madinaty", "15 Feb 2026", "images/blog-post-02-trade-show.webp"],
+          ["How to Build a Bed That Lasts", "15 Feb 2026", "images/blog-post-03-cotton-field.webp"],
+        ];
+        var bmount = document.querySelector("[data-blograil]");
+        if (bmount) {
+          bmount.innerHTML = POSTS.map(function (p) {
+            return (
+              '<a class="bcard" href="blog.html">' +
+              '<span class="bcard__media"><img src="' + p[2] + '" alt="' + p[0] + '" loading="lazy" /></span>' +
+              '<span class="bcard__title">' + p[0] + "</span>" +
+              '<span class="bcard__date">' + p[1] + "</span></a>"
+            );
+          }).join("");
+        }
+
+        /* --- FAQ. Item 2 opens by default, as it does in the design. ------ */
+        var FAQS = [
+          ["Can I return or exchange an item?",
+           "Yes. Unworn, unwashed items in their original packaging can be returned or exchanged within 14 days of delivery. Start it from your account's Orders page, or in any store."],
+          ["Do you offer international shipping?",
+           "Yes, we offer shipping to selected international locations. Shipping options and delivery times will be shown during checkout."],
+          ["How do I choose the right size?",
+           "Every product page carries a size guide with mattress, sheet and duvet-cover measurements. If you are between sizes, go up — a fitted sheet one size large still holds, one size small will pop a corner."],
+          ["Are the products shown exactly as in the photos?",
+           "Yes. Photography is shot in daylight with no colour retouching, so what you see is the cloth. Screens vary slightly, so order a swatch if the exact shade matters."],
+          ["How long does delivery take?",
+           "Two to four working days to most Egyptian addresses, and usually two within Cairo and Giza. Delivery is free on orders above 5,000 EGP."],
+          ["How do I contact customer support?",
+           "Call (+2) 01004733588, email info@percaal.com, or use the contact form. We answer within one working day."],
+        ];
+        var fmount = document.querySelector("[data-home-faq]");
+        if (fmount) {
+          fmount.innerHTML = FAQS.map(function (f, i) {
+            var open = i === 1;
+            return (
+              '<div class="faq__item' + (open ? " is-open" : "") + '">' +
+              '<button type="button" class="faq__q" aria-expanded="' + open + '">' +
+              "<span>" + f[0] + "</span>" +
+              '<span class="faq__sign">' +
+              '<span class="faq__plus ico ico-20">' + ic("plus-sign") + "</span>" +
+              '<span class="faq__minus ico ico-20">' + ic("minus-sign") + "</span>" +
+              "</span></button>" +
+              '<div class="faq__a"><p>' + f[1] + "</p></div></div>"
+            );
+          }).join("");
+
+          /* Toggling is owned by initFaq() in scripts.js — one row open
+             at a time, shared with the FAQ page. */
+        }
+
+        /* --- Inline every icon declared with data-ico -------------------- */
+        document.querySelectorAll("[data-ico]").forEach(function (el) {
+          el.innerHTML = ic(el.getAttribute("data-ico"));
+        });
+
+        if (window.kInit) window.kInit(document);
+      });
+    </script>
+  </body>
+</html>
