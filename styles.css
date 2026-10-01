@@ -7598,73 +7598,15 @@ a.ord-status__card:hover {
 }
 
 /* =====================================================================
-   LOADER + ARRIVAL
-
-   A curtain in offwhite with the mark, held just long enough for the
-   fonts and the hero poster to be ready, then lifted. The header and hero
-   are choreographed to arrive as the curtain leaves, so the first thing a
-   visitor sees is a page settling into place rather than snapping in.
-
-   Sequence (first visit in a session):
-     0ms     curtain up · logo breathes in (600ms) · hairline draws (1100ms)
-     ≥1100   assets ready → curtain lifts (700ms, sharp in / soft out)
-     +150    body.is-ready → header strips settle (0/80/160ms)
-             hero title / sub / CTA rise (260/360/460ms) · tile scales (560ms)
-   Repeat visits skip the hold and just cross-fade the curtain in 350ms —
-   navigation between pages should feel seamless, not gated.
-
-   The loader markup is the first child of <body> on every page, and the
-   body carries .is-loading from the HTML, so the curtain paints with the
-   very first frame — styles.css is render-blocking, so there is no flash
-   of unstyled page before scripts.js runs.
+   ARRIVAL
+   The header and hero settle into place on load rather than snapping in.
+   The body carries .is-loading from the HTML; initArrival() in scripts.js
+   swaps it for .is-ready once the first frame has painted.
+     header strips settle (0/80/160ms)
+     hero title / sub / CTA rise (260/360/460ms) · tile scales (560ms)
+   Only the header and the hero's copy are held back; the hero picture
+   paints at once, so the largest element on screen is never delayed.
    ===================================================================== */
-.loader {
-  position: fixed;
-  inset: 0;
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: var(--offwhite);
-  transform: translate3d(0, 0, 0);
-  transition: transform 0.7s cubic-bezier(0.76, 0, 0.24, 1);
-}
-.loader__inner {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 22px;
-}
-.loader__logo {
-  width: 168px;
-  height: auto;
-  opacity: 0;
-  transform: translateY(6px);
-  animation: loaderLogo 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.1s forwards;
-}
-.loader__line {
-  width: 168px;
-  height: 1px;
-  background: var(--warm-brown);
-  transform: scaleX(0);
-  transform-origin: left center;
-  animation: loaderLine 1.1s cubic-bezier(0.65, 0, 0.35, 1) 0.25s forwards;
-}
-@keyframes loaderLogo {
-  to { opacity: 1; transform: none; }
-}
-@keyframes loaderLine {
-  to { transform: scaleX(1); }
-}
-/* Exit: the curtain lifts off the top. */
-.loader.is-done { transform: translate3d(0, -100%, 0); }
-/* Repeat visits: no hold, just a cross-fade. */
-.loader--quick { transition: opacity 0.35s ease; }
-.loader--quick .loader__logo,
-.loader--quick .loader__line { animation: none; opacity: 1; transform: none; }
-.loader--quick.is-done { transform: none; opacity: 0; }
-
-body.is-loading { overflow: hidden; }
 
 /* --- Arrival: header strips ------------------------------------------ */
 body.is-loading .site-header > * {
@@ -7718,9 +7660,6 @@ body.is-leaving .site-footer {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .loader { transition: opacity 0.2s ease; }
-  .loader.is-done { transform: none; opacity: 0; }
-  .loader__logo, .loader__line { animation: none; opacity: 1; transform: none; }
   body.is-loading .site-header > *,
   body.is-loading .hero__title,
   body.is-loading .hero__sub,

@@ -5129,7 +5129,7 @@
       .forEach((sec) => {
         if (sec.hasAttribute("data-reveal") || sec.querySelector("[data-reveal]")) return;
         if (sec.querySelector('[class*="sticky"]')) return;
-        /* The hero arrives with the loader (see initLoader), not on scroll. */
+        /* The hero has its own arrival (see initArrival), not on scroll. */
         if (sec.classList.contains("hero")) return;
         sec.setAttribute("data-reveal", "");
       });
@@ -5997,81 +5997,25 @@
      Boot
      --------------------------------------------------------------- */
   /* ---------------------------------------------------------------
-     LOADER — see the LOADER + ARRIVAL block in styles.css.
+     ARRIVAL — see the ARRIVAL block in styles.css.
 
-     Holds the curtain until fonts and the hero poster are in (so the
-     header does not reflow after it appears), for at least MIN_HOLD so
-     the logo sequence is never cut off, and never past MAX_HOLD so a slow
-     font CDN cannot gate the page. Repeat visits in the same session use
-     the quick cross-fade instead of the full hold.
+     The body carries .is-loading from the HTML; swapping it for
+     .is-ready once the first frame has painted plays the header and
+     hero entrance. Nothing is waited on — no fonts, no images — so the
+     page shows as soon as it can draw. (A full-screen loader used to
+     hold the first page of each visit behind a curtain for 1.1–2.6s;
+     it was removed so visitors see and can use the page at once.)
      --------------------------------------------------------------- */
-  function initLoader() {
-    const loader = document.querySelector("[data-loader]");
+  function initArrival() {
     const body = document.body;
-    if (!loader) {
-      body.classList.remove("is-loading");
-      body.classList.add("is-ready");
-      return;
-    }
-
-    const reduce =
-      window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    let seen = false;
-    try {
-      seen = sessionStorage.getItem("percaal-loaded") === "1";
-      sessionStorage.setItem("percaal-loaded", "1");
-    } catch (e) {
-      /* storage unavailable — treat every load as the first */
-    }
-    const quick = seen || reduce;
-    if (quick) loader.classList.add("loader--quick");
-
-    const MIN_HOLD = quick ? 0 : 1100;
-    const MAX_HOLD = 2600;
-    const started = performance.now();
-
-    const ready = Promise.race([
-      Promise.all([
-        document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve(),
-        new Promise((res) => {
-          if (document.readyState === "complete") res();
-          else window.addEventListener("load", res, { once: true });
-        }),
-        /* The hero poster / first image, so the fold does not pop in after
-           the curtain has gone. Resolves immediately when there is none. */
-        new Promise((res) => {
-          const hero = document.querySelector(".hero__media video, .hero__media img, main img");
-          if (!hero) return res();
-          if (hero.tagName === "VIDEO") {
-            const poster = hero.getAttribute("poster");
-            if (!poster) return res();
-            const im = new Image();
-            im.onload = im.onerror = res;
-            im.src = poster;
-          } else if (hero.complete) res();
-          else hero.addEventListener("load", res, { once: true }), hero.addEventListener("error", res, { once: true });
-        }),
-      ]),
-      new Promise((res) => setTimeout(res, MAX_HOLD)),
-    ]);
-
-    ready.then(() => {
-      const wait = Math.max(0, MIN_HOLD - (performance.now() - started));
-      setTimeout(() => {
-        loader.classList.add("is-done");
-        /* Start the arrival a beat into the lift, so the header is already
-           settling as the curtain clears it. */
-        setTimeout(() => {
-          body.classList.remove("is-loading");
-          body.classList.add("is-ready");
-          const tile = document.querySelector(".featured");
-          if (tile) setTimeout(() => tile.classList.add("is-arrived"), 1000);
-        }, quick ? 0 : 150);
-        const gone = () => loader.remove();
-        loader.addEventListener("transitionend", gone, { once: true });
-        setTimeout(gone, 1200); /* belt and braces if transitionend never fires */
-      }, wait);
-    });
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => {
+        body.classList.remove("is-loading");
+        body.classList.add("is-ready");
+        const tile = document.querySelector(".featured");
+        if (tile) setTimeout(() => tile.classList.add("is-arrived"), 1000);
+      })
+    );
   }
 
   /* Soft exit on internal navigation, so a click reads as the page
@@ -6382,7 +6326,7 @@
   }
 
   function boot() {
-    initLoader();
+    initArrival();
     const header = document.getElementById("site-header");
     const footer = document.getElementById("site-footer");
     const acct = document.getElementById("account-menu");
