@@ -26,9 +26,9 @@
     <!-- Shared header is injected here by scripts.js -->
     <div id="site-header"></div>
 
-    <main class="overflow-x-clip bg-gray-100">
+    <main class="overflow-x-clip acct-page">
       <!-- Account layout: two-column grid (sidebar collapses above content on mobile) -->
-      <div class="flex lg:flex-row flex-col items-start gap-7 md:gap-10 mx-auto px-4 py-10 md:py-20 max-w-[1392px]">
+      <div class="flex lg:flex-row flex-col items-start gap-7 md:gap-8 container-design py-10 md:py-20">
         <!-- ============================ ACCOUNT SIDEBAR ============================ -->
         <!-- ============================ MOBILE ACCOUNT NAV (pills) ============================ -->
         <!-- Shared account rail (Figma 159:8116), injected by
@@ -37,167 +37,71 @@
         <div id="account-menu" data-active="points" class="w-full lg:w-[384px] shrink-0"></div>
 
         <!-- ============================ ACCOUNT CONTENT ============================ -->
-        <div class="w-full lg:w-[calc(75%-36px)]">
-          <nav class="mb-6 flex items-center gap-2 text-sm text-gray-700" aria-label="Breadcrumb">
-            <a href="my-account.html" class="hover:text-primaryDark">My Account</a>
-            <span>/</span>
-            <span class="font-medium text-textSecondary">Points</span>
-          </nav>
-
-          <div class="flex flex-col gap-5 md:gap-7">
-            <!-- Page header -->
-            <div class="flex flex-wrap items-center justify-between gap-4">
-              <div class="flex items-center gap-2.5">
-                <h1 class="text-[28px] font-semibold capitalize leading-[50px] text-textSecondary">My Points</h1>
-              </div>
-              <!-- Redeem CTA — sits opposite the headline (parent is justify-between) -->
-              <button type="button" data-open="redeem" class="btn btn--black btn--md flex items-center gap-2 text-nowrap">
-                <svg viewBox="0 0 24 24" fill="none" class="h-4 w-4 md:h-5 md:w-5"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7ZM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7Z" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-                Redeem Points
-              </button>
-            </div>
-
-            <!-- Points summary card (dark StyledCard) with progress + redeem -->
-            <section>
-              <div class="rounded border border-gray-300 bg-primary-200 px-5 py-6 md:px-8">
-                <div class="flex flex-col items-start justify-between gap-2 xl:flex-row xl:items-center xl:gap-[37px]">
-                  <div class="flex w-full flex-col items-start gap-2 xl:flex-row xl:items-center">
-                    <span class="h-[80px] w-[80px] shrink-0">
-                      <img src="icons/coins-01.svg" alt="Points" width="80" height="80" class="object-contain" />
-                    </span>
-                    <div class="flex w-full flex-col gap-2">
-                      <div class="flex items-center gap-2">
-                        <h3 class="text-sm font-semibold text-primaryColor md:text-xl">Available Points</h3>
-                      </div>
-                      <div class="flex w-full flex-col gap-1.5">
-                        <span class="my-2 text-[32px] font-semibold text-primaryDark"><span data-points-balance>3,200</span> points</span>
-                        <!-- progress toward the next tier -->
-                        <div class="h-2.5 w-full overflow-hidden rounded-full bg-white">
-                          <div class="h-full rounded-full bg-primaryDark" style="width: 80%"></div>
-                        </div>
-                        <div class="text-end text-sm font-medium text-primaryColor">800 points to Platinum</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </section>
-
-            <!-- Membership tiers overview -->
-            <section class="flex flex-col gap-4">
-              <h2 class="text-xl font-medium text-textSecondary md:text-[18px]">Membership Tiers</h2>
-              <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
-                <div class="flex items-center gap-3 rounded border-2 border-gray-300 bg-white p-4">
-                  <span data-tier-badge="silver"></span>
-                  <span class="text-sm text-gray-700">0 – 1,999 pts</span>
-                </div>
-                <div class="flex items-center gap-3 rounded border-2 border-primaryColor bg-white p-4 ring-2 ring-primaryColor/30">
-                  <span data-tier-badge="golden"></span>
-                  <span class="text-sm font-medium text-textSecondary">2,000 – 3,999 pts</span>
-                </div>
-                <div class="flex items-center gap-3 rounded border-2 border-gray-300 bg-white p-4">
-                  <span data-tier-badge="platinum"></span>
-                  <span class="text-sm text-gray-700">4,000+ pts</span>
-                </div>
-              </div>
-            </section>
-
-            <!-- How to earn points (PointsGuide) -->
-            <section class="flex flex-col gap-4">
-              <h2 class="text-xl font-medium text-textSecondary md:text-[18px]">How to Earn Points</h2>
-              <!-- Earn-points cards: illustration, name, then the value as a
-                   pink pill. Add .is-earned to a card the customer has already
-                   collected — it greys out and takes a green tick. -->
-              <div class="grid grid-cols-2 gap-3 md:grid-cols-4 md:gap-4">
-                <div class="earn-card is-earned">
-                  <span class="earn-card__art">
-                    <img src="icons/user.svg" alt="" width="110" height="110" />
-                    <span class="earn-card__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-                    <span class="sr-only">Already earned</span>
-                  </span>
-                  <h4 class="earn-card__title">Create Account</h4>
-                  <span class="earn-card__pill">50 Points</span>
-                </div>
-                <div class="earn-card">
-                  <span class="earn-card__art"><img src="icons/scooter-02.svg" alt="" width="110" height="110" /></span>
-                  <h4 class="earn-card__title">Purchase</h4>
-                  <span class="earn-card__pill">1 Point / 10 EGP</span>
-                </div>
-                <div class="earn-card">
-                  <span class="earn-card__art"><img src="icons/gift-card.svg" alt="" width="110" height="110" /></span>
-                  <h4 class="earn-card__title">Birthday Gift</h4>
-                  <span class="earn-card__pill">100 Points</span>
-                </div>
-                <div class="earn-card">
-                  <h4 class="earn-card__title">Refer Friends</h4>
-                  <span class="earn-card__pill">50 Points</span>
-                </div>
-              </div>
-            </section>
-
-            <!-- Redeem section (mirrors the redemption success screen) -->
-            <section>
-              <div class="flex flex-col items-center gap-6 rounded border border-gray-300 bg-white px-5 py-8 text-center md:flex-row md:gap-8 md:px-8 md:text-start">
-                <div class="flex flex-col items-center gap-3 md:items-start">
-                  <h2 class="text-xl font-semibold text-textSecondary md:text-2xl">Turn Points Into Wallet Credit</h2>
-                  <p class="max-w-[520px] text-sm text-gray-700 md:text-base">You are going to redeem <span class="font-semibold text-textSecondary"><span data-points-balance>3,200</span> points</span> to your wallet, with an estimated value of <span class="font-semibold text-success" data-points-egp>EGP 160.00</span>. Credit is applied instantly and can be used at checkout.</p>
-                </div>
-              </div>
-            </section>
-
-            <!-- Points history -->
-            <section>
-              <div class="rounded border border-gray-300 bg-white px-5 py-6 md:px-8">
-                <div class="overflow-auto styled-scrollbar">
-                  <table class="w-full border-collapse">
-                    <thead class="border-b border-beige-500">
-                      <tr><th colspan="4" class="text-start"><h2 class="mb-4 whitespace-nowrap text-xl font-medium md:text-[18px] xl:mb-[22px]">Points History</h2></th></tr>
-                    </thead>
-                    <thead class="border-b border-beige-500">
-                      <tr>
-                        <th class="whitespace-nowrap p-4 text-start font-bold text-textSecondary md:text-base">Points</th>
-                        <th class="whitespace-nowrap p-4 text-start font-bold text-textSecondary md:text-base">Date</th>
-                        <th class="whitespace-nowrap p-4 text-start font-bold text-textSecondary md:text-base">Reason</th>
-                        <th class="whitespace-nowrap p-4 text-start font-bold text-textSecondary md:text-base">Total points</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td class="flex items-center gap-2 whitespace-nowrap p-4 text-sm font-medium text-success xl:gap-3"><span class="h-3 w-3 md:h-4 md:w-4"><svg viewBox="0 0 24 24" fill="none" class="w-full"><path d="M12 19V5M6 11l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>+320</span></td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">28 Jun 2026</td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">Order #10482</td>
-                        <td class="whitespace-nowrap p-4 text-sm font-semibold text-primaryDark md:text-lg">3,200 pts</td>
-                      </tr>
-                      <tr>
-                        <td class="flex items-center gap-2 whitespace-nowrap p-4 text-sm font-medium text-cardbadgecolor xl:gap-3"><span class="h-3 w-3 md:h-4 md:w-4"><svg viewBox="0 0 24 24" fill="none" class="w-full"><path d="M12 5v14M6 13l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>-3,000</span></td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">21 Jun 2026</td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">Redeemed to wallet</td>
-                        <td class="whitespace-nowrap p-4 text-sm font-semibold text-primaryDark md:text-lg">2,880 pts</td>
-                      </tr>
-                      <tr>
-                        <td class="flex items-center gap-2 whitespace-nowrap p-4 text-sm font-medium text-success xl:gap-3"><span class="h-3 w-3 md:h-4 md:w-4"><svg viewBox="0 0 24 24" fill="none" class="w-full"><path d="M12 19V5M6 11l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>+100</span></td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">12 Jun 2026</td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">Referred a friend</td>
-                        <td class="whitespace-nowrap p-4 text-sm font-semibold text-primaryDark md:text-lg">5,880 pts</td>
-                      </tr>
-                      <tr>
-                        <td class="flex items-center gap-2 whitespace-nowrap p-4 text-sm font-medium text-success xl:gap-3"><span class="h-3 w-3 md:h-4 md:w-4"><svg viewBox="0 0 24 24" fill="none" class="w-full"><path d="M12 19V5M6 11l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>+260</span></td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">05 Jun 2026</td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">Order #10318</td>
-                        <td class="whitespace-nowrap p-4 text-sm font-semibold text-primaryDark md:text-lg">5,780 pts</td>
-                      </tr>
-                      <tr>
-                        <td class="flex items-center gap-2 whitespace-nowrap p-4 text-sm font-medium text-success xl:gap-3"><span class="h-3 w-3 md:h-4 md:w-4"><svg viewBox="0 0 24 24" fill="none" class="w-full"><path d="M12 19V5M6 11l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>+500</span></td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">01 May 2026</td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">Welcome bonus</td>
-                        <td class="whitespace-nowrap p-4 text-sm font-semibold text-primaryDark md:text-lg">5,520 pts</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </section>
+        <!-- Points panel — Figma 260:16087 (phone) / 163:5428 (desktop).
+             One markup, two arrangements (see "MY POINTS" in styles.css):
+             phones stack head, card, Redeem, history; desktop puts Redeem
+             on the title row and lays the history out as a table. -->
+        <div class="w-full min-w-0 lg:flex-1 pts">
+          <div class="acct-head">
+            <nav class="acct-crumb" aria-label="Breadcrumb">
+              <a href="index.html">Home</a>
+              <span class="ico" data-ico="arrow-right-01-sharp" aria-hidden="true"></span>
+              <span class="acct-crumb__here" aria-current="page">My Points</span>
+            </nav>
+            <h1 class="acct-title">My Points</h1>
           </div>
+
+          <!-- Balance, progress to the next tier, lifetime total -->
+          <section class="pts-card" aria-label="Your points">
+            <div class="pts-card__top">
+              <span class="pts-card__icon"><span class="ico ico-line" data-ico="coins-01" aria-hidden="true"></span></span>
+              <div>
+                <p class="pts-card__label">Available Points</p>
+                <p class="pts-card__value"><span data-points-balance>8,320</span> Points</p>
+              </div>
+            </div>
+            <div class="pts-card__bar" role="progressbar" aria-label="Progress to Platinum" aria-valuemin="0" aria-valuemax="100" aria-valuenow="80">
+              <span style="width: 80%"></span>
+            </div>
+            <div class="pts-card__meta">
+              <p class="pts-card__line pts-card__line--next">800 Points to Platinum</p>
+              <p class="pts-card__line pts-card__line--life">Lifetime Points <span class="pts-card__chip">25,840 Points</span></p>
+            </div>
+          </section>
+
+          <button type="button" data-open="redeem" class="pts-redeem">
+            <span class="ico ico-line" data-ico="exchange-01" aria-hidden="true"></span>
+            Redeem Points
+          </button>
+
+          <!-- History: amount in or out, date and reason, running total -->
+          <section class="pts-history" aria-labelledby="pts-history-title">
+            <h2 class="pts-history__title" id="pts-history-title">Points History</h2>
+            <ul class="pts-history__list">
+              <!-- Column heads: shown on desktop, where the rows form a table. -->
+              <li class="pts-row pts-row--head" aria-hidden="true">
+                <span>Points</span><span>Date</span><span>Reason</span><span>Total</span>
+              </li>
+              <li class="pts-row pts-row--out">
+                <span class="pts-row__amount"><span class="ico ico-line" data-ico="minus-sign" aria-hidden="true"></span>1,500 Points</span>
+                <span class="pts-row__date">March 28, 2025</span>
+                <span class="pts-row__reason">Redeemed</span>
+                <span class="pts-row__total"><span class="pts-row__total-label">Total</span>5,000 Points</span>
+              </li>
+              <li class="pts-row pts-row--in">
+                <span class="pts-row__amount"><span class="ico ico-line" data-ico="plus-sign" aria-hidden="true"></span>500 Points</span>
+                <span class="pts-row__date">March 28, 2025</span>
+                <span class="pts-row__reason">Order #8469353</span>
+                <span class="pts-row__total"><span class="pts-row__total-label">Total</span>6,500 Points</span>
+              </li>
+              <li class="pts-row pts-row--out">
+                <span class="pts-row__amount"><span class="ico ico-line" data-ico="minus-sign" aria-hidden="true"></span>1,500 Points</span>
+                <span class="pts-row__date">March 28, 2025</span>
+                <span class="pts-row__reason">Redeemed</span>
+                <span class="pts-row__total"><span class="pts-row__total-label">Total</span>7,000 Points</span>
+              </li>
+            </ul>
+          </section>
         </div>
       </div>
     </main>
@@ -216,14 +120,14 @@
             <p class="text-xs text-gray-500">Turn your points into wallet credit.</p>
           </div>
           <button type="button" data-close aria-label="Close" class="grid h-8 w-8 place-items-center rounded-full text-textSecondary hover:bg-neutral-100">
-            <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+            <span class="ico ico-line h-[18px] w-[18px]" data-ico="cancel-01" aria-hidden="true"></span>
           </button>
         </div>
 
         <div class="flex flex-col gap-3 px-5 py-5">
           <span class="redeem-balance self-start">
-            <img src="icons/coins-01.svg" alt="" />
-            <span data-redeem-balance>3,200</span> Points
+            <span class="ico ico-line" data-ico="coins-01" aria-hidden="true"></span>
+            <span data-redeem-balance>8,320</span> Points
           </span>
 
           <label class="redeem-field">
@@ -255,7 +159,7 @@
         if (!modal) return;
         const POINTS_PER_EGP = 20;
         /* live for the session: redeeming moves value from one to the other */
-        const state = { balance: 3200, wallet: 1500 };
+        const state = { balance: 8320, wallet: 1500 };
         const input = modal.querySelector("[data-redeem-input]");
         const valueEl = modal.querySelector("[data-redeem-value]");
         const errEl = modal.querySelector("[data-redeem-error]");

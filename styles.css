@@ -15,8 +15,9 @@
      circles in the system are the cart badge and the carousel dots.
      Almost every label carries +1px letter-spacing and is set uppercase.
 
-   Layout is a fixed 1512px design width with 60px gutters, so
-   `.container-design` is the canonical page wrapper.
+   Layout is fluid: content spans the full width inside the side gutter
+   (--gutter), which grows on wide screens. `.container-design` is the
+   canonical page wrapper. See LAYOUT below.
    ===================================================================== */
 
 /* Adamina has a single weight (400) by design — the style guide only ever
@@ -63,8 +64,10 @@
   --gray-10: #e5e5e5; /* the rule inside account cards */
   --gray-05: #f6f5f3;
 
-  /* Layout */
-  --page-w: 1512px;
+  /* Layout. --page-w is the content cap; 100% means no cap, so every
+     section runs gutter to gutter at any width instead of centring a
+     1512px column with empty margins beside it. */
+  --page-w: 100%;
   --gutter: 60px;
   --track: 1px;
 
@@ -118,16 +121,13 @@ body {
 
 /* --- ported from globals.css @layer utilities ---------------------- */
 
+/* Kept in step with the Tailwind container (tw-config.js) and
+   .container-design: full width, padded by the site gutter. */
 .container {
   margin-inline: auto;
-  padding-inline: 1rem;
+  padding-inline: var(--gutter);
   width: 100%;
-  max-width: 1400px;
-}
-@media (min-width: 768px) {
-  .container {
-    padding-inline: 3.5rem;
-  }
+  max-width: var(--page-w);
 }
 
 .disabled:not(label) {
@@ -155,7 +155,9 @@ label:has(input[type="checkbox"]) {
 }
 
 .corporate-container {
-  background: linear-gradient(180deg, #E4F5F4 0%, #fbfaf8 30.03%);
+  /* Percaal off-white — the template's mint-to-cream gradient was a
+     leftover from another brand. */
+  background: var(--offwhite);
   padding-top: 3.5rem;
   padding-bottom: 5rem;
 }
@@ -569,6 +571,193 @@ select {
   transform: translateX(110%);
 }
 
+/* ---------------------------------------------------------------------
+   MENU — Figma 246:17978. A full-screen sheet on the paper ground that
+   drops down from the top. Bar (× · logo), a row of shortcut icons split
+   by hairlines, the collections in uppercase ink, a divider, then the
+   secondary pages smaller and lighter. Rows are 40–44px tall for the
+   finger, and fade in one after another as the sheet opens.
+   --------------------------------------------------------------------- */
+.side-drawer.menu-sheet,
+[dir="rtl"] .side-drawer.menu-sheet {
+  top: var(--sheet-top, 0px);
+  bottom: auto;
+  inset-inline: 0;
+  width: 100%;
+  max-width: none;
+  height: calc(100dvh - var(--sheet-top, 0px));
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--gray-05);
+  /* It unrolls downward from the header row, which stays where it is. */
+  transform: none;
+  clip-path: inset(0 0 100% 0);
+  visibility: hidden;
+  transition:
+    clip-path 0.45s cubic-bezier(0.2, 0.7, 0.25, 1),
+    visibility 0s linear 0.45s;
+}
+.side-drawer.menu-sheet.is-open,
+[dir="rtl"] .side-drawer.menu-sheet.is-open {
+  clip-path: inset(0 0 0 0);
+  visibility: visible;
+  transition:
+    clip-path 0.45s cubic-bezier(0.2, 0.7, 0.25, 1),
+    visibility 0s;
+}
+
+/* The sheet covers the page itself, so the dimming backdrop stays off —
+   otherwise it would darken the header row the sheet is unrolling from. */
+body:has(.menu-sheet.is-open) .overlay-backdrop { opacity: 0; }
+
+/* The bar copies the header row: same height and ground, with the toggle
+   and logo at the measured spots of the header's menu icon and logo. */
+.menu-sheet__bar {
+  position: relative;
+  flex: none;
+  height: var(--bar-h, 56px);
+  background: var(--offwhite);
+}
+.menu-sheet__logo {
+  position: absolute;
+  left: var(--logo-x, 50%);
+  top: var(--logo-y, 15px);
+  display: inline-flex;
+}
+.menu-sheet__toggle {
+  position: absolute;
+  left: var(--tog-x, 8px);
+  top: var(--tog-y, 8px);
+  display: grid;
+  place-items: center;
+  width: var(--tog-s, 40px);
+  height: var(--tog-s, 40px);
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--black);
+  cursor: pointer;
+}
+.menu-sheet__toggle svg { width: 20px; height: 20px; overflow: visible; }
+/* Three lines drawn exactly like the menu icon (menu-02: 12, 16 and 8
+   units long, left-aligned at x 4, on y 5 / 12 / 19), which turn into the
+   × (cancel-01: corner to corner, 5 → 19) when the sheet is open. Each is
+   one 20-unit line centred on (12,12), placed by transform, so the two
+   states interpolate smoothly. */
+.menu-sheet__line {
+  stroke: currentColor;
+  stroke-width: 1.5;
+  stroke-linecap: round;
+  transform-origin: 12px 12px;
+  transition: transform 0.4s cubic-bezier(0.6, 0, 0.2, 1), opacity 0.25s ease;
+}
+.menu-sheet__line--1 { transform: translate(-2px, -7px) rotate(0deg) scaleX(0.6); }
+.menu-sheet__line--2 { transform: translate(0, 0) rotate(0deg) scaleX(0.8); }
+.menu-sheet__line--3 { transform: translate(-4px, 7px) rotate(0deg) scaleX(0.4); }
+.menu-sheet.is-open .menu-sheet__line { transition-delay: 0.08s; }
+.menu-sheet.is-open .menu-sheet__line--1 { transform: translate(0, 0) rotate(45deg) scaleX(0.99); }
+.menu-sheet.is-open .menu-sheet__line--2 { transform: translate(0, 0) rotate(0deg) scaleX(0); opacity: 0; }
+.menu-sheet.is-open .menu-sheet__line--3 { transform: translate(0, 0) rotate(-45deg) scaleX(0.99); }
+.menu-sheet__icon {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--black);
+  cursor: pointer;
+}
+.menu-sheet__icon .ico-20,
+.menu-sheet__icon .ico-20 svg { width: 18px; height: 18px; }
+.menu-sheet__icon .ico-24,
+.menu-sheet__icon .ico-24 svg { width: 24px; height: 24px; }
+.menu-sheet .hdr-bag__count {
+  top: 4px;
+  inset-inline-start: 26px;
+  min-width: 16px;
+  height: 16px;
+  padding-inline: 3px;
+  font-size: 10px;
+}
+
+/* Shortcut row, spread across the gutter with hairline separators. */
+.menu-sheet__shortcuts {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4px var(--gutter) 0;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--gray-2);
+}
+.menu-sheet__rule { width: 1px; height: 20px; background: var(--gray-3); }
+.menu-sheet__currency {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--font-body);
+  font-size: 14px;
+  letter-spacing: 1px;
+  color: var(--black);
+  cursor: pointer;
+}
+.menu-sheet__currency .ico,
+.menu-sheet__currency svg { width: 16px; height: 16px; }
+
+/* Lists */
+.menu-sheet__nav { padding: 8px var(--gutter) 40px; }
+.menu-sheet__cats,
+.menu-sheet__pages { margin: 0; padding: 0; list-style: none; }
+.menu-sheet__cats a,
+.menu-sheet__pages a {
+  display: block;
+  font-family: var(--font-body);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  transition: color 0.2s ease;
+}
+.menu-sheet__cats a {
+  padding: 12px 0;
+  font-size: 15px;
+  line-height: 20px;
+  color: var(--black);
+}
+.menu-sheet__pages {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--gray-2);
+}
+.menu-sheet__pages a {
+  padding: 11px 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--gray-6);
+}
+.menu-sheet__cats a:hover,
+.menu-sheet__pages a:hover { color: var(--warm-brown); }
+
+/* Rows arrive one after another once the sheet has started to drop. */
+.menu-sheet li { opacity: 0; transform: translateY(-6px); }
+.menu-sheet.is-open li {
+  animation: menuRowIn 0.36s cubic-bezier(0.2, 0.7, 0.25, 1) both;
+  animation-delay: calc(140ms + var(--i, 0) * 30ms);
+}
+@keyframes menuRowIn {
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .side-drawer.menu-sheet,
+  .menu-sheet__line { transition: none; }
+  .menu-sheet li,
+  .menu-sheet.is-open li { opacity: 1; transform: none; animation: none; }
+}
+
 /* Cart drawer — Figma 74:2002. Two-column panel: 198px "You May Also
    Like" upsell rail on the left, 500px shopping bag summary on the
    right. Total width matches the design's 732px. The close × floats
@@ -595,13 +784,6 @@ select {
 }
 .cart-drawer__close:hover { opacity: 0.7; }
 .cart-drawer__close svg { width: 22px; height: 22px; }
-@media (max-width: 768px) {
-  .cart-drawer__close {
-    inset-inline-end: auto;
-    inset-inline-start: 16px;
-    color: var(--black);
-  }
-}
 /* Left column — Figma 74:1983. Offwhite ground, 32px padding all round,
    14px DM Sans title, then a 134-wide widget stack with 24px gap. */
 .cart-drawer__aside {
@@ -636,22 +818,29 @@ select {
   gap: 8px;
   width: 134px;
   color: var(--black);
-  transition: opacity 0.2s ease;
 }
-.upsell-card:hover { opacity: 0.75; }
-.upsell-card__media {
-  display: block;
+/* The photo plate. It clips the quick-add menu, which slides up from its
+   bottom edge. */
+.upsell-card__stage {
+  position: relative;
   width: 134px;
   height: 168px;
   overflow: hidden;
   background: var(--gray-1);
+}
+.upsell-card__media {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 .upsell-card__media img {
   width: 100%;
   height: 100%;
   object-fit: cover;
   display: block;
+  transition: transform 0.6s cubic-bezier(0.2, 0.7, 0.25, 1);
 }
+.upsell-card__media:hover img { transform: scale(1.04); }
 .upsell-card__name {
   display: block;
   font-family: var(--font-heading);
@@ -660,7 +849,9 @@ select {
   line-height: 1.25;
   color: #595B61;
   width: 99px;
+  transition: color 0.2s ease;
 }
+.upsell-card__name:hover { color: var(--black); }
 .upsell-card__price {
   display: block;
   font-family: var(--font-body);
@@ -669,6 +860,167 @@ select {
   line-height: 1.3;
   letter-spacing: 0.5px;
   color: #2C2929;
+}
+
+/* Quick add. A small frosted square on the photo's corner; hover turns it
+   ink (darker, never lighter), and after an add it holds a tick for a
+   moment. It steps aside while its menu is open. */
+.upsell-card__add {
+  position: absolute;
+  inset-inline-end: 6px;
+  bottom: 6px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: rgba(255, 255, 255, 0.82);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  color: var(--black);
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+.upsell-card__add svg { width: 16px; height: 16px; }
+.upsell-card__add:hover,
+.upsell-card__add:focus-visible,
+.upsell-card__add.is-done {
+  background: var(--black);
+  color: var(--white);
+  outline: none;
+}
+.upsell-card__add[aria-expanded="true"] { opacity: 0; pointer-events: none; }
+
+/* The option menu. Frosted off-white over the lower part of the photo,
+   one choice per row: label on the left, a quiet detail (dimensions or
+   price) on the right. */
+.qa-panel {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  max-height: 100%;
+  background: rgba(240, 238, 234, 0.86);
+  -webkit-backdrop-filter: blur(12px) saturate(1.2);
+  backdrop-filter: blur(12px) saturate(1.2);
+  visibility: hidden;
+  transform: translateY(100%);
+  transition:
+    transform 0.28s cubic-bezier(0.2, 0.7, 0.25, 1),
+    visibility 0.28s;
+}
+/* Visible at once on open (so its first option can take focus); on close
+   the base rule keeps it visible until the slide-down has finished. */
+.qa-panel.is-open {
+  visibility: visible;
+  transform: none;
+  transition:
+    transform 0.28s cubic-bezier(0.2, 0.7, 0.25, 1),
+    visibility 0s;
+}
+.qa-panel__head {
+  display: flex;
+  align-items: center;
+  flex: none;
+  height: 26px;
+  padding-inline: 8px 2px;
+  border-bottom: 1px solid rgba(44, 41, 41, 0.08);
+}
+.qa-panel__head .qa-panel__icon:first-child { margin-inline-start: -6px; }
+.qa-panel__title {
+  flex: 1;
+  font-family: var(--font-body);
+  font-size: 10px;
+  line-height: 1;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gray-8);
+}
+.qa-panel__icon {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--black);
+  cursor: pointer;
+}
+.qa-panel__icon svg { width: 14px; height: 14px; }
+.qa-panel__list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  /* Still scrolls if a product ever has more options than fit, but with
+     no scrollbar: in a 134px menu its gutter would squeeze every row. */
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.qa-panel__list::-webkit-scrollbar { display: none; }
+.qa-opt {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  width: 100%;
+  height: 28px;
+  padding-inline: 8px;
+  border: 0;
+  background: none;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1;
+  color: var(--black);
+  text-align: start;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.qa-opt:hover,
+.qa-opt:focus-visible { background: var(--white); outline: none; }
+.qa-opt__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  white-space: nowrap;
+}
+/* Colour chip. The hairline ring keeps White visible on the pale menu. */
+.qa-opt__swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--sw);
+  box-shadow: inset 0 0 0 1px rgba(44, 41, 41, 0.18);
+}
+/* The option already chosen, when stepping back to a previous step. */
+.qa-opt.is-picked { background: rgba(255, 255, 255, 0.6); }
+/* The detail gives way first if a row is ever too long. */
+.qa-opt__note {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: 11px;
+  font-weight: 400;
+  color: var(--gray-6);
+  white-space: nowrap;
+}
+
+/* A row that quick-add just added or topped up flashes once. */
+.cart-row.is-added { animation: cart-row-added 1.2s ease-out; }
+@keyframes cart-row-added {
+  from { background: var(--gray-1); }
+  to { background: transparent; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .qa-panel { transition: none; }
+  .cart-row.is-added { animation: none; }
 }
 
 .cart-drawer__main {
@@ -850,15 +1202,178 @@ select {
   font-variant-numeric: tabular-nums;
 }
 
+/* ---------------------------------------------------------------------
+   CART ON PHONES — a bottom sheet.
+   The sheet itself scrolls: a sticky header (grab handle, title + count,
+   View Cart, ×), compact bag rows, then "You May Also Like" as a
+   sideways slider, and a sticky footer with the promo field and the two
+   CTAs side by side. .cart-drawer__main steps out of the way
+   (display: contents) so its header, list and footer can sit in one
+   column with the upsell aside slotted between list and footer. Drag the
+   header down to close (initCartSheetDrag).
+   --------------------------------------------------------------------- */
 @media (max-width: 768px) {
-  .side-drawer.cart-drawer { flex-direction: column; }
-  .cart-drawer__aside {
-    order: 2;
+  .side-drawer.cart-drawer,
+  [dir="rtl"] .side-drawer.cart-drawer {
+    top: auto;
+    bottom: 0;
+    inset-inline: 0;
     width: 100%;
-    border-inline-end: 0;
+    max-width: none;
+    max-height: 88dvh;
+    flex-direction: column;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    border-radius: 14px 14px 0 0;
+    transform: translateY(105%);
+    transition: transform 0.36s cubic-bezier(0.2, 0.7, 0.25, 1);
+  }
+  .side-drawer.cart-drawer::-webkit-scrollbar { display: none; }
+  .side-drawer.cart-drawer.is-open,
+  [dir="rtl"] .side-drawer.cart-drawer.is-open { transform: none; }
+  .cart-drawer__main { display: contents; }
+
+  /* Header: sticky, with the grab handle drawn above the title. */
+  .cart-drawer__head {
+    order: 1;
+    position: sticky;
+    top: 0;
+    z-index: 3;
+    align-items: center;
+    padding: 20px 16px 10px;
+    background: var(--white);
+    touch-action: none;
+  }
+  .cart-drawer__head::before {
+    content: "";
+    position: absolute;
+    top: 8px;
+    left: 50%;
+    width: 40px;
+    height: 4px;
+    margin-left: -20px;
+    border-radius: 2px;
+    background: var(--gray-3);
+  }
+  /* Two quiet lines on the left (title + count, then View Cart under
+     it), the × alone on the right. */
+  .cart-drawer__head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    row-gap: 4px;
+  }
+  .cart-drawer__title { grid-column: 1; font-size: 18px; white-space: nowrap; }
+  .cart-drawer__count { font-size: 12px; }
+  .cart-drawer__viewbag {
+    grid-column: 1;
+    justify-self: start;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .cart-drawer__close,
+  [dir="rtl"] .cart-drawer__close {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    position: static;
+    width: 32px;
+    height: 32px;
+    margin-inline-end: -6px;
+    color: var(--black);
+  }
+  .cart-drawer__close svg { width: 18px; height: 18px; }
+
+  /* Bag rows: compact. Thumb, then name / one-line options / price, with
+     the stepper bottom-aligned on the right. */
+  .cart-drawer__list {
+    order: 2;
+    flex: none;
+    overflow: visible;
+    padding: 0 16px 8px;
+  }
+  .cart-drawer__list .cart-row { align-items: stretch; gap: 12px; padding: 12px 0; }
+  .cart-drawer__list .cart-row__thumb { width: 64px; height: 80px; }
+  .cart-drawer__list .cart-row__body { gap: 2px; }
+  .cart-drawer__list .cart-row__name {
+    font-size: 14px;
+    line-height: 1.25;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .cart-drawer__list .cart-row__attrs {
+    display: block;
+    font-size: 11px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .cart-drawer__list .cart-row__price { margin-top: auto; font-size: 13px; }
+  .cart-drawer__list .cart-row__stepper { align-self: flex-end; gap: 2px; padding: 2px 4px; }
+  .cart-drawer__list .cart-row__btn { width: 24px; height: 24px; }
+  .cart-drawer__list .cart-row__qty { min-width: 16px; font-size: 13px; }
+
+  /* You May Also Like: a sideways slider of smaller cards. */
+  .cart-drawer__aside {
+    order: 3;
+    flex: none;
+    width: 100%;
+    align-items: stretch;
+    gap: 12px;
+    padding: 16px 0 20px;
+    overflow: visible;
     border-top: 1px solid var(--gray-2);
   }
-  .cart-drawer__main { order: 1; }
+  .cart-drawer__aside-title { padding-inline: 16px; text-align: start; }
+  .cart-drawer__aside-list {
+    flex-direction: row;
+    gap: 10px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: 16px;
+    padding-inline: 16px;
+    scrollbar-width: none;
+  }
+  .cart-drawer__aside-list::-webkit-scrollbar { display: none; }
+  .cart-drawer__aside .upsell-card { flex: none; width: 120px; scroll-snap-align: start; }
+  .cart-drawer__aside .upsell-card__stage { width: 120px; height: 150px; }
+  .cart-drawer__aside .upsell-card__name { width: auto; }
+
+  /* Footer: sticky at the bottom, promo then the two CTAs in one row,
+     CHECKOUT (primary) on the thumb side. */
+  .cart-drawer__foot {
+    order: 4;
+    position: sticky;
+    bottom: 0;
+    z-index: 3;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 8px;
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    background: var(--white);
+    box-shadow: 0 -6px 16px rgba(44, 41, 41, 0.06);
+  }
+  .cart-drawer__promo { grid-column: 1 / -1; }
+  .cart-drawer__promo .promo__form { height: 44px; }
+  .cart-drawer__promo .promo__success { min-height: 44px; padding-block: 4px; }
+  /* Two buttons share a phone-width row, so the type scales with the
+     viewport (12px at 390, down to 10px at 320) and the labels always fit
+     on one line. */
+  .cart-drawer__checkout,
+  .cart-drawer__continue {
+    height: 52px;
+    padding: 0 8px;
+    font-size: clamp(10px, 3.1vw, 12px);
+    letter-spacing: clamp(0.3px, 0.26vw, 1px);
+  }
+  .cart-drawer__continue { order: 1; }
+  /* On phones CHECKOUT is just the label; the total isn't repeated on
+     the button. */
+  .cart-drawer__checkout { order: 2; justify-content: center; }
+  .cart-drawer__checkout [data-cart-grand] { display: none; }
 }
 
 /* =====================================================================
@@ -897,7 +1412,7 @@ select {
   aspect-ratio: 456 / 570;
 }
 
-.pdp__buy { position: sticky; top: 24px; align-self: start; }
+.pdp__buy { position: sticky; top: calc(var(--sticky-top, 0px) + 24px); align-self: start; }
 
 .pdp__crumb {
   display: flex;
@@ -940,7 +1455,12 @@ select {
   letter-spacing: 1px;
   color: var(--black);
 }
+/* Wishlist heart. Hover draws the outline in the wishlist pink; saving
+   fills it, bounces it and throws eight short lines out from it (the
+   burst is added by the click handler in scripts.js). */
 .pdp__fav {
+  --wish: #ED3156;
+  position: relative;
   display: grid;
   place-items: center;
   width: 34px;
@@ -952,8 +1472,51 @@ select {
   cursor: pointer;
   transition: color 0.2s ease;
 }
-.pdp__fav:hover { color: #85878B; }
-.pdp__fav[aria-pressed="true"] { color: #7B2233; }
+.pdp__fav:hover,
+.pdp__fav[aria-pressed="true"] { color: var(--wish); }
+.pdp__fav path { transition: fill 0.2s ease; }
+.pdp__fav[aria-pressed="true"] path { fill: var(--wish); }
+.pdp__fav.is-saved-anim .ico {
+  animation: wish-bounce 0.55s cubic-bezier(0.3, 0.7, 0.4, 1.5);
+}
+@keyframes wish-bounce {
+  0% { transform: scale(1); }
+  25% { transform: scale(0.72); }
+  60% { transform: scale(1.22); }
+  80% { transform: scale(0.94); }
+  100% { transform: scale(1); }
+}
+/* The burst: eight 2 × 7px strokes on a ring, each turned by its --a,
+   shooting from just outside the 24px heart (14px) to 25px out as they
+   shrink away. */
+.pdp__fav-burst {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.pdp__fav-burst i {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 2px;
+  height: 7px;
+  margin: -3.5px 0 0 -1px;
+  border-radius: 1px;
+  background: var(--wish);
+  opacity: 0;
+  transform: rotate(var(--a)) translateY(-14px);
+}
+.pdp__fav.is-saved-anim .pdp__fav-burst i {
+  animation: wish-burst 0.5s cubic-bezier(0.2, 0.7, 0.3, 1) 0.12s both;
+}
+@keyframes wish-burst {
+  0% { opacity: 1; transform: rotate(var(--a)) translateY(-14px) scaleY(1); }
+  100% { opacity: 0; transform: rotate(var(--a)) translateY(-25px) scaleY(0.3); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pdp__fav.is-saved-anim .ico,
+  .pdp__fav.is-saved-anim .pdp__fav-burst i { animation: none; }
+}
 
 .pdp__rating {
   display: flex;
@@ -1027,6 +1590,30 @@ select {
 }
 .pdp__chip:hover { color: var(--black); border-color: var(--black); }
 .pdp__chip.is-active { color: var(--black); border-color: var(--black); }
+/* One row of equal chips that share the width (fabric). Tighter padding
+   and tracking so the longest label, "200 Thread Count", still fits. */
+.pdp__chips--row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 6px;
+}
+.pdp__chips--row .pdp__chip {
+  height: 32px;
+  padding: 0 8px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+/* Phones: the row is ~360px, so the labels drop a size to stay whole. */
+@media (max-width: 480px) {
+  .pdp__chips--row .pdp__chip {
+    padding: 0 4px;
+    font-size: 11px;
+    letter-spacing: 0;
+  }
+}
 
 .pdp__swatches {
   display: flex;
@@ -1037,7 +1624,7 @@ select {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   padding: 0;
   background: none;
   border: 0;
@@ -1049,7 +1636,9 @@ select {
   height: 28px;
   border-radius: 100px;
   background: var(--sw, #ccc);
-  border: 1px solid transparent;
+  /* A light grey rim on every dot, so White and Ivory don't vanish
+     into the white page. */
+  border: 1px solid var(--gray-2);
   outline: 1px solid transparent;
   outline-offset: 3px;
   transition: outline-color 0.2s ease;
@@ -1059,10 +1648,11 @@ select {
 .pdp__swatch-label {
   font-family: var(--font-body);
   font-weight: 400;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1.3;
-  letter-spacing: 1px;
+  letter-spacing: 0.5px;
   color: #85878B;
+  white-space: nowrap;
 }
 .pdp__swatch.is-active .pdp__swatch-label { color: var(--black); }
 
@@ -1099,22 +1689,37 @@ select {
   color: var(--black);
   font-variant-numeric: tabular-nums;
 }
-.pdp__addtobag {
-  flex: 1 1 auto;
+/* The two CTAs share one type spec. ADD TO BAG is the secondary: an ink
+   outline beside the quantity, filling with ink on hover. BUY NOW is the
+   primary: full width in warm brown, under them. */
+.pdp__addtobag,
+.pdp__buynow {
   height: 58px;
   padding: 0 24px;
-  background: #686156;
-  color: #EEEDEB;
-  border: 0;
   cursor: pointer;
   font-family: var(--font-body);
   font-weight: 500;
   font-size: 16px;
   line-height: 1.3;
   letter-spacing: 2px;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 }
-.pdp__addtobag:hover { background: #57503f; }
+.pdp__addtobag {
+  flex: 1 1 auto;
+  background: var(--white);
+  color: var(--black);
+  border: 1px solid var(--black);
+}
+.pdp__addtobag:hover { background: var(--black); color: var(--white); }
+.pdp__buynow {
+  display: block;
+  width: 100%;
+  margin-top: 12px;
+  background: #686156;
+  color: #EEEDEB;
+  border: 0;
+}
+.pdp__buynow:hover { background: #57503f; }
 
 .pdp__delivery {
   margin: 24px 0 0;
@@ -1131,11 +1736,12 @@ select {
 }
 
 .pdp__fabric-desc {
-  margin: 16px 0 0;
+  margin: 10px 0 0;
   font-family: var(--font-body);
   font-weight: 400;
-  font-size: 14px;
+  font-size: 12px;
   line-height: 1.5;
+  letter-spacing: 0.3px;
   color: #85878B;
 }
 
@@ -1191,6 +1797,41 @@ select {
   color: #85878B;
 }
 .pdp__acc-body .speclist > div > span:last-child { color: var(--black); }
+
+/* Product FAQs — always open under the accordion, headed like its
+   legends. The list is the shared .faq accordion scaled down to the buy
+   box: body-face questions at 14px, hairlines between them, and the
+   answer close under its question. */
+.pdp-faqs { margin-top: 8px; }
+.pdp-faqs__title {
+  margin: 0;
+  padding: 20px 0 6px;
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 18px;
+  line-height: 1.3;
+  color: var(--black);
+}
+.pdp-faq .faq__item { border-bottom: 1px solid var(--gray-2); }
+
+.pdp-faq .faq__q {
+  gap: 16px;
+  padding: 14px 0;
+  font-family: var(--font-body);
+  font-size: 14px;
+  letter-spacing: 0.3px;
+}
+.pdp-faq .faq__item.is-open .faq__q { padding-bottom: 6px; }
+.pdp-faq .faq__sign { width: 16px; height: 16px; color: var(--gray-7); }
+.pdp-faq .faq__item.is-open .faq__a { max-height: 400px; }
+.pdp-faq .faq__a p {
+  padding-bottom: 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  letter-spacing: 0.2px;
+  color: var(--gray-7);
+  max-width: none;
+}
 
 .pdp-related { padding-block: 60px 80px; }
 .pdp-related__inner {
@@ -1540,6 +2181,15 @@ body[data-purchased="true"] .review-gate-hint {
 }
 .tab-panel[hidden] {
   display: none;
+}
+
+/* Set for a moment while the language (and so the direction) changes —
+   see applyLang() — so the switch is instant instead of every logically
+   positioned element sliding to the other side. */
+html.is-switching-lang *,
+html.is-switching-lang *::before,
+html.is-switching-lang *::after {
+  transition: none !important;
 }
 
 /* Header sticky-nav animation (ported keyframe usage) */
@@ -3229,34 +3879,43 @@ blockquote {
 }
 
 /* =================================================================
-   PROMO CODE (.promo) — matched to the motion reference Mark supplied.
-   Resting = ONE bare field with "Apply" as an inline text LINK (no
-   tinted wrapper, no heading, no pill button). On apply the box flashes
-   brand Success green, a light radial wipe expands from the centre,
-   confetti bursts (JS canvas), and the field is REPLACED in place by a
-   success row: green check + code + discount subtitle + × to remove.
-   Both states share one box, so nothing jumps. Wired by initPromo().
+   PROMO CODE (.promo)
+   Resting = ONE box: an offer icon, the bare input (no box of its own,
+   no focus ring of its own; the box shows focus instead) and "Apply" as
+   an inline text link. Applying keeps the same box: its contents fade up
+   and out while it eases to the success tint, then the success row
+   (tick + code + saving + ×) fades in on that tint and the tick pops.
+   Removing reverses it. Confetti fires from JS. Wired by initPromo().
    ================================================================= */
 .promo {
   position: relative;
+  --promo-tint: color-mix(in srgb, var(--success) 9%, var(--white));
+  --promo-line: color-mix(in srgb, var(--success) 40%, var(--white));
 }
 .promo__form {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   height: 52px;
   padding-inline: 14px;
-  background: #ffffff;
-  border: 1px solid #e3e6e5; /* gray-3 */
-  border-radius: var(--radius);
+  background: var(--white);
+  border: 1px solid var(--gray-2);
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color 0.26s ease,
+    background-color 0.26s ease;
 }
-.promo__form:focus-within {
-  border-color: #111A19;
-  box-shadow: 0 0 0 3px rgba(24, 35, 37, 0.06);
+.promo__form:focus-within { border-color: var(--black); }
+.promo__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  color: var(--gray-6);
+  transition: color 0.2s ease;
 }
+.promo__icon svg { width: 22px; height: 22px; }
+.promo__form:focus-within .promo__icon { color: var(--black); }
 /* REQUIRED: the UA's [hidden]{display:none} is specificity 0,1,0 and loses
    to the .promo__form / .promo__success display:flex above, so JS toggling
    .hidden would show BOTH states at once without these.
@@ -3272,49 +3931,70 @@ blockquote {
 .promo__input {
   flex: 1;
   min-width: 0;
+  height: 100%;
+  padding: 0;
   border: 0;
   outline: 0;
   background: transparent;
+  font-family: var(--font-body);
   font-size: 14px;
-  color: #111A19;
+  letter-spacing: 0.5px;
+  color: var(--black);
 }
-.promo__input::placeholder {
-  color: #b4bab9; /* gray-4 */
-}
+/* The box carries the focus state, so the field inside draws none. */
+.promo__input:focus,
+.promo__input:focus-visible { outline: 0; box-shadow: none; }
+.promo__input::placeholder { color: var(--gray-5); }
 /* The "Apply" LINK — a text action, deliberately NOT a .btn: it lives
    inside the field and must not read as a second button competing with
-   the page's one primary CTA. */
+   the CHECKOUT below it. */
 .promo__apply {
   flex: none;
   border: 0;
   padding: 6px 2px;
   background: transparent;
-  font-size: 15px;
+  font-family: var(--font-body);
+  font-size: 14px;
   font-weight: 500;
-  color: #2f918e; /* brand pink — the action accent */
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--black);
   cursor: pointer;
-  transition:
-    opacity 0.2s ease,
-    color 0.2s ease;
+  transition: opacity 0.2s ease;
 }
-.promo__apply:hover:not(:disabled) {
-  text-decoration: underline;
-}
-.promo__apply:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
+.promo__apply:hover:not(:disabled) { text-decoration: underline; text-underline-offset: 3px; }
+.promo__apply:disabled { opacity: 0.3; cursor: default; }
 
-/* Applied state */
+/* Applying: the box eases to the success tint as its contents leave. */
+.promo__form > * { transition: opacity 0.2s ease, transform 0.2s ease; }
+.promo.is-applying .promo__form {
+  background: var(--promo-tint);
+  border-color: var(--promo-line);
+}
+.promo.is-applying .promo__form > * { opacity: 0; transform: translateY(-6px); }
+
+/* Applied state — the same box, on the tint. */
 .promo__success {
   display: flex;
   align-items: center;
   gap: 10px;
   min-height: 52px;
   padding: 8px 14px;
-  background: #e6f3ec; /* light tint of Success #1E7F4F */
-  border: 1px solid rgba(32, 155, 52, 0.35);
-  border-radius: var(--radius);
+  background: var(--promo-tint);
+  border: 1px solid var(--promo-line);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.promo.is-applied .promo__success > * { animation: promoIn 0.34s cubic-bezier(0.2, 0.7, 0.25, 1) both; }
+.promo.is-applied .promo__check { animation: promoTick 0.5s cubic-bezier(0.3, 0.7, 0.4, 1.5) 0.06s both; }
+.promo.is-removing .promo__success { opacity: 0; transform: translateY(-4px); }
+.promo.is-returning .promo__form > * { animation: promoIn 0.3s cubic-bezier(0.2, 0.7, 0.25, 1) both; }
+@keyframes promoIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes promoTick {
+  from { transform: scale(0); }
+  to { transform: scale(1); }
 }
 .promo__check {
   flex: none;
@@ -3323,8 +4003,8 @@ blockquote {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: #1e7f4f; /* brand Success */
-  color: #ffffff;
+  background: var(--success);
+  color: var(--white);
 }
 .promo__check svg {
   width: 15px;
@@ -3341,12 +4021,13 @@ blockquote {
   font-size: 14px;
   font-weight: 600;
   line-height: 1.3;
-  color: #111A19;
+  letter-spacing: 1px;
+  color: var(--black);
 }
 .promo__desc {
-  font-size: 11px;
+  font-size: 12px;
   line-height: 1.3;
-  color: #6b7574;
+  color: var(--gray-7);
 }
 .promo__remove {
   flex: none;
@@ -3355,9 +4036,8 @@ blockquote {
   width: 24px;
   height: 24px;
   border: 0;
-  border-radius: var(--radius);
   background: transparent;
-  color: #8a9291;
+  color: var(--gray-6);
   cursor: pointer;
   transition:
     background-color 0.2s ease,
@@ -3368,59 +4048,27 @@ blockquote {
   height: 14px;
 }
 .promo__remove:hover {
-  background: rgba(32, 155, 52, 0.12);
-  color: #111A19;
+  background: color-mix(in srgb, var(--success) 14%, var(--white));
+  color: var(--black);
 }
-
-/* Green flash + radial wipe. The flash sits ON TOP (z-3) and fades out
-   once the success row is swapped in underneath — both end on #e6f3ec,
-   so the hand-off is seamless. */
-.promo__flash {
-  position: absolute;
-  inset: 0;
-  z-index: 3;
-  overflow: hidden;
-  border-radius: var(--radius);
-  background: #1e7f4f;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.22s ease;
-}
-.promo.is-applying .promo__flash {
-  opacity: 1;
-  transition-duration: 0.1s;
-}
-.promo__wipe {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 130%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: #e6f3ec;
-  transform: translate(-50%, -50%) scale(0);
-}
-.promo.is-applying .promo__wipe {
-  animation: promoWipe 0.44s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-@keyframes promoWipe {
-  from {
-    transform: translate(-50%, -50%) scale(0);
-  }
-  to {
-    transform: translate(-50%, -50%) scale(2.2);
-  }
+@media (prefers-reduced-motion: reduce) {
+  .promo__form,
+  .promo__form > *,
+  .promo__success { transition: none; }
+  .promo.is-applied .promo__success > *,
+  .promo.is-applied .promo__check,
+  .promo.is-returning .promo__form > * { animation: none; }
 }
 
 /* Invalid code */
 .promo.is-invalid .promo__form {
-  border-color: #c4342b; /* brand Error */
+  border-color: var(--error);
   animation: promoShake 0.4s ease;
 }
 .promo__error {
   margin-top: 6px;
   font-size: 12px;
-  color: #c4342b;
+  color: var(--error);
 }
 @keyframes promoShake {
   10%,
@@ -4840,8 +5488,8 @@ a.ord-status__card:hover {
 .earn-card__art {
   position: relative;
   display: block;
-  width: 96px;
-  height: 96px;
+  width: 48px;
+  height: 48px;
 }
 .earn-card__art img {
   width: 100%;
@@ -4904,14 +5552,15 @@ a.ord-status__card:hover {
   gap: 8px;
   padding: 6px 14px 6px 8px;
   border-radius: var(--radius);
-  background: #e4f5f4;
+  background: var(--offwhite);
   color: #111A19;
   font-size: 15px;
   font-weight: 600;
 }
-.redeem-balance img {
-  width: 26px;
-  height: 26px;
+.redeem-balance img,
+.redeem-balance .ico-line {
+  width: 20px;
+  height: 20px;
   object-fit: contain;
 }
 .redeem-field {
@@ -5181,10 +5830,22 @@ a.ord-status__card:hover {
 /* ---------------------------------------------------------------------
    LAYOUT
 
-   The design is drawn at a fixed 1512px with 60px gutters. Below that the
-   gutter shrinks to 20px rather than the content reflowing to a different
-   grid, which is how the mobile frames are drawn.
+   Two rules hold at every width:
+   1. All content lines up with the side gutter, left and right.
+   2. Content fills the width between the gutters. Nothing is capped and
+      centred with empty space beside it.
+
+   The design is drawn at 1512px with 60px gutters. Wider screens get a
+   wider gutter (100px from 1680px, 120px from 1920px) so the page doesn't
+   run edge to edge. Below 1024px the gutter shrinks to 20px, and to 16px
+   on phones, rather than the content reflowing to a different grid.
    --------------------------------------------------------------------- */
+@media (min-width: 1680px) {
+  :root { --gutter: 100px; }
+}
+@media (min-width: 1920px) {
+  :root { --gutter: 120px; }
+}
 .container-design {
   width: 100%;
   max-width: var(--page-w);
@@ -5511,22 +6172,25 @@ a.ord-status__card:hover {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
-  padding-right: 12px;
+  /* Holds the colour dots (and the active dot's ring) clear of the
+     next card's caption. */
+  padding-inline-end: 16px;
   width: 100%;
   gap: 16px;
 }
 .pwidget__text {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 6px;
   min-width: 0;
 }
 /* Figma sets the caption at 16px. Mark found that too small to read on a
    343px card, so name and price step up one notch on the design system's
    own scale — 16 (Body Medium) to 20 (Body Large) — rather than to an
    invented in-between size. The dots scale with them, 11px to 14px, so the
-   row keeps its proportion. Mobile stays at the Figma 16px: the card is
-   240px wide there and 20px crowds it.
+   row keeps its proportion. The price sits one step below the name at
+   18px, so the name leads and the price doesn't crowd the next row. Mobile
+   stays at the Figma 16px: the card is 240px wide there and 20px crowds it.
 
    This is a deliberate departure from the Figma spec, kept in one place so
    it is easy to put back. */
@@ -5539,7 +6203,7 @@ a.ord-status__card:hover {
 }
 .pwidget__price {
   font-family: var(--font-body);
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 600;
   line-height: 1.3;
   letter-spacing: 1px;
@@ -5663,6 +6327,23 @@ a.ord-status__card:hover {
 .ico-22 { width: 22px; height: 22px; }
 .ico-24 { width: 24px; height: 24px; }
 .ico-32 { width: 32px; height: 32px; }
+
+/* ---------------------------------------------------------------------
+   CTA LABELS NEVER WRAP
+   A button label on two lines reads as broken. Every CTA keeps its label
+   on one line; where buttons share a narrow row, their own rules shrink
+   the type to fit instead (see the phone cart footer).
+   --------------------------------------------------------------------- */
+.btn,
+.cta,
+.bagsum__cta,
+.bagsum__cta-label,
+.pdp__addtobag,
+.pdp__buynow,
+.cart-drawer__checkout,
+.cart-drawer__continue {
+  white-space: nowrap;
+}
 
 /* ---------------------------------------------------------------------
    FOCUS + SELECTION
@@ -5874,13 +6555,16 @@ a.ord-status__card:hover {
 .hdr-currency__menu li:hover { background: var(--offwhite); }
 .hdr-currency__menu img { width: 17px; height: 13px; object-fit: cover; }
 
-/* 3. Category rail. */
+/* 3. Category rail. --rail-py is shared with the hover line below, so the
+   line always lands on the rail's bottom edge. */
 .hdr-rail {
+  --rail-py: 12px;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 60px;
-  padding: 12px var(--gutter);
+  padding: var(--rail-py) var(--gutter);
   background: var(--offwhite);
 }
 .hdr-raillink {
@@ -5897,7 +6581,7 @@ a.ord-status__card:hover {
   content: "";
   position: absolute;
   inset-inline: 0;
-  bottom: -2px;
+  bottom: calc(-1 * var(--rail-py));
   height: 1px;
   background: currentColor;
   transform: scaleX(0);
@@ -5906,6 +6590,76 @@ a.ord-status__card:hover {
 }
 .hdr-raillink:hover::after,
 .hdr-raillink.is-current::after { transform: scaleX(1); }
+
+/* Desktop: the whole header is sticky, pulled up by everything above the
+   rail (--rail-top, measured in initStickyNav), so the announcement and
+   logo row scroll away and the category rail stays pinned on every page.
+   Checkout has no rail, so :has() leaves its header static. */
+@media (min-width: 1024px) {
+  #site-header:has(.hdr-rail) {
+    position: sticky;
+    top: calc(-1 * var(--rail-top, 0px));
+    z-index: 60;
+  }
+}
+
+/* The rail's own cart. Once the rail is pinned and the header's bag has
+   scrolled away, it drops out from under the rail as a frosted off-white
+   square, --tab-gap below it. It stacks behind the rail (z-index -1 inside
+   the header's stacking context), so it slides out from beneath the rail
+   rather than over it. The bag is centred in the square, and the square is
+   offset so the bag still lines up with the header's bag above. */
+.hdr-rail__cart {
+  --tab-size: 48px;
+  --tab-gap: 8px;
+  /* Distance from the square's edge to the 24px bag inside it. */
+  --tab-inset: calc((var(--tab-size) - 24px) / 2);
+  position: absolute;
+  top: calc(100% + var(--tab-gap));
+  inset-inline-end: calc(max(var(--gutter), (100% - var(--page-w)) / 2 + var(--gutter)) - var(--tab-inset));
+  z-index: -1;
+  width: var(--tab-size);
+  height: var(--tab-size);
+  background: rgba(240, 238, 234, 0.72);
+  -webkit-backdrop-filter: blur(14px) saturate(1.4);
+  backdrop-filter: blur(14px) saturate(1.4);
+  border-radius: 6px;
+  box-shadow: 0 4px 16px rgba(44, 41, 41, 0.08);
+  visibility: hidden;
+  transform: translateY(calc(-100% - var(--tab-gap)));
+  transition:
+    transform 0.3s cubic-bezier(0.2, 0.7, 0.25, 1),
+    visibility 0.3s,
+    background-color 0.2s ease;
+}
+.site-header.is-stuck .hdr-rail__cart {
+  visibility: visible;
+  transform: none;
+}
+/* The button fills the square, so the whole square is the target. */
+.hdr-rail__cart .hdr-bag {
+  width: 100%;
+  height: 100%;
+}
+/* Hover darkens the square instead of fading the bag like the header
+   icons do; a faded bag on a pale square read as disabled. */
+.hdr-rail__cart .hdr-bag:hover { opacity: 1; }
+.hdr-rail__cart:hover {
+  background: color-mix(in srgb, var(--offwhite) 82%, var(--warm-brown));
+}
+/* The count sits on the square's bottom-right corner, half outside it, a
+   step larger than the header badge so it reads at a glance. */
+.hdr-rail__cart .hdr-bag__count {
+  top: auto;
+  bottom: -7px;
+  inset-inline-start: auto;
+  inset-inline-end: -7px;
+  min-width: 20px;
+  height: 20px;
+  padding-inline: 5px;
+  font-size: 13px;
+  box-shadow: 0 2px 6px rgba(44, 41, 41, 0.18);
+}
 
 .hdr-row--checkout {
   justify-content: space-between;
@@ -6219,7 +6973,7 @@ a.ord-status__card:hover {
 .featured {
   position: absolute;
   top: 40px;
-  inset-inline-end: 60px;
+  inset-inline-end: var(--gutter);
   z-index: 3;
   display: flex;
   align-items: center;
@@ -6320,7 +7074,13 @@ a.ord-status__card:hover {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 2px;
-  padding-inline: 32px;
+  /* Sides sit on the page gutter like every other section. The space
+     above matches it up to 60px, then holds there, so wide screens (100 /
+     120px gutters) don't open a tall gap under the hero. The ground
+     matches the Explore Collections band that follows, so the two read as
+     one grey field. */
+  padding: min(var(--gutter), 60px) var(--gutter) 0;
+  background: var(--gray-1);
 }
 .subbanner {
   position: relative;
@@ -6407,17 +7167,27 @@ a.ord-status__card:hover {
    is how every carousel in the design is drawn. */
 .rail {
   position: relative;
+  /* Cards per view. The track is sized so exactly this many cards span
+     gutter to gutter; the next one peeks into the right gutter as the
+     cue to scroll. */
+  --rail-n: 4;
+  --rail-gap: 2px;
+}
+.rail:has([data-collections]) { --rail-n: 5; }
+@media (max-width: 1023px) {
+  .rail,
+  .rail:has([data-collections]) { --rail-n: 3; }
 }
 .rail__track {
   display: flex;
-  gap: 2px;
+  gap: var(--rail-gap);
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scroll-padding-inline-start: var(--gutter);
   scroll-behavior: smooth;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding-inline-start: var(--gutter);
+  padding-inline: var(--gutter);
 }
 .rail__track::-webkit-scrollbar { display: none; }
 .rail__track > * {
@@ -6430,26 +7200,35 @@ a.ord-status__card:hover {
   z-index: 3;
   display: grid;
   place-items: center;
-  width: 44px;
-  height: 76px;
+  width: 36px;
+  height: 36px;
   transform: translateY(-50%);
-  background: rgba(255, 255, 255, 0.75);
+  /* Frosted glass: the card running underneath stays readable as colour
+     and shape, so the control sits on the rail instead of punching a
+     white hole in it. */
+  background: rgba(255, 255, 255, 0.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.6);
+  backdrop-filter: blur(14px) saturate(1.6);
   border: 0;
   color: var(--black);
   cursor: pointer;
   transition: background 0.2s ease, opacity 0.2s ease;
 }
-.rail__btn:hover { background: rgba(255, 255, 255, 0.95); }
-.rail__btn--prev { inset-inline-start: 16px; }
-.rail__btn--next { inset-inline-end: 16px; }
+.rail__btn:hover { background: rgba(255, 255, 255, 0.7); }
+.rail__btn svg { width: 18px; height: 18px; }
+/* Centred in the page gutter, over the cards peeking in from either
+   side, but never closer than 12px to the screen edge. */
+.rail__btn--prev { inset-inline-start: max(12px, calc(var(--gutter) / 2 - 18px)); }
+.rail__btn--next { inset-inline-end: max(12px, calc(var(--gutter) / 2 - 18px)); }
 .rail__btn[disabled] { opacity: 0.3; pointer-events: none; }
 
-/* --- Explore Collections: 312-wide category cards --- */
-.ccard { width: 312px; }
+/* --- Explore Collections: category cards, 312 × 438 in the design. The
+   width comes from the rail (see "Rail card widths"); the photo keeps
+   the drawn proportions. --- */
 .ccard__media {
   display: block;
-  width: 312px;
-  height: 438px;
+  width: 100%;
+  aspect-ratio: 312 / 438;
   overflow: hidden;
   background: var(--gray-2);
 }
@@ -6580,12 +7359,14 @@ a.ord-status__card:hover {
 .benefits {
   display: flex;
   align-items: flex-start;
-  justify-content: center;
-  gap: 80px;
+  /* Spread across the full width: the first item starts on the left
+     gutter and the last ends on the right one. The rule above them sits
+     inside the gutters too, so it lines up with the content. */
+  justify-content: space-between;
+  gap: 40px 80px;
   flex-wrap: wrap;
-  margin-inline: auto;
-  max-width: var(--page-w);
-  padding: 40px var(--gutter);
+  margin-inline: var(--gutter);
+  padding-block: 40px;
   border-top: 1px solid var(--gray-2);
 }
 .benefit {
@@ -6631,11 +7412,10 @@ a.ord-status__card:hover {
 }
 
 /* --- Blog card --- */
-.bcard { width: 322px; }
 .bcard__media {
   display: block;
-  width: 322px;
-  height: 188px;
+  width: 100%;
+  aspect-ratio: 322 / 188;
   overflow: hidden;
   background: var(--gray-2);
 }
@@ -6691,7 +7471,11 @@ a.ord-status__card:hover {
   line-height: 1.3;
   letter-spacing: 1px;
   color: var(--black);
+  transition: padding-bottom 0.35s ease;
 }
+/* An open question gives up most of its bottom padding, so the answer
+   sits close under it and reads as its reply rather than a new row. */
+.faq__item.is-open .faq__q { padding-bottom: 10px; }
 .faq__sign {
   flex: none;
   width: 20px;
@@ -6712,26 +7496,29 @@ a.ord-status__card:hover {
 }
 .faq__item.is-open .faq__a { max-height: 320px; }
 .faq__a p {
-  padding-bottom: 20px;
-  font-size: 12px;
-  line-height: 1.5;
-  letter-spacing: 1px;
-  color: var(--gray-5);
-  max-width: 60ch;
+  padding-bottom: 24px;
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: 0.5px;
+  color: var(--gray-7);
+  max-width: 64ch;
 }
 .faq__more { margin-top: 32px; }
 
-/* Inside a rail the widget is a fixed-width card, exactly as drawn
-   (343.5px). In a grid it fills its column instead. */
-.rail__track .pwidget { width: 343.5px; }
+/* Rail card widths. From tablet up, a card is one --rail-n'th of the
+   space between the gutters, which is the track's content box. At 1512
+   that is 346.5px for a product card, next to the drawn 343.5. Phones
+   keep fixed widths so a card and a half show. In a grid the product
+   widget fills its column instead. */
+@media (min-width: 768px) {
+  .rail__track > * {
+    width: calc((100% - (var(--rail-n) - 1) * var(--rail-gap)) / var(--rail-n));
+  }
+}
 @media (max-width: 767px) {
   .rail__track .pwidget { width: 240px; }
-  .rail__track .ccard,
-  .rail__track .ccard__media { width: 240px; }
-  .ccard__media { height: 337px; }
-  .rail__track .bcard,
-  .rail__track .bcard__media { width: 260px; }
-  .bcard__media { height: 152px; }
+  .rail__track .ccard { width: 240px; }
+  .rail__track .bcard { width: 260px; }
   .hero { height: 520px; }
   .hero__title { font-size: 32px; }
   .hero__inner { padding-bottom: 48px; }
@@ -6954,12 +7741,13 @@ body.is-leaving .site-footer {
    frame. Drawer: 400px right-anchored panel with a hairline scrim over
    the page; the whole page still scrolls, only the panel is fixed.
    ===================================================================== */
-/* Category page grid — Figma 60:4076. Four 343.5px columns at 1512
-   frame, 6px gutter. Uses fractional units so the grid stays edge-aligned
-   with the head at any width. */
+/* Category page grid — Figma 60:4076. Four columns at 1512 frame. Uses
+   fractional units so the grid stays edge-aligned with the head at any
+   width. Figma's 6px gutter read too tight, so columns get 12px and rows
+   32px, which gives each card's price clear air above the next row. */
 .egrid {
   display: grid;
-  gap: 6px;
+  gap: 32px 12px;
 }
 .egrid--4 { grid-template-columns: repeat(4, 1fr); }
 /* Three-up, for the 976px account panel (My Favorites). */
@@ -7151,7 +7939,8 @@ body.is-leaving .site-footer {
   transition: transform 0.28s cubic-bezier(0.2, 0.7, 0.25, 1);
 }
 .sfd__legend-sign::after { transform: translateY(-50%) rotate(90deg); }
-.sfd__section.is-open .sfd__legend-sign::after {
+.sfd__section.is-open .sfd__legend-sign::after,
+.pdp__acc-item.is-open .sfd__legend-sign::after {
   transform: translateY(-50%) rotate(0);
 }
 .sfd__section-body {
@@ -7298,7 +8087,9 @@ body.is-sortfilter-open { overflow: hidden; }
 .cartpg { padding-block: 40px 80px; }
 .cartpg__inner {
   display: grid;
-  grid-template-columns: 700px 592px;
+  /* The drawn 700 : 592 split, as shares of the width so the two
+     columns fill gutter to gutter at any size. */
+  grid-template-columns: minmax(0, 700fr) minmax(0, 592fr);
   gap: 100px;
   max-width: var(--page-w);
   margin-inline: auto;
@@ -7308,7 +8099,7 @@ body.is-sortfilter-open { overflow: hidden; }
 .cartpg__col { min-width: 0; }
 .cartpg__col--right {
   position: sticky;
-  top: 24px;
+  top: calc(var(--sticky-top, 0px) + 24px);
   align-self: start;
 }
 
@@ -7703,7 +8494,9 @@ input.bagsum__toggle-input {
   min-height: calc(100svh - 78px);
 }
 .chk__form-col {
-  padding: 40px 100px 60px;
+  /* Outer side on the page gutter; the inner side keeps the drawn 100px
+     of air before the summary. */
+  padding: 40px 100px 60px var(--gutter);
   display: flex;
   flex-direction: column;
   gap: 60px;
@@ -8012,6 +8805,42 @@ input.bagsum__toggle-input {
 
 /* NEXT button reuses .bagsum__cta look but with an arrow on the right. */
 .chk__next .bagsum__cta-label { color: #EEEDEB; font-size: 20px; letter-spacing: 1px; }
+/* Small phones: the label + total CTA tightens its padding and scales its
+   type with the viewport, so it stays on one line down to 320px. */
+/* Phones: the cart page's CHECKOUT drops the total too (it's in the
+   summary right above), leaving the label alone on the button. */
+@media (max-width: 768px) {
+  .bagsum__cta .bagsum__cta-amount { display: none; }
+}
+@media (max-width: 480px) {
+  .bagsum__cta { padding-inline: 16px; gap: 10px; }
+  .bagsum__cta .bagsum__cta-label,
+  .bagsum__cta .bagsum__cta-amount {
+    font-size: clamp(13px, 4.2vw, 18px);
+    letter-spacing: 0.5px;
+  }
+}
+/* The checkout CTAs are real submit buttons now, not links. */
+button.bagsum__cta {
+  border: 0;
+  cursor: pointer;
+  font: inherit;
+  text-align: start;
+}
+
+/* "Back to checkout" on the card page. */
+.chk__back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  font-family: var(--font-body);
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  color: var(--gray-7);
+  transition: color 0.2s ease;
+}
+.chk__back:hover { color: var(--black); }
 .chk__next .ico { color: #EEEDEB; }
 
 /* Payment method rows — Figma 117:5055. Each row has a radio + label
@@ -8033,6 +8862,19 @@ input.bagsum__toggle-input {
 .paym__logos { display: inline-flex; align-items: center; gap: 4px; }
 .paym__logos img { width: auto; height: 22px; display: block; }
 .paym__rule { height: 1px; background: #D8D9DA; }
+/* One line under a method saying what happens with it. When a method is
+   ruled out (cash on delivery on a gift order) the row dims and the note
+   turns red to say why, rather than the option disappearing. */
+.paym__note {
+  margin: -8px 0 0;
+  padding-inline-start: 28px; /* under the label, past the radio dot */
+  font-family: var(--font-body);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--gray-6);
+}
+.paym.is-disabled .paym__row { opacity: 0.5; pointer-events: none; }
+.paym__note--error { color: var(--error); }
 
 /* Card-fields body: hidden by default; revealed when the row is active */
 .paym__body {
@@ -8050,7 +8892,7 @@ input.bagsum__toggle-input {
    items at the top, ledger (wallet + promo + note + totals) pinned at
    the bottom with the same horizontal rhythm as the items. */
 .bagsum--checkout {
-  padding: 40px 60px 40px 40px;
+  padding: 40px var(--gutter) 40px 40px; /* outer side on the gutter */
   gap: 24px;
   flex: 1 1 auto;
   min-height: 0;
@@ -8382,6 +9224,101 @@ input.bagsum__toggle-input {
   color: #595B61;
 }
 .nteinp__input input::placeholder { color: #9B9C9F; }
+.nteinp__input { transition: border-color 0.2s ease; }
+.nteinp__input:focus-within { border-color: var(--black); }
+.nteinp__input input:focus,
+.nteinp__input input:focus-visible { outline: 0; }
+.nteinp__close svg { width: 14px; height: 14px; }
+/* "Add" — the same inline text link as the promo field's Apply. */
+.nteinp__add {
+  flex: none;
+  border: 0;
+  padding: 4px 2px;
+  background: transparent;
+  font-family: var(--font-body);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--black);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+.nteinp__add:hover:not(:disabled) { text-decoration: underline; text-underline-offset: 3px; }
+.nteinp__add:disabled { opacity: 0.3; cursor: default; }
+
+/* Saved note: a tick, "Note added" over the note itself (tap to edit),
+   and a delete icon. Slides in like the promo's success row. */
+.nteinp__saved {
+  display: none;
+  align-items: center;
+  gap: 10px;
+  min-height: 52px;
+  padding: 8px 10px 8px 14px;
+  background: var(--white);
+  border: 1px solid var(--gray-2);
+}
+.nteinp.is-saved .nteinp__saved { display: flex; }
+.nteinp.is-saved .nteinp__saved > * { animation: promoIn 0.34s cubic-bezier(0.2, 0.7, 0.25, 1) both; }
+.nteinp.is-saved .nteinp__saved .promo__check { animation: promoTick 0.5s cubic-bezier(0.3, 0.7, 0.4, 1.5) 0.06s both; }
+.nteinp.is-saved .nteinp__ghost,
+.nteinp.is-saved .nteinp__open {
+  opacity: 0;
+  max-height: 0;
+  transform: translateY(-4px);
+  pointer-events: none;
+}
+.nteinp__saved-meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0;
+  border: 0;
+  background: none;
+  text-align: start;
+  cursor: text;
+}
+.nteinp__saved-label {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--success);
+}
+.nteinp__saved-text {
+  font-family: var(--font-body);
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--black);
+  overflow-wrap: anywhere;
+  /* Two lines, then an ellipsis; tapping opens the whole note to edit. */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.nteinp__delete {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--gray-6);
+  cursor: pointer;
+  transition: color 0.2s ease, background-color 0.2s ease;
+}
+.nteinp__delete svg { width: 18px; height: 18px; }
+.nteinp__delete:hover { color: var(--error); background: color-mix(in srgb, var(--error) 8%, var(--white)); }
+@media (prefers-reduced-motion: reduce) {
+  .nteinp.is-saved .nteinp__saved > *,
+  .nteinp.is-saved .nteinp__saved .promo__check { animation: none; }
+}
 .nteinp__clear {
   background: none;
   border: 0;
@@ -8439,13 +9376,13 @@ input.bagsum__toggle-input {
 .bagsum__note-clear .ico { width: 14px; height: 14px; }
 
 @media (max-width: 1200px) {
-  .chk__form-col { padding: 40px 60px 60px; }
-  .bagsum--checkout { padding: 40px 60px; }
+  .chk__form-col { padding: 40px 60px 60px var(--gutter); }
+  .bagsum--checkout { padding: 40px var(--gutter) 40px 60px; }
 }
 @media (max-width: 1023px) {
   .chk { grid-template-columns: 1fr; }
-  .chk__form-col { padding: 32px 24px 60px; gap: 40px; }
-  .bagsum--checkout { padding: 32px 24px; min-height: auto; }
+  .chk__form-col { padding: 32px var(--gutter) 60px; gap: 40px; }
+  .bagsum--checkout { padding: 32px var(--gutter); min-height: auto; }
 }
 @media (max-width: 640px) {
   .chk__row--2, .chk__row--3 { grid-template-columns: 1fr; }
@@ -8473,7 +9410,6 @@ input.bagsum__toggle-input {
   display: flex;
   flex-direction: column;
   gap: 32px;
-  padding-inline-start: 110px;
 }
 .thanks__hero {
   display: inline-flex;
@@ -8802,9 +9738,13 @@ input.bagsum__toggle-input {
   background: var(--gray-05);
   padding: 60px var(--gutter);
 }
+/* The older account pages (Points, Wallet, Vouchers, Profile) wrap their
+   content differently but sit on the same paper ground, so off-white
+   cards like the points balance read against it. */
+.acct-page { background: var(--gray-05); }
 .account__inner {
   display: grid;
-  grid-template-columns: 384px 976px;
+  grid-template-columns: 384px minmax(0, 1fr); /* rail as drawn; the panel takes the rest */
   gap: 32px;
   max-width: var(--page-w);
   margin-inline: auto;
@@ -8928,6 +9868,7 @@ input.bagsum__toggle-input {
 .acct-menu__help-links a:hover { color: var(--black); }
 .acct-menu__logout { color: var(--gray-5) !important; }
 .acct-menu__logout:hover { color: var(--black) !important; }
+.acct-menu__out { display: none; }
 
 /* --- panel head (breadcrumb + title) ---------------------------- */
 /* 12px under the breadcrumb, but only 4px between the title and its
@@ -8980,7 +9921,7 @@ input.bagsum__toggle-input {
    cards below them. */
 .acct-stats {
   display: grid;
-  grid-template-columns: 220px 220px 512px;
+  grid-template-columns: minmax(0, 220fr) minmax(0, 220fr) minmax(0, 512fr); /* drawn 220 : 220 : 512 */
   gap: 12px;
 }
 /* 21.5px of top padding, not centring: it puts the icon box at y21.5 and
@@ -9760,7 +10701,7 @@ input.bagsum__toggle-input {
    and the resting values in this file are what shows when the JS is
    idle or prefers-reduced-motion is set.
    ===================================================================== */
-.abt { --abt-gutter: 60px; }
+.abt { --abt-gutter: var(--gutter); }
 
 /* --- intro ------------------------------------------------------ */
 .abt-intro {
@@ -9912,7 +10853,7 @@ input.bagsum__toggle-input {
 /* --- founder ---------------------------------------------------- */
 .abt-founder {
   display: grid;
-  grid-template-columns: 769px 623px;
+  grid-template-columns: minmax(0, 769fr) minmax(0, 623fr); /* drawn 769 : 623 */
   max-width: var(--page-w);
   margin-inline: auto;
   padding: 60px var(--abt-gutter);
@@ -9963,7 +10904,7 @@ input.bagsum__toggle-input {
   margin-inline: auto;
   display: flex;
   align-items: flex-start;
-  justify-content: center;
+  justify-content: space-between; /* gutter to gutter, like .benefits */
   gap: 72px;
   flex-wrap: wrap;
 }
@@ -10082,7 +11023,7 @@ input.bagsum__toggle-input {
   max-width: var(--page-w);
   margin-inline: auto;
   display: grid;
-  grid-template-columns: 660px 672px;
+  grid-template-columns: minmax(0, 660fr) minmax(0, 672fr); /* drawn 660 : 672 */
   justify-content: space-between;
   gap: 60px;
   align-items: start;
@@ -10302,6 +11243,7 @@ input.bagsum__toggle-input {
   min-height: 32px;
 }
 .faqpage .faq__sign { min-height: 32px; align-self: center; }
+.faqpage .faq__item.is-open .faq__q { padding-bottom: 12px; }
 .faqpage .faq__a p {
   padding-bottom: 32px;
   font-size: 14px;
@@ -10371,27 +11313,26 @@ input.bagsum__toggle-input {
   line-height: 1.27;
   color: var(--black);
 }
-/* The design insets the grid 20px inside the 1392 content frame, which
-   is what lands the cards on 440 rather than 453. */
+/* Two large posts per row, gutter to gutter. (The design drew three
+   440px cards inset 20px; two read better as features and the grid now
+   lines up with the page gutter like every other section.) */
 .bloglist__grid {
-  width: 1352px;
-  max-width: 100%;
-  margin-inline: auto;
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 48px 24px;
 }
 /* In the grid the card fills its column instead of the rail's fixed
-   322px, and the picture keeps the design's 440×252 proportion. */
+   width, and the picture keeps the design's 440×252 proportion. */
 .bloglist__grid .bcard,
 .bloglist__grid .bcard__media { width: 100%; }
 .bloglist__grid .bcard__media { height: auto; aspect-ratio: 440 / 252; }
-.bloglist__grid .bcard__title { font-size: 18px; }
+.bloglist__grid .bcard__title { margin-top: 20px; font-size: 22px; }
 
 @media (max-width: 1023px) {
   .bloglist { padding: 40px var(--gutter) 60px; }
   .bloglist__title { font-size: 36px; }
-  .bloglist__grid { grid-template-columns: repeat(2, 1fr); }
+  .bloglist__grid { gap: 32px 16px; }
+  .bloglist__grid .bcard__title { font-size: 18px; }
 }
 @media (max-width: 599px) {
   .bloglist__grid { grid-template-columns: 1fr; }
@@ -10704,4 +11645,1365 @@ input.bagsum__toggle-input {
 @media (max-width: 767px) {
   .ftr-news__form { flex-direction: column; width: 100%; }
   .ftr-news__input { width: 100%; flex: none; }
+}
+
+
+/* =====================================================================
+   MOBILE TYPE SCALE (767px and under)
+   One compact scale for phones, applied last so it wins over the
+   per-section phone rules above. Desktop sizes are untouched.
+     Page titles ............ 24px (the hero, 28px)
+     Section / card titles .. 16–20px
+     Body, labels, links .... 13–14px
+     Buttons ................ 13–14px, label on one line
+   Text fields stay at 16px: iOS Safari zooms the page into any field
+   set smaller than that when it is tapped.
+   ===================================================================== */
+@media (max-width: 767px) {
+  /* Page titles */
+  .hero__title { font-size: 28px; }
+  .band__title,
+  .category-head__title,
+  .cartpg__title,
+  .cartpg__related-title,
+  .pdp-related__title,
+  .thanks__title,
+  .abt-intro__title,
+  .contact__title,
+  .nf__title,
+  .faqpage__title,
+  .bloglist__title,
+  .post__title,
+  .acct-title { font-size: 24px; line-height: 1.2; }
+
+  /* Section and card titles */
+  .pdp__name { font-size: 22px; line-height: 1.25; }
+  .subbanner__title,
+  .contact__card-title,
+  .faqpage__support-title,
+  .post__body h2,
+  .post-also__title,
+  .authcard__title { font-size: 20px; }
+  .story__lead { font-size: 18px; }
+  .ftr-col__title,
+  .sfd__title,
+  .sfd__legend,
+  .bagsum__title,
+  .chk__block-title,
+  .acct-menu__name,
+  .acct-stat__value,
+  .apop__title,
+  .search-drawer__title { font-size: 18px; }
+  .pdp__price { font-size: 16px; }
+  .pdp__acc-legend,
+  .pdp-faqs__title,
+  .cartpg__name,
+  .acct-card__title,
+  .abt-mark__label,
+  .bcard__title,
+  .bloglist__grid .bcard__title,
+  .pdp__group-label { font-size: 16px; }
+  .abt-founder__sign { font-size: 56px; }
+
+  /* Body, labels, links */
+  .hero__sub,
+  .pwidget__name,
+  .pwidget__price,
+  .faq__q,
+  .faqpage .faq__q,
+  .link-more,
+  .benefit__label,
+  .site-footer a { font-size: 14px; }
+  .subbanner__sub,
+  .ccard__label,
+  .faq__a p,
+  .faqpage .faq__a p { font-size: 13px; }
+  .story__eyebrow,
+  .cart-drawer__aside-title { font-size: 12px; }
+
+  /* Buttons — compact, one line */
+  .hero__cta { font-size: 13px; }
+  .pdp__addtobag,
+  .pdp__buynow {
+    height: 52px;
+    font-size: 14px;
+    letter-spacing: 1.5px;
+  }
+
+  /* Fields: 16px, so iOS doesn't zoom in on tap. */
+  .promo__input,
+  .nteinp__input input,
+  .field__input,
+  .field__phone-input,
+  .search-drawer__input { font-size: 16px; }
+}
+
+
+/* =====================================================================
+   MOBILE COMPACT PASS (767px and under)
+   Spacing and sizing for phones, alongside the type scale above.
+   Principles:
+   - Content runs on the 16px gutter; cards pad 12–16px, sections 40px.
+   - Every control keeps at least a 40px tap area (44px for CTAs), even
+     when its icon is drawn smaller.
+   - Headlines are one line: section titles get their own row, with any
+     tabs moved underneath.
+   - Product rows show exactly two cards, in grids and in carousels.
+   ===================================================================== */
+@media (max-width: 767px) {
+  /* --- Announcement: one line, message left, × right --------------- */
+  .hdr-announce {
+    justify-content: space-between;
+    gap: 8px;
+    height: 28px;
+    padding: 0 4px 0 var(--gutter);
+  }
+  .hdr-announce__spacer { display: none; }
+  .hdr-announce__text {
+    text-align: start;
+    font-size: clamp(9px, 2.6vw, 10px);
+    letter-spacing: 0.6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .hdr-announce__close { width: 28px; height: 28px; }
+  .hdr-announce__close svg,
+  .hdr-announce__close .ico { width: 10px; height: 10px; }
+
+  /* --- Header row: 48px, smaller logo and icons -------------------- */
+  .hdr-mobile__row { gap: 4px; padding: 4px 8px; min-height: 48px; }
+  .hdr-mobile__logo .brand-logo img { height: 26px; }
+  .hdr-mobile__tools { gap: 0; }
+  .hdr-mobile .hdr-icon { width: 40px; height: 40px; }
+  .hdr-mobile .hdr-icon svg,
+  .hdr-mobile .hdr-icon .ico { width: 20px; height: 20px; }
+  .hdr-mobile .hdr-bag__count {
+    top: 3px;
+    inset-inline-start: 22px;
+    min-width: 16px;
+    height: 16px;
+    padding-inline: 3px;
+    font-size: 10px;
+  }
+
+  /* --- Hero ------------------------------------------------------ */
+  .hero { height: 440px; }
+  .hero__inner { padding-bottom: 28px; }
+  .hero__sub { margin-top: 6px; font-size: 13px; }
+  .hero__cta { margin-top: 16px; min-height: 44px; padding: 0 20px; letter-spacing: 1px; }
+  .featured { top: 12px; scale: 0.78; transform-origin: top right; }
+  [dir="rtl"] .featured { transform-origin: top left; }
+  /* The tile's + is drawn at 14px; an invisible ring around it gives the
+     finger a ~40px target without changing how it looks. */
+  .featured__toggle { position: relative; }
+  .featured__toggle::after { content: ""; position: absolute; inset: -18px; }
+
+  /* --- Sub-banners ----------------------------------------------- */
+  .subbanners { gap: 8px; }
+  .subbanner { height: 280px; }
+  .subbanner__body,
+  .subbanner--baked .subbanner__body { padding: 12px; gap: 12px; }
+  .subbanner__title { font-size: 20px; }
+  .subbanner__sub { font-size: 12px; }
+  .subbanner__go,
+  .subbanner__go svg { width: 18px; height: 18px; }
+
+  /* --- Section bands: title on its own line, tabs beneath ---------- */
+  .band { padding-block: 40px; }
+  .band__head {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  /* One line: 24px, easing down on the narrowest phones so even
+     "Frequently Asked Questions" fits at 320px. */
+  .band__title { font-size: clamp(20px, 6.2vw, 24px); white-space: nowrap; }
+  .tabstrip { overflow-x: auto; scrollbar-width: none; }
+  .tabstrip::-webkit-scrollbar { display: none; }
+  .tabstrip button {
+    flex: 1 0 auto;
+    min-height: 40px;
+    padding: 8px clamp(8px, 3vw, 12px);
+    font-size: clamp(11px, 3.1vw, 12px);
+  }
+
+  /* --- Carousels: exactly two cards per view ----------------------- */
+  .rail,
+  .rail:has([data-collections]) { --rail-n: 2; --rail-gap: 8px; }
+  .rail__track > *,
+  .rail__track .pwidget,
+  .rail__track .ccard,
+  .rail__track .bcard {
+    width: calc((100% - (var(--rail-n) - 1) * var(--rail-gap)) / var(--rail-n));
+  }
+  .rail__btn { display: none; } /* swipe on touch */
+  /* Framed between the gutters: no sliver of a third card at the edge,
+     and cards slide out of view at the gutter line rather than the
+     screen edge. */
+  .rail__track { clip-path: inset(0 var(--gutter)); }
+
+  /* --- Product grids: two columns, tighter gutters ----------------- */
+  .egrid--4,
+  .egrid--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .egrid { gap: 24px 8px; }
+
+  /* --- Product card: compact caption ------------------------------ */
+  /* Name across the full card width; price and colour dots share the
+     line beneath it. */
+  .pwidget__body {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 4px 6px;
+    padding-inline-end: 8px; /* dots clear of the next card */
+    margin-top: 8px;
+  }
+  .pwidget__text { display: contents; }
+  .pwidget__name { grid-column: 1 / -1; }
+  .pwidget__nav { display: none; } /* the dots switch the photo on touch */
+  .pwidget__name { font-size: 13px; }
+  .pwidget__price { font-size: 13px; letter-spacing: 0.5px; }
+  .pdot { width: 12px; height: 12px; }
+  .pwidget__dots { gap: 5px; padding-bottom: 0; }
+
+  /* --- Collection cards ------------------------------------------- */
+  .ccard__row { height: auto; margin-top: 8px; }
+  .ccard__label { font-size: 12px; }
+
+  /* --- Our Story ---------------------------------------------------- */
+  .story { gap: 24px; }
+  .story__eyebrow { margin-bottom: 12px; }
+  .story__art { min-height: 260px; gap: 12px; }
+  .story__link { margin-top: 16px; }
+
+  /* --- Benefits: a 2 × 2 grid --------------------------------------- */
+  .benefits {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px 16px;
+    padding-block: 28px;
+  }
+  .benefit { gap: 8px; }
+  .benefit__art { width: 40px; height: 40px; }
+  .benefit__label { font-size: 13px; }
+
+  /* --- FAQ ------------------------------------------------------- */
+  .faq__q { gap: 16px; padding: 16px 0; }
+  .faq__item.is-open .faq__q { padding-bottom: 8px; }
+  .faq__sign,
+  .faq__sign .ico,
+  .faq__sign svg { width: 16px; height: 16px; }
+  .faq__a p { padding-bottom: 16px; }
+  .faq__more { margin-top: 20px; }
+
+  /* --- "Read more" links: smaller arrow, 40px tap height ----------- */
+  .link-more { padding-block: 10px; font-size: 13px; }
+  .link-more__icon,
+  .link-more__icon svg,
+  .link-more__icon img { width: 16px; height: 16px; }
+
+  /* --- Footer: two link columns side by side ----------------------- */
+  .ftr-main {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 16px;
+    padding: 40px var(--gutter) 28px;
+  }
+  .ftr-logo,
+  .ftr-side { grid-column: 1 / -1; }
+  .ftr-logo .brand-logo img { height: 72px; }
+  .ftr-col { gap: 14px; }
+  .ftr-col__title { font-size: 16px; }
+  .ftr-col__links { gap: 10px; }
+  .ftr-col__links a { font-size: 12px; white-space: normal; }
+  .ftr-side { gap: 24px; }
+  .ftr-credits { gap: 8px; padding-block: 12px; }
+  .ftr-credits__copy,
+  .ftr-credits__by { font-size: 10px; }
+
+  /* --- Product page ------------------------------------------------ */
+  .pdp { padding-block: 16px 40px; }
+  .pdp__group { margin-top: 20px; }
+  .pdp__chip { height: 36px; padding: 0 10px; font-size: 11px; letter-spacing: 0.5px; }
+  .pdp__chips { gap: 6px; }
+  .pdp__buy-block { margin-top: 28px; }
+  .pdp__acc { margin-top: 28px; }
+  .pdp__acc-legend { padding: 14px 0; }
+  .pdp__crumb .ico { width: 12px; height: 12px; }
+  .sfd__legend-sign { width: 16px; height: 16px; }
+}
+
+
+/* =====================================================================
+   BREADCRUMBS — always one line, on every page.
+   Covers all three patterns in use: the product page crumb, the shared
+   .acct-crumb (account, blog post), and the Tailwind
+   nav[aria-label="Breadcrumb"] on the older pages. Earlier steps keep
+   their size; the current page, last, gives way with an ellipsis when
+   space runs out. Phones set it smaller.
+   ===================================================================== */
+.pdp__crumb,
+.acct-crumb,
+nav[aria-label="Breadcrumb"] {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  min-width: 0;
+  overflow: hidden;
+}
+.pdp__crumb > *,
+.acct-crumb > *,
+nav[aria-label="Breadcrumb"] > * { flex: none; }
+.pdp__crumb > :last-child,
+.acct-crumb > :last-child,
+nav[aria-label="Breadcrumb"] > :last-child {
+  flex: 0 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 767px) {
+  .pdp__crumb,
+  .acct-crumb,
+  nav[aria-label="Breadcrumb"] {
+    gap: 4px;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+  }
+  .pdp__crumb { margin-bottom: 14px; }
+  .pdp__crumb .ico,
+  .acct-crumb .ico,
+  nav[aria-label="Breadcrumb"] .ico,
+  nav[aria-label="Breadcrumb"] svg { width: 10px; height: 10px; }
+}
+
+
+/* =====================================================================
+   MOBILE COMPACT — ALL PAGES (767px and under)
+   The homepage pass above, carried to every other page: sections 32–40px
+   apart, cards padded 20px, eyebrows 13px, page headings 22–24px, and
+   every small control given a 40px tap area.
+   ===================================================================== */
+@media (max-width: 767px) {
+  /* --- Section rhythm ----------------------------------------------- */
+  .pdp-related,
+  .cartpg__related { padding-block: 40px; }
+  .cartpg { padding-block: 24px 40px; }
+  .thanks { padding-block: 24px 40px; }
+  .faqpage { padding-block: 32px 40px; }
+  .bloglist { padding-block: 32px 40px; }
+  .post-also { padding-block: 32px 40px; }
+  .auth { padding-block: 32px 40px; }
+  .corporate-container,
+  .corporate-container:not(.centered) { padding-top: 24px; padding-bottom: 48px; }
+
+  /* About */
+  .abt-intro { padding-top: 32px; }
+  .abt-phil,
+  .abt-founder,
+  .abt-ship { padding-block: 40px; }
+  .abt-marks { padding-block: 40px 48px; }
+  .abt-founder__card { padding: 20px; min-height: 0; }
+  .abt-founder__sign { font-size: 44px; }
+
+  /* --- Cards: 20px inside ---------------------------------------- */
+  .contact__card,
+  .authcard { padding: 20px; }
+
+  /* --- Eyebrows / taglines over page titles ------------------------- */
+  .abt-intro__eyebrow,
+  .bloglist__eyebrow,
+  .contact__eyebrow { font-size: 13px; letter-spacing: 1px; }
+
+  /* --- Headings the type scale didn't name ---------------------------- */
+  .post__title { font-size: 22px; line-height: 1.25; }
+  .corporate-container h1 { font-size: 24px; }
+  /* Older account pages and the stores page, built with Tailwind sizes. */
+  main h1.text-2xl,
+  main h1[class*="text-[28px]"] { font-size: 22px; line-height: 1.25; }
+  main [class*="text-[32px]"],
+  main span[class*="text-[28px]"] { font-size: 22px; }
+  main h2.text-xl { font-size: 16px; }
+  main h1[class*="text-[34px]"] { font-size: 26px; }
+  .checkout-bar__total { font-size: 16px; }
+
+  /* --- Buttons --------------------------------------------------------- */
+  .cta,
+  .cta--lg { font-size: 14px; }
+
+  /* --- 40px tap areas for small controls ------------------------------ */
+  .pdp__stepper-btn { width: 32px; height: 32px; }
+  .field__eye,
+  .acct-info__edit { display: grid; place-items: center; min-width: 40px; min-height: 40px; }
+  .acct-menu__logout { display: inline-block; padding-block: 10px; }
+  .chk__login,
+  .chk__back,
+  .bagsum__editbag,
+  .auth-link { padding-block: 10px; }
+  .nteinp__close { width: 36px; height: 36px; margin: -8px -8px -8px 0; }
+}
+
+
+/* =====================================================================
+   REGIONAL SETTINGS SHEET (.regsheet)
+   The phone counterpart of the header's regional panel, built from the
+   same parts (.regpop__label, .cselect__field, .regpop__tabs, the
+   .regpop__search and list), so the two look the same. Two views share
+   the sheet and slide sideways: the summary, and the country list.
+   ===================================================================== */
+.bottom-sheet.regsheet {
+  padding: 0;
+  overflow: hidden;
+  background: var(--white);
+}
+.regsheet__track {
+  position: relative;
+  overflow: hidden;
+  transition: height 0.3s cubic-bezier(0.2, 0.7, 0.25, 1);
+}
+.regsheet__view {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 8px 16px calc(20px + env(safe-area-inset-bottom));
+  transition: transform 0.32s cubic-bezier(0.2, 0.7, 0.25, 1), opacity 0.24s ease;
+}
+/* The view that isn't showing lies to one side, out of the flow. */
+.regsheet__view:not(.is-active) {
+  position: absolute;
+  inset: 0 0 auto 0;
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.regsheet__view[data-regsheet-view="main"]:not(.is-active) { transform: translateX(-28%); }
+.regsheet__view[data-regsheet-view="countries"]:not(.is-active) { transform: translateX(28%); }
+[dir="rtl"] .regsheet__view[data-regsheet-view="main"]:not(.is-active) { transform: translateX(28%); }
+[dir="rtl"] .regsheet__view[data-regsheet-view="countries"]:not(.is-active) { transform: translateX(-28%); }
+
+/* Head: grab handle, title, small icon buttons (40px to tap). */
+.regsheet__head {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-height: 48px;
+  padding-top: 8px;
+  margin-bottom: 2px;
+}
+.regsheet__head::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 36px;
+  height: 4px;
+  margin-left: -18px;
+  border-radius: 2px;
+  background: var(--gray-3);
+}
+.regsheet__title {
+  flex: 1;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 17px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--black);
+}
+.regsheet__icon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  margin-inline: -10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--black);
+  cursor: pointer;
+}
+.regsheet__icon:first-child { margin-inline-end: 0; }
+.regsheet__icon .ico,
+.regsheet__icon svg { width: 16px; height: 16px; }
+
+/* The country field opens the list, so it ends in a chevron. */
+.regsheet__field { height: 44px; }
+.regsheet__code { flex: none; font-size: 12px; color: var(--gray-6); }
+.regsheet__chev { flex: none; color: var(--gray-6); }
+.regsheet__chev svg { width: 16px; height: 16px; }
+.regsheet .regpop__tabs .regpop__tab { min-height: 44px; }
+
+/* Country list: roomy rows, the chosen one ticked. */
+.regsheet__list {
+  max-height: min(52vh, 360px);
+  overflow-y: auto;
+  margin: 2px 0 0;
+}
+/* Rows run the same width as the search field, flags lined up under its
+   icon. */
+.regsheet__list li { min-height: 44px; padding-inline: 10px; }
+.regsheet__list li.is-selected { background: var(--offwhite); }
+.regsheet__list li.is-selected::after {
+  content: "";
+  flex: none;
+  width: 12px;
+  height: 7px;
+  margin-inline-start: 4px;
+  border-left: 1.5px solid var(--black);
+  border-bottom: 1.5px solid var(--black);
+  transform: rotate(-45deg) translateY(-2px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .regsheet__track,
+  .regsheet__view { transition: none; }
+}
+
+
+/* =====================================================================
+   ACCOUNT MENU ON PHONES AND TABLETS (1023px and under)
+   The tall rail becomes a compact header: tier and name on one line with
+   Logout opposite, then the tabs as one row that slides sideways and
+   snaps tab by tab (the current one is centred on arrival — see boot()).
+   The edges fade to say there is more. "Need Help?" is left to the site
+   menu, which already links FAQs and Contact Us.
+   ===================================================================== */
+@media (max-width: 1023px) {
+  /* Keep the column to the screen width, or the strip stretches the grid
+     to fit every tab instead of sliding. */
+  .account__inner { grid-template-columns: minmax(0, 1fr); }
+  #account-menu,
+  .acct-menu { min-width: 0; }
+  /* Full-bleed white band straight under the site header: it cancels the
+     page's 40px top padding and its side gutters. */
+  .acct-menu {
+    width: auto;
+    gap: 10px;
+    margin: -40px calc(-1 * var(--gutter)) 0;
+    padding: 14px 0 0;
+    border-bottom: 1px solid var(--gray-2);
+  }
+  .acct-menu > .acct-menu__rule,
+  .acct-menu__help { display: none; }
+  /* GOLD over the name; Logout opposite, centred on the pair. */
+  .acct-menu__user {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    row-gap: 4px;
+    column-gap: 12px;
+    padding-inline: var(--gutter);
+  }
+  .acct-tier { grid-column: 1; grid-row: 1; justify-self: start; font-size: 11px; padding-block: 1px; }
+  .acct-menu__name {
+    grid-column: 1;
+    grid-row: 2;
+    min-width: 0;
+    font-size: 18px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .acct-menu__out {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+    font-family: var(--font-body);
+    font-size: 12px;
+    letter-spacing: 1px;
+    color: var(--gray-6);
+  }
+
+  .acct-menu__tabs {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 4px;
+    padding-inline: var(--gutter);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 24px), transparent 100%);
+    mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 24px), transparent 100%);
+  }
+  .acct-menu__tabs::-webkit-scrollbar { display: none; }
+  .acct-tab {
+    flex: none;
+    width: auto;
+    height: 40px;
+    gap: 6px;
+    padding: 0 12px;
+    font-size: 12px;
+    white-space: nowrap;
+    scroll-snap-align: start;
+  }
+  .acct-tab .ico,
+  .acct-tab .ico svg { width: 16px; height: 16px; }
+  /* Selected: the paper tint plus an ink underline, so it reads at a
+     glance in a row. */
+  .acct-tab.is-active { box-shadow: inset 0 -1.5px 0 var(--black); }
+}
+
+/* Account panel arriving after a tab switch (initAccountNav): a short
+   slide from the side of the chosen tab, with a fade. */
+.acct-swap-in { animation: acctSwapIn 0.32s cubic-bezier(0.2, 0.7, 0.25, 1) both; }
+@keyframes acctSwapIn {
+  from { opacity: 0; transform: translateX(calc(var(--swap-dir, 1) * 24px)); }
+  to { opacity: 1; transform: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .acct-swap-in { animation: none; }
+}
+
+/* ---------------------------------------------------------------------
+   OUTLINE ICONS AT ANY SIZE (.ico-line)
+   The icon set is drawn for 24px with a 1.5 stroke. Shown larger as a
+   plain image, the stroke scales with it: at 80px it was a 5px line,
+   which read as a different, heavier icon family. .ico-line fills its box
+   and keeps the stroke at 1.5px however big the icon is drawn, so large
+   icons match the small ones.
+   --------------------------------------------------------------------- */
+.ico-line {
+  display: block;
+  width: 100%;
+  height: 100%;
+  color: var(--black);
+}
+.ico-line svg { display: block; width: 100%; height: 100%; }
+.ico-line svg [stroke] {
+  vector-effect: non-scaling-stroke;
+  stroke-width: 1.5px;
+}
+
+
+/* =====================================================================
+   MY POINTS — Figma 260:16087 (phone) and 163:5428 (desktop)
+   Phones stack: head, balance card, a full-width Redeem, the history as
+   compact two-line rows. From 1024px: Redeem moves onto the title row,
+   the card's lifetime and next-tier lines share one row, and the history
+   becomes a four-column table with column heads.
+   ===================================================================== */
+.pts {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "head" "card" "cta" "hist";
+  gap: 16px;
+}
+.pts > .acct-head { grid-area: head; margin-bottom: 0; }
+.pts-card { grid-area: card; }
+.pts-redeem { grid-area: cta; }
+.pts-history { grid-area: hist; }
+
+.pts-card {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+  background: var(--offwhite);
+}
+.pts-card__top { display: flex; align-items: center; gap: 16px; }
+.pts-card__icon { flex: none; width: 32px; height: 32px; color: var(--gray-7); }
+.pts-card__icon .ico-line { color: currentColor; }
+.pts-card__label {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: 0.3px;
+  color: var(--gray-7);
+}
+.pts-card__value {
+  margin: 4px 0 0;
+  font-family: var(--font-heading);
+  font-size: 22px;
+  line-height: 1.2;
+  color: var(--black);
+}
+.pts-card__bar {
+  position: relative;
+  height: 2px;
+  background: var(--gray-3);
+}
+.pts-card__bar > span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--gray-7);
+}
+[dir="rtl"] .pts-card__bar > span { inset: 0 0 0 auto; }
+.pts-card__meta { display: flex; flex-direction: column; gap: 4px; }
+.pts-card__line {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: 1px;
+  color: var(--gray-7);
+}
+.pts-card__chip {
+  display: inline-block;
+  margin-inline-start: 6px;
+  padding: 0 6px;
+  background: var(--white);
+  color: var(--gray-8);
+}
+
+.pts-redeem {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 0;
+  background: var(--warm-brown);
+  color: var(--gray-1);
+  font-family: var(--font-body);
+  font-size: 16px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.pts-redeem:hover { background: #57503f; }
+.pts-redeem .ico-line { width: 18px; height: 18px; color: currentColor; }
+
+.pts-history { padding: 24px; background: var(--white); }
+.pts-history__title {
+  margin: 0;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--gray-2);
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--black);
+}
+.pts-history__list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Phone row: amount over "date • reason", the running total on the right. */
+.pts-row {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    "amount amount amount total"
+    "date   reason .      total";
+  align-items: center;
+  column-gap: 6px;
+  row-gap: 2px;
+}
+.pts-row--head { display: none; }
+.pts-row__amount {
+  grid-area: amount;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: 0.5px;
+}
+.pts-row__amount .ico-line { width: 16px; height: 16px; color: currentColor; }
+.pts-row--out .pts-row__amount { color: var(--error); }
+.pts-row--in .pts-row__amount { color: var(--success); }
+.pts-row__date,
+.pts-row__reason {
+  font-size: 12px;
+  line-height: 1.5;
+  letter-spacing: 0.5px;
+  color: var(--gray-6);
+  white-space: nowrap;
+}
+.pts-row__date { grid-area: date; }
+.pts-row__reason { grid-area: reason; display: inline-flex; align-items: center; gap: 6px; }
+.pts-row__reason::before {
+  content: "";
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: currentColor;
+}
+.pts-row__total {
+  grid-area: total;
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  color: var(--gray-8);
+}
+.pts-row__total-label { font-size: 12px; font-weight: 400; color: var(--gray-7); }
+
+@media (min-width: 1024px) {
+  .pts {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "head cta" "card card" "hist hist";
+    align-items: end;
+    column-gap: 24px;
+    row-gap: 32px;
+  }
+  .pts-redeem { width: auto; min-height: 42px; padding: 0 24px; }
+
+  .pts-card__icon { width: 47px; height: 47px; }
+  .pts-card__value { font-size: 24px; }
+  .pts-card__meta {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .pts-card__line--life { order: -1; }
+
+  .pts-history__list { gap: 24px; margin-top: 16px; }
+  /* Table: four equal columns, heads first. */
+  .pts-row {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-areas: none;
+    column-gap: 42px;
+  }
+  .pts-row > * { grid-area: auto; }
+  .pts-row--head {
+    display: grid;
+    font-size: 16px;
+    letter-spacing: 1px;
+    color: var(--black);
+  }
+  .pts-row__amount { font-size: 16px; letter-spacing: 1px; }
+  .pts-row__date,
+  .pts-row__reason { font-size: 14px; color: var(--gray-7); }
+  .pts-row__reason::before { display: none; }
+  .pts-row__total-label { display: none; }
+}
+
+/* Account header on phones, as the Figma draws it (Figma 260:16089):
+   the name sits in an off-white card inside the gutters on the white
+   band, and the tabs run edge to edge — the selected one tinted, the
+   rest in a quieter grey, no underline. */
+@media (max-width: 1023px) {
+  .acct-menu { gap: 16px; padding-top: 32px; }
+  .acct-menu__user {
+    margin-inline: var(--gutter);
+    padding: 16px;
+    background: var(--gray-05);
+  }
+  .acct-menu__name { font-size: 22px; }
+  .acct-tier { background: transparent; padding-inline: 0; }
+  .acct-tab { color: var(--gray-6); }
+  .acct-tab .ico { color: currentColor; }
+  .acct-tab.is-active { color: var(--black); box-shadow: none; }
+}
+
+
+/* =====================================================================
+   VOUCHERS (initVouchers rows) — the same language as the Points
+   history: an off-white icon tile, the value and its state, and a
+   square + to activate. Used and expired vouchers are quieter.
+   ===================================================================== */
+.voucher-list { display: flex; flex-direction: column; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.voucher {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: var(--white);
+}
+.voucher__ico {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  background: var(--offwhite);
+}
+.voucher__ico .ico-line { width: 24px; height: 24px; }
+.voucher__body { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.voucher__title {
+  font-family: var(--font-heading);
+  font-size: 16px;
+  line-height: 1.3;
+  color: var(--black);
+}
+.voucher__meta { font-size: 12px; line-height: 1.5; color: var(--gray-6); }
+.voucher__action {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border: 1px solid var(--gray-2);
+  background: var(--white);
+  color: var(--black);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+.voucher__action:hover { border-color: var(--black); background: var(--black); color: var(--white); }
+.voucher__action .ico-line { width: 16px; height: 16px; color: currentColor; }
+.voucher--old { opacity: 0.6; }
+.voucher--old .voucher__title { color: var(--gray-7); }
+
+
+/* =====================================================================
+   MY WALLET — Figma 163:6451 (desktop) / 261:11353 (phone)
+   Phones stack: head, balance, "Available Vouchers", Add Voucher, history.
+   From 1024px: Add Voucher moves onto the title row, the balance card
+   shrinks to its content, and the vouchers sit two to a row. The history
+   reuses the Points history (.pts-history / .pts-row).
+   ===================================================================== */
+.wal {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-areas: "head" "balance" "vouchers" "add" "hist";
+  gap: 16px;
+}
+.wal > .acct-head { grid-area: head; margin-bottom: 0; }
+.wal-balance { grid-area: balance; }
+.wal-vouchers { grid-area: vouchers; }
+.wal-add { grid-area: add; }
+.wal-history { grid-area: hist; }
+
+.wal-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 16px;
+  border: 0;
+  background: var(--warm-brown);
+  color: var(--gray-1);
+  font-family: var(--font-body);
+  font-size: 16px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.wal-add:hover { background: #57503f; }
+.wal-add .ico-line { width: 18px; height: 18px; color: currentColor; }
+
+.wal-balance {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--offwhite);
+  transition: box-shadow 0.4s ease;
+}
+.wal-balance.is-credited { box-shadow: inset 0 0 0 1px var(--success); }
+.wal-balance__icon { flex: none; width: 32px; height: 32px; color: var(--gray-7); }
+.wal-balance__icon .ico-line { color: currentColor; }
+
+.wal-vouchers__title {
+  margin: 0 0 8px;
+  font-family: var(--font-heading);
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--black);
+}
+.wal-vouchers__list {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.wal-vouchers__empty { margin: 0; font-size: 14px; color: var(--gray-6); }
+
+/* A voucher waiting to be applied. */
+.wvoucher {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--white);
+}
+.wvoucher.is-added { animation: cart-row-added 1.4s ease-out; }
+.wvoucher__icon { flex: none; width: 32px; height: 32px; color: var(--black); }
+.wvoucher__body { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+.wvoucher__title { font-size: 16px; line-height: 1.4; color: var(--black); }
+.wvoucher__meta { font-size: 13px; line-height: 1.5; letter-spacing: 0.5px; color: var(--gray-6); }
+.wvoucher__apply {
+  flex: none;
+  min-height: 40px;
+  padding: 0 2px;
+  border: 0;
+  background: none;
+  font-family: var(--font-body);
+  font-size: 16px;
+  letter-spacing: 1px;
+  color: var(--gray-6);
+  text-decoration: underline;
+  text-decoration-color: var(--gray-4);
+  text-underline-offset: 8px;
+  cursor: pointer;
+  transition: color 0.2s ease, text-decoration-color 0.2s ease;
+}
+.wvoucher__apply:hover { color: var(--black); text-decoration-color: var(--black); }
+.pts-row.is-added { animation: cart-row-added 1.4s ease-out; }
+
+@media (min-width: 1024px) {
+  .wal {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "head add" "balance balance" "vouchers vouchers" "hist hist";
+    align-items: end;
+    column-gap: 24px;
+    row-gap: 32px;
+  }
+  .wal-add { width: auto; min-height: 42px; padding: 0 24px; }
+  .wal-balance { justify-self: start; padding: 16px 22px 16px 16px; }
+  .wal-balance__icon { width: 40px; height: 40px; }
+  .wal-balance .pts-card__value { font-size: 24px; }
+  .wal-vouchers__title { display: none; } /* the desktop frame shows the cards alone */
+  .wal-vouchers__list { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .wvoucher { padding: 22px 16px 22px 20px; gap: 16px; }
+  .wvoucher__title { font-size: 18px; }
+  .wvoucher__meta { font-size: 14px; }
+}
+
+/* ---------------------------------------------------------------------
+   Voucher popups (Add / Apply) — Figma 177:5794, 177:5820, 261:11951,
+   261:12010. A .bottom-sheet: grab handle on phones, a centred popup
+   from 768px. Icon + title + ×, then the field or the note, then one CTA.
+   --------------------------------------------------------------------- */
+.bottom-sheet.vsheet { padding: 20px 16px calc(24px + env(safe-area-inset-bottom)); }
+.vsheet::before {
+  content: "";
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  width: 36px;
+  height: 4px;
+  margin-left: -18px;
+  border-radius: 2px;
+  background: var(--gray-3);
+}
+.vsheet__head { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; }
+.vsheet__ico { flex: none; width: 24px; height: 24px; }
+.vsheet__title {
+  flex: 1;
+  margin: 0;
+  font-family: var(--font-heading);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1.3;
+  color: var(--black);
+}
+.vsheet__close {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  margin-inline-end: -10px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--gray-7);
+  cursor: pointer;
+}
+.vsheet__close .ico-line { width: 16px; height: 16px; color: currentColor; }
+.vsheet__body { display: flex; flex-direction: column; }
+.vsheet__label { font-size: 14px; letter-spacing: 0.5px; color: var(--gray-7); margin-bottom: 6px; }
+.vsheet__input {
+  height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--gray-2);
+  background: var(--white);
+  font-family: var(--font-body);
+  font-size: 16px;
+  letter-spacing: 1px;
+  color: var(--black);
+  transition: border-color 0.2s ease;
+}
+.vsheet__input:focus { outline: 0; border-color: var(--black); }
+.vsheet__error { margin: 6px 0 0; font-size: 12px; color: var(--error); }
+.vsheet__text {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  letter-spacing: 0.5px;
+  text-align: center;
+  color: var(--gray-7);
+}
+.vsheet__cta {
+  margin-top: 24px;
+  min-height: 44px;
+  border: 0;
+  background: var(--warm-brown);
+  color: var(--gray-1);
+  font-family: var(--font-body);
+  font-size: 16px;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+.vsheet__cta:hover { background: #57503f; }
+@media (min-width: 768px) {
+  .bottom-sheet.vsheet { width: 404px; padding: 28px 24px 32px; }
+  .vsheet::before { display: none; }
+}
+
+
+/* =====================================================================
+   SHOP INDEX (shop.html)
+   The index reuses the home bands, the Explore Collections card and the
+   category grid; this block only adds what those don't already carry:
+   a second caption line, a colour dot, and the fabric and colour layouts.
+   ===================================================================== */
+/* The page head already leaves 40px beneath it, so the first band starts
+   closer than a full band would. */
+.shop-band--first { padding-top: 24px; }
+
+/* Cards sit in grids here, not only in rails, so they must be blocks. */
+.ccard { display: block; }
+.ccard__meta {
+  display: block;
+  margin-top: 2px;
+  font-size: 14px;
+  line-height: 1.3;
+  color: var(--gray-5);
+}
+.ccard__dot {
+  flex: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 9999px;
+  background: var(--sw, var(--gray-2));
+  box-shadow: inset 0 0 0 1px rgba(44, 41, 41, 0.15);
+}
+.ccard--swatch .ccard__row { gap: 8px; }
+
+/* Fabric: three landscape cards, gutter to gutter. */
+.egrid.shop-fabrics { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.ccard--fabric .ccard__media { aspect-ratio: 4 / 3; }
+
+/* Colour: square tiles; all seven in one row from tablet up, on the same
+   12px gap as the grids around it. Phones keep the compact pass's two
+   per view. */
+.ccard--swatch .ccard__media { aspect-ratio: 1; }
+@media (min-width: 768px) {
+  .rail:has([data-shop-colours]) { --rail-n: 7; --rail-gap: 12px; }
+}
+
+@media (max-width: 767px) {
+  .shop-band--first { padding-top: 8px; }
+  /* The band head stacks here and stretches its children; keep the help
+     link the width of its label. */
+  .shop-help { align-self: flex-start; }
+  .egrid.shop-fabrics { grid-template-columns: minmax(0, 1fr); }
+  .ccard--fabric .ccard__media { aspect-ratio: 16 / 9; }
+  .ccard__meta { font-size: 12px; }
+  .ccard__dot { width: 12px; height: 12px; }
+  /* One line in a half-width card, down to 320px ("Décor & Accessories"
+     is the longest label). */
+  .egrid .ccard__label {
+    font-size: clamp(10px, 3.2vw, 12px);
+    letter-spacing: clamp(0.5px, 0.25vw, 1px);
+    white-space: nowrap;
+  }
+}
+
+
+/* =====================================================================
+   MOBILE HEADER — logo on the true centre
+   space-between centres the logo between its neighbours, not on the
+   row: the menu button (40px) is narrower than search + bag (80px), so
+   the logo sat 20px left of centre. Three columns with equal outer
+   tracks put it on the centre whatever sits either side, including the
+   checkout header, where the logo is alone.
+   ===================================================================== */
+.hdr-mobile__row {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+}
+.hdr-mobile__row > [data-open="menu"] { grid-column: 1; justify-self: start; }
+.hdr-mobile__logo { grid-column: 2; }
+.hdr-mobile__tools { grid-column: 3; justify-self: end; }
+
+/* Below 1024px the header is sticky as well, pulled up by the
+   announcement bar (--mobile-top, measured in initStickyNav), so the bar
+   scrolls away and the logo row stays pinned. Mirrors the desktop rule,
+   which pins the category rail; checkout's header (no menu) stays put. */
+@media (max-width: 1023px) {
+  #site-header:has(.hdr-mobile [data-open="menu"]) {
+    position: sticky;
+    top: calc(-1 * var(--mobile-top, 0px));
+    z-index: 60;
+  }
+}
+
+
+/* =====================================================================
+   CATEGORY HEAD — phones (767px and under)
+   The title sits on the true centre with its count small beside it.
+   Sort & Filter leaves the row for a compact frosted bar fixed to the
+   bottom of the screen, where it stays in reach down the whole grid.
+   ===================================================================== */
+@media (max-width: 767px) {
+  /* Lifted above the grid so the fixed bar inside it paints over the
+     cards, and still under the header (60) and the drawers. */
+  .category-head { position: relative; z-index: 50; padding-block: 24px; }
+  /* A transform, or will-change: transform, on the section would pin
+     the fixed bar to the section instead of the screen, so on phones the
+     head fades in without the rise. */
+  .category-head[data-reveal] { transform: none; will-change: opacity; }
+
+  /* Equal outer columns keep the title centred whatever the count says. */
+  .category-head__inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    align-items: baseline;
+    column-gap: 6px;
+  }
+  .category-head__title-group { display: contents; }
+  /* Eases down on the narrowest phones so "Mattress Toppers" still leaves
+     room for its count. */
+  .category-head__title {
+    grid-column: 2;
+    font-size: clamp(20px, 6.2vw, 24px);
+    white-space: nowrap;
+  }
+  .category-head__count {
+    grid-column: 3;
+    justify-self: start;
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+  }
+  /* Just the number here; the word stays for screen readers. */
+  .category-head__count-word {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* A small chip: dense frosted glass, so the label stays readable over
+     any photograph scrolling underneath. */
+  .sortfilter-btn {
+    position: fixed;
+    bottom: calc(16px + env(safe-area-inset-bottom));
+    left: 50%;
+    transform: translateX(-50%);
+    height: 30px;
+    padding: 0 12px;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.8);
+    -webkit-backdrop-filter: blur(24px) saturate(1.8);
+    backdrop-filter: blur(24px) saturate(1.8);
+    box-shadow:
+      inset 0 0 0 1px rgba(44, 41, 41, 0.1),
+      0 4px 14px rgba(44, 41, 41, 0.12);
+    color: var(--black);
+    font-size: 11px;
+    line-height: 1;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  /* Drawn small, but the finger still gets a 44px target. */
+  .sortfilter-btn::after {
+    content: "";
+    position: absolute;
+    inset: -7px 0;
+  }
+  .sortfilter-btn .ico,
+  .sortfilter-btn svg { width: 14px; height: 14px; }
+
+  /* Room under the footer's last line, so the bar never sits on it. */
+  [data-page="category"] .ftr-credits {
+    padding-bottom: calc(12px + 60px + env(safe-area-inset-bottom));
+  }
+}
+
+
+/* =====================================================================
+   PRODUCT GALLERY — layout switch (product.html)
+   A compact frosted toggle fixed to the bottom of the screen swaps the
+   gallery between the two-column grid ("Multiple images") and a single
+   plate ("One image", .pdp--single). The single plate is the selected
+   colourway's photograph at exactly one grid tile's size, so the same
+   image file serves both layouts; on desktop the plate and the buy box
+   then sit together as one block centred on the page.
+   ===================================================================== */
+.pdp-layout {
+  position: fixed;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  left: 50%;
+  z-index: 40;
+  transform: translateX(-50%);
+}
+/* The same compact frosted chip as the category page's Sort & Filter. */
+.pdp-layout .segmented {
+  padding: 3px;
+  background: rgba(255, 255, 255, 0.8);
+  -webkit-backdrop-filter: blur(24px) saturate(1.8);
+  backdrop-filter: blur(24px) saturate(1.8);
+  box-shadow:
+    inset 0 0 0 1px rgba(44, 41, 41, 0.1),
+    0 4px 14px rgba(44, 41, 41, 0.12);
+}
+.pdp-layout .segmented__thumb { top: 3px; bottom: 3px; background: var(--black); }
+.pdp-layout .segmented > button {
+  position: relative;
+  height: 24px;
+  padding: 0 12px;
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--gray-5);
+}
+.pdp-layout .segmented > button:hover:not(.is-active) { color: var(--black); }
+.pdp-layout .segmented.is-ready > button.is-active { color: var(--offwhite); }
+/* Room under the footer's last line, so the toggle never sits on it. */
+[data-page="product"] .ftr-credits {
+  padding-bottom: calc(12px + 56px + env(safe-area-inset-bottom));
+}
+
+.pdp--single .pdp__gallery { grid-template-columns: minmax(0, 1fr); }
+.pdp--single .pdp__gallery-img:not(:first-child) { display: none; }
+@media (min-width: 1024px) {
+  /* The gallery column narrows to one tile: half of what the grid's
+     column would be (the row minus the 446px buy box, the 66px gap and
+     the grid's own 2px gap) — 439px at 1512, the same as each tile in
+     "Multiple images". The leftover width centres the pair. */
+  .pdp--single .pdp__inner {
+    grid-template-columns: calc((100% - 514px) / 2) 446px;
+    justify-content: center;
+  }
+  .pdp--single .pdp__gallery {
+    position: sticky;
+    top: calc(var(--sticky-top, 0px) + 24px);
+  }
+}
+@media (max-width: 1023px) {
+  /* One full-width photograph, capped so the buy box starts on screen. */
+  .pdp--single .pdp__gallery-img { max-height: 78vh; }
+}
+@media (max-width: 767px) {
+  /* Drawn small, but each half still gets a 44px-tall target. */
+  .pdp-layout .segmented { overflow: visible; }
+  .pdp-layout .segmented > button::after {
+    content: "";
+    position: absolute;
+    inset: -10px 0;
+  }
 }

@@ -47,10 +47,12 @@ tailwind.config = {
       xl: "1280px",
       "2xl": "1536px",
     },
+    /* Same rules as .container-design in styles.css: full width, padded by
+       the site gutter, which is what steps 16 → 20 → 60 → 100 → 120px. */
     container: {
       center: true,
-      padding: { DEFAULT: "20px", lg: "60px" },
-      screens: { sm: "100%", md: "100%", lg: "100%", xl: "1512px", "2xl": "1512px" },
+      padding: "var(--gutter)",
+      screens: { sm: "100%", md: "100%", lg: "100%", xl: "100%", "2xl": "100%" },
     },
     extend: {
       fontFamily: {

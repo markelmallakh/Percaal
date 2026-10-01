@@ -21,10 +21,10 @@
     </div>
 
     <main class="overflow-x-clip">
-      <!-- ============ PAYMENT — Figma 117:5055 ============
-           Two 756px halves. Left: logo + Secure Payment form with three
-           method rows (Credit Card / Cash on Delivery / Wallet Balance).
-           Right: shared Bag Summary panel. -->
+      <!-- ============ CARD PAYMENT — Figma 117:5055 ============
+           Reached only when Credit Card is chosen on the checkout page
+           (cash on delivery places the order from there). Left: the card
+           form. Right: the shared Bag Summary panel. -->
       <section class="chk">
 
         <div class="chk__form-col">
@@ -34,79 +34,48 @@
 
           <form class="chk__form" data-payment-form novalidate>
             <section class="chk__block">
-              <h2 class="chk__block-title">Secure Payment</h2>
-
-              <!-- Credit Card method -->
-              <div class="paym" data-paym data-active="card">
-                <div class="paym__row">
-                  <label class="chk__radio paym__radio">
-                    <input type="radio" name="pay" value="card" checked data-paym-radio />
-                    <span class="chk__radio-dot" aria-hidden="true"></span>
-                    <span>Credit Card</span>
-                  </label>
-                  <div class="paym__logos">
-                    <img src="images/payment-method-mastercard.webp" alt="Mastercard" width="42" height="26" />
-                    <img src="images/payment-method-visa.webp" alt="Visa" width="42" height="26" />
-                  </div>
-                </div>
-                <div class="paym__body" data-paym-body>
-                  <label class="field field--small">
-                    <span class="field__label">Card Number</span>
-                    <input class="field__input" type="text" inputmode="numeric" value="5217 9280 2036 8393" />
-                  </label>
-                  <div class="chk__row chk__row--2">
-                    <label class="field field--small">
-                      <span class="field__label">Expiry Date</span>
-                      <input class="field__input" type="text" placeholder="MM/YY" value="12/28" />
-                    </label>
-                    <label class="field field--small">
-                      <span class="field__label">CVV</span>
-                      <input class="field__input" type="text" inputmode="numeric" value="123" />
-                    </label>
-                  </div>
+              <a href="checkout.html" class="chk__back" data-back-to-checkout>
+                <span class="ico ico-18" data-ico="arrow-left-01-sharp"></span>
+                <span>Back to checkout</span>
+              </a>
+              <div class="chk__block-head">
+                <h2 class="chk__block-title">Card Details</h2>
+                <div class="paym__logos">
+                  <img src="images/payment-method-mastercard.webp" alt="Mastercard" width="42" height="26" />
+                  <img src="images/payment-method-visa.webp" alt="Visa" width="42" height="26" />
                 </div>
               </div>
 
-              <div class="paym__rule"></div>
-
-              <!-- Cash On Delivery -->
-              <div class="paym" data-paym>
-                <div class="paym__row">
-                  <label class="chk__radio paym__radio">
-                    <input type="radio" name="pay" value="cod" data-paym-radio />
-                    <span class="chk__radio-dot" aria-hidden="true"></span>
-                    <span>Cash On Delivery</span>
-                  </label>
-                  <span class="ico ico-24 paym__icon" data-ico="cash-02"></span>
-                </div>
-              </div>
-
-              <div class="paym__rule"></div>
-
-              <!-- Wallet Balance -->
-              <div class="paym" data-paym>
-                <div class="paym__row">
-                  <label class="chk__radio paym__radio">
-                    <input type="radio" name="pay" value="wallet" data-paym-radio />
-                    <span class="chk__radio-dot" aria-hidden="true"></span>
-                    <span>Wallet Balance</span>
-                    <span class="bagsum__wallet-amount bagsum__wallet-amount--tinted paym__amount">1,000 EGP</span>
-                  </label>
-                  <span class="ico ico-24 paym__icon" data-ico="wallet-02"></span>
-                </div>
+              <label class="field">
+                <span class="field__label">Name on Card</span>
+                <input class="field__input" type="text" value="Mark Amir" required autocomplete="cc-name" />
+              </label>
+              <label class="field">
+                <span class="field__label">Card Number</span>
+                <input class="field__input" type="text" inputmode="numeric" value="5217 9280 2036 8393" required autocomplete="cc-number" />
+              </label>
+              <div class="chk__row chk__row--2">
+                <label class="field">
+                  <span class="field__label">Expiry Date</span>
+                  <input class="field__input" type="text" placeholder="MM/YY" value="12/28" required autocomplete="cc-exp" />
+                </label>
+                <label class="field">
+                  <span class="field__label">CVV</span>
+                  <input class="field__input" type="text" inputmode="numeric" value="123" required autocomplete="cc-csc" />
+                </label>
               </div>
             </section>
 
             <div data-checkout-actions>
-              <a href="thanks.html" class="bagsum__cta chk__next">
-              <span class="bagsum__cta-label">PLACE ORDER</span>
-              <span class="ico ico-20" data-ico="arrow-right-01-sharp"></span>
-            </a>
+              <button type="submit" class="bagsum__cta chk__next">
+                <span class="bagsum__cta-label">PAY NOW</span>
+                <span class="ico ico-20" data-ico="arrow-right-01-sharp"></span>
+              </button>
             </div>
           </form>
         </div>
 
-        <!-- Bag Summary — same panel as checkout 1 -->
+        <!-- Bag Summary — same panel as the checkout page -->
         <aside class="chk__summary-col">
           <div class="bagsum bagsum--checkout" data-order-summary>
             <div class="bagsum__head">
@@ -151,15 +120,13 @@
                 <span class="bagsum__wallet-amount bagsum__wallet-amount--tinted">1,000 EGP</span>
               </label>
 
-              <button type="button" class="bagsum__ghost">
-                <span class="bagsum__ghost-icon" aria-hidden="true"></span>
-                <span>Add Order Notes</span>
-              </button>
+              <!-- Order note — the shared field (initNoteInput). -->
+              <div data-nteinp></div>
 
               <div class="bagsum__totals">
-                <div class="bagsum__total-row"><span>Subtotal</span><span>12,000 EGP</span></div>
-                <div class="bagsum__total-row"><span>Shipping Fees</span><span>100 EGP</span></div>
-                <div class="bagsum__total-row"><span>Discount</span><span>-1,000 EGP</span></div>
+                <div class="bagsum__total-row"><span>Subtotal</span><span data-summary-subtotal>12,000 EGP</span></div>
+                <div class="bagsum__total-row"><span>Shipping Fees</span><span data-summary-delivery>100 EGP</span></div>
+                <div class="bagsum__total-row" data-summary-discount-row hidden><span>Discount</span><span data-summary-discount></span></div>
                 <div class="bagsum__rule"></div>
                 <div class="bagsum__total-row bagsum__total-row--grand"><span>Total</span><span data-summary-total>11,100 EGP</span></div>
               </div>
@@ -178,18 +145,24 @@
           el.innerHTML = ic(el.getAttribute('data-ico'));
         });
 
-        /* Payment method selection: flip .is-active on the container so
-           the chosen method's body (only Credit Card has one) is shown. */
-        function syncActive() {
-          var checked = document.querySelector('[data-paym-radio]:checked');
-          document.querySelectorAll('[data-paym]').forEach(function (row) {
-            row.classList.toggle('is-active', row.contains(checked));
+        /* Keep a Buy Now checkout's ?buy=… on the way back, so the
+           checkout page still shows that one item. */
+        var back = document.querySelector('[data-back-to-checkout]');
+        if (back) back.href = 'checkout.html' + location.search;
+
+        /* Pay: every card field must be filled, then the order is placed. */
+        var form = document.querySelector('[data-payment-form]');
+        if (form) {
+          form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (!form.checkValidity()) {
+              var bad = form.querySelector(':invalid');
+              if (bad) bad.reportValidity();
+              return;
+            }
+            location.href = 'thanks.html' + location.search;
           });
         }
-        document.addEventListener('change', function (e) {
-          if (e.target.matches('[data-paym-radio]')) syncActive();
-        });
-        syncActive();
       })();
     </script>
   </body>

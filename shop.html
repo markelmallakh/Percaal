@@ -4,7 +4,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Shop — Percaal</title>
-    <meta name="description" content="Every Percaal collection: percale bed linen, duvet cover sets, pillows, towels, handmade spread sheets and home textiles in seven Egyptian cotton colourways." />
+    <meta name="description" content="Every Percaal collection: percale bed linen, duvet cover sets, pillows, towels and home textiles in seven Egyptian cotton colourways." />
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="tw-config.js"></script>
     <link rel="stylesheet" href="styles.css" />
@@ -26,92 +26,64 @@
     <div id="site-header"></div>
 
     <main class="overflow-x-clip">
-      <!-- Page head. No hero image: this is an index, and an index that
-           opens with a full-bleed photograph makes you scroll past it to
-           find out what's actually here. -->
-      <section class="border-b border-border-light">
-        <div class="mx-auto max-w-[1512px] px-6 py-14 lg:px-[60px] lg:py-20">
-          <p class="eyebrow mb-4">Shop</p>
-          <h1 class="display-xl max-w-[14ch]">Everything we weave.</h1>
-          <p class="lede mt-6">
-            One cloth, three qualities, seven colours. Bed linen, pillows, towels
-            and home textiles — made in Egypt, sized for Egyptian beds.
-          </p>
-        </div>
-      </section>
-
-      <!-- Shop by fabric ------------------------------------------------ -->
-      <section class="section">
-        <div class="mx-auto max-w-[1512px] px-6 lg:px-[60px]">
-          <div class="section__head">
-            <div>
-              <p class="eyebrow">Start here</p>
-              <h2 class="display-lg">Shop by fabric</h2>
-            </div>
-          </div>
-          <div class="egrid">
-            <a href="shop-category.html?c=tc-400" class="tile tile--portrait">
-              <span class="tile__media"><img src="images/category-02-bedding.webp" alt="" loading="lazy" /></span>
-              <span class="tile__body">
-                <span class="tile__title">Percale 400</span>
-                <span class="tile__meta">400 thread count · 100% Egyptian cotton. Our finest weave.</span>
-              </span>
-            </a>
-            <a href="shop-category.html?c=tc-200" class="tile tile--portrait">
-              <span class="tile__media"><img src="images/category-05-table-linen.webp" alt="" loading="lazy" /></span>
-              <span class="tile__body">
-                <span class="tile__title">Percale 200</span>
-                <span class="tile__meta">200 thread count · 100% Egyptian cotton. Crisp and cool.</span>
-              </span>
-            </a>
-            <a href="shop-category.html?c=blend" class="tile tile--portrait">
-              <span class="tile__media"><img src="images/category-01-linens.webp" alt="" loading="lazy" /></span>
-              <span class="tile__body">
-                <span class="tile__title">Easy-Care Blend</span>
-                <span class="tile__meta">65% polyester · 35% cotton. Wrinkle-resistant, quick-drying.</span>
-              </span>
-            </a>
+      <!-- Page head — the same title + count row as the category pages
+           (shop-category.html), so the index and its listings read as one
+           family. No hero image: an index that opens with a photograph makes
+           you scroll past it to find out what's here. -->
+      <section class="category-head">
+        <div class="category-head__inner">
+          <div class="category-head__title-group">
+            <h1 class="category-head__title">Shop</h1>
+            <span class="category-head__count" data-shop-count></span>
           </div>
         </div>
       </section>
 
-      <!-- Shop by category ---------------------------------------------- -->
-      <section class="section section--tight">
-        <div class="mx-auto max-w-[1512px] px-6 lg:px-[60px]">
-          <div class="section__head">
-            <div>
-              <p class="eyebrow">Browse</p>
-              <h2 class="display-lg">By category</h2>
-            </div>
-          </div>
-          <div class="egrid" data-categories></div>
+      <!-- ============ SHOP BY FABRIC ============ -->
+      <section class="band shop-band--first">
+        <div class="band__head">
+          <h2 class="band__title">Shop by Fabric</h2>
+        </div>
+        <div class="container-design">
+          <div class="egrid shop-fabrics" data-shop-fabrics></div>
         </div>
       </section>
 
-      <!-- The palette ---------------------------------------------------- -->
-      <section class="section section--linen">
-        <div class="mx-auto max-w-[1512px] px-6 lg:px-[60px]">
-          <div class="section__head">
-            <div>
-              <p class="eyebrow">The palette</p>
-              <h2 class="display-lg">Shop by colour</h2>
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7" data-colour-story></div>
+      <!-- ============ SHOP BY CATEGORY ============ -->
+      <section class="band band--grey">
+        <div class="band__head">
+          <h2 class="band__title">Shop by Category</h2>
+        </div>
+        <div class="container-design">
+          <div class="egrid egrid--4" data-shop-categories></div>
         </div>
       </section>
 
-      <!-- Everything ------------------------------------------------------ -->
-      <section class="section">
-        <div class="mx-auto max-w-[1512px] px-6 lg:px-[60px]">
-          <div class="section__head">
-            <div>
-              <p class="eyebrow">All products</p>
-              <h2 class="display-md" data-count-title>The full range</h2>
-            </div>
-            <a href="contact-us.html" class="section__more">Need help choosing?</a>
-          </div>
-          <div class="egrid egrid--4" data-shelf="all"></div>
+      <!-- ============ SHOP BY COLOUR ============
+           Seven colourways make one row on desktop; on a phone the same
+           rail shows two at a time and swipes, like every other carousel. -->
+      <section class="band">
+        <div class="band__head">
+          <h2 class="band__title">Shop by Colour</h2>
+        </div>
+        <div class="rail" data-rail>
+          <button type="button" class="rail__btn rail__btn--prev" data-rail-prev aria-label="Previous" data-ico="arrow-left-01-sharp"></button>
+          <div class="rail__track" data-rail-track data-shop-colours></div>
+          <button type="button" class="rail__btn rail__btn--next" data-rail-next aria-label="Next" data-ico="arrow-right-01-sharp"></button>
+        </div>
+      </section>
+
+      <!-- ============ ALL PRODUCTS ============ -->
+      <section class="band band--paper">
+        <div class="band__head">
+          <h2 class="band__title">All Products</h2>
+          <a href="contact-us.html" class="link-more shop-help">
+            Need help choosing?
+            <span class="link-more__icon ico ico-20" data-ico="arrow-right-02-round"></span>
+          </a>
+        </div>
+        <div class="container-design">
+          <div class="egrid egrid--4" data-shop-all></div>
         </div>
       </section>
     </main>
@@ -119,52 +91,106 @@
     <div id="site-footer"></div>
 
     <script>
+      /* ---------------------------------------------------------------
+         Shop index. Every tile is built from the catalogue in scripts.js
+         and every count is counted, not typed, so a tile can never point
+         at a listing with nothing behind it. Each link lands on
+         shop-category.html, which resolves ?c= as a category, a
+         sub-category or a fabric key.
+         --------------------------------------------------------------- */
       document.addEventListener("DOMContentLoaded", function () {
-        /* Category tiles and the colour row are both generated from the
-           catalogue in scripts.js rather than hand-written, so this page can
-           never list a category that has no products behind it. */
-        var CATS = [
-          ["fitted-sheets", "Fitted Sheets", "4 sizes · 7 colours"],
-          ["flat-sheets", "Flat Sheets", "4 sizes · 7 colours"],
-          ["duvet-covers", "Duvet Cover Sets", "Plain & embroidered"],
-          ["duvets", "Duvets", "Microfiber & waterproof"],
-          ["pillows", "Pillows & Cases", "Memory foam & pollydown"],
-          ["mattress-toppers", "Mattress Toppers", "Three sizes"],
-          ["spread-sheets", "Spread Sheets", "Machine & handmade"],
-          ["towels", "Towels", "Bath, hand & sheets"],
-          ["home-decor", "Home Décor", "Throws, cushions & table linen"],
+        var P = window.percaalProducts || [];
+        var F = window.percaalFabrics || {};
+        var CW = window.percaalColourways || { map: {}, order: [] };
+        if (!P.length) return;
+
+        var plural = function (n) { return n + (n === 1 ? " product" : " products"); };
+        var count = function (test) { return P.filter(test).length; };
+
+        /* The homepage's Explore Collections card, plus an optional
+           modifier, a lead-in before the label and a line beneath it. */
+        var ccard = function (o) {
+          return (
+            '<a class="ccard' + (o.mod ? " ccard--" + o.mod : "") + '" href="' + o.href + '">' +
+            '<span class="ccard__media"><img src="' + o.img + '" alt="" loading="lazy" /></span>' +
+            '<span class="ccard__row">' + (o.lead || "") +
+            '<span class="ccard__label">' + o.label + "</span></span>" +
+            (o.meta ? '<span class="ccard__meta">' + o.meta + "</span>" : "") +
+            "</a>"
+          );
+        };
+
+        var head = document.querySelector("[data-shop-count]");
+        if (head) {
+          head.innerHTML = P.length + '<span class="category-head__count-word">' +
+            (P.length === 1 ? " product" : " products") + "</span>";
+        }
+
+        /* --- Fabric -------------------------------------------------- */
+        var FABRICS = [
+          ["tc-400", "Percale 400", "images/product-10-fabric-detail-hand.webp"],
+          ["tc-200", "Percale 200", "images/product-09-fabric-detail-folded.webp"],
+          ["blend", "Easy-Care Blend", "images/about-11-folding-linens.webp"],
         ];
-        var mount = document.querySelector("[data-categories]");
-        if (mount) {
-          mount.innerHTML = CATS.map(function (c) {
-            return (
-              '<a href="shop-category.html?c=' + c[0] + '" class="tile tile--overlay tile--portrait">' +
-              '<span class="tile__media"><img src="images/categories/' + c[0] + '.svg" alt="" loading="lazy" /></span>' +
-              '<span class="tile__body"><span class="tile__title">' + c[1] + "</span>" +
-              '<span class="tile__meta">' + c[2] + "</span></span></a>"
-            );
+        var fmount = document.querySelector("[data-shop-fabrics]");
+        if (fmount) {
+          fmount.innerHTML = FABRICS.map(function (f) {
+            var n = count(function (p) { return p.fabrics.indexOf(f[0]) > -1; });
+            if (!n) return "";
+            return ccard({
+              mod: "fabric",
+              href: "shop-category.html?c=" + f[0],
+              img: f[2],
+              label: f[1],
+              meta: (F[f[0]] ? F[f[0]].short + " · " : "") + plural(n),
+            });
           }).join("");
         }
 
-        var cw = window.percaalColourways;
-        var swatchMount = document.querySelector("[data-colour-story]");
-        if (cw && swatchMount) {
-          swatchMount.innerHTML = cw.order
-            .map(function (k) {
-              var c = cw.map[k];
-              return (
-                '<a href="shop-category.html?c=bedding&amp;colour=' + k + '" class="tile tile--square">' +
-                '<span class="tile__media"><img src="images/products/swatch-' + c.art + '.svg" alt="' + c.name + ' cotton" loading="lazy" /></span>' +
-                '<span class="tile__body"><span class="tile__title">' + c.name + "</span></span></a>"
-              );
-            })
-            .join("");
+        /* --- Category ------------------------------------------------ */
+        var CATS = [
+          ["bedding", "Bedding", "images/category-02-bedding.webp"],
+          ["towels", "Towels", "images/category-04-towels.webp"],
+          ["decor", "Décor & Accessories", "images/category-03-decor.webp"],
+          ["household", "Household", "images/category-05-table-linen.webp"],
+        ];
+        var cmount = document.querySelector("[data-shop-categories]");
+        if (cmount) {
+          cmount.innerHTML = CATS.map(function (c) {
+            var n = count(function (p) { return p.cat === c[0]; });
+            if (!n) return "";
+            return ccard({ href: "shop-category.html?c=" + c[0], img: c[2], label: c[1], meta: plural(n) });
+          }).join("");
         }
 
-        var title = document.querySelector("[data-count-title]");
-        if (title && window.percaalProducts) {
-          title.textContent = "All " + window.percaalProducts.length + " products";
+        /* --- Colour: each colourway's own photograph, the one the
+           product cards switch to, with its swatch beside the name. ------ */
+        var smount = document.querySelector("[data-shop-colours]");
+        if (smount) {
+          smount.innerHTML = CW.order.map(function (k) {
+            var c = CW.map[k];
+            if (!c) return "";
+            return ccard({
+              mod: "swatch",
+              href: "shop-category.html?c=bedding&amp;colour=" + k,
+              img: "images/" + c.img + ".webp",
+              label: c.name,
+              lead: '<span class="ccard__dot" style="--sw:' + c.hex + '" aria-hidden="true"></span>',
+            });
+          }).join("");
         }
+
+        /* --- Everything ---------------------------------------------- */
+        var amount = document.querySelector("[data-shop-all]");
+        if (amount && window.percaalCard) {
+          amount.innerHTML = P.map(function (p) { return window.percaalCard(p); }).join("");
+        }
+
+        /* --- Inline every icon declared with data-ico -------------------- */
+        var ic = window.icon || function () { return ""; };
+        document.querySelectorAll("[data-ico]").forEach(function (el) {
+          el.innerHTML = ic(el.getAttribute("data-ico"));
+        });
       });
     </script>
   </body>

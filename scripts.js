@@ -92,11 +92,13 @@
 
   /* Announcement bar copy, and the currency / language pills. */
   const ANNOUNCEMENT = "Free shipping for orders above 5,000 EGP";
+  /* Currencies are shown by ISO code alone. A symbol prefix misled for
+     EGP (£ is the pound sterling), so no currency carries one. */
   const CURRENCIES = [
-    { code: "EGP", symbol: "£", flag: "images/flag-eg.webp", label: "Egypt" },
-    { code: "USD", symbol: "$", flag: "images/flag-us.webp", label: "United States" },
-    { code: "AED", symbol: "د.إ", flag: "images/flag-ae.webp", label: "UAE" },
-    { code: "EUR", symbol: "€", flag: "images/flag-de.webp", label: "Germany" },
+    { code: "EGP", flag: "images/flag-eg.webp", label: "Egypt" },
+    { code: "USD", flag: "images/flag-us.webp", label: "United States" },
+    { code: "AED", flag: "images/flag-ae.webp", label: "UAE" },
+    { code: "EUR", flag: "images/flag-de.webp", label: "Germany" },
   ];
 
   /* Footer socials. `ico` names a file in icons/, inlined via window.icon()
@@ -549,20 +551,86 @@
         const first = track.firstElementChild;
         return first ? first.getBoundingClientRect().width + 2 : 320;
       };
+
+      /* [data-rail-loop] makes the rail endless. A copy of the cards sits
+         on each side of the real set; whenever the scroll comes to rest
+         inside a copy, the track jumps one set width to the identical
+         real card, so it never runs out in either direction. The copies
+         are hidden from assistive tech and the tab order — the real set
+         is what gets announced. */
+      const loop = rail.hasAttribute("data-rail-loop");
+      let looping = false;
+      const dir = () => (getComputedStyle(track).direction === "rtl" ? -1 : 1);
+      const setWidth = () => {
+        if (!looping) return 0;
+        const n = track.querySelectorAll(":scope > :not([data-rail-clone])").length;
+        const kids = track.children;
+        return Math.abs(kids[2 * n].offsetLeft - kids[n].offsetLeft);
+      };
+      const jump = (x) => {
+        track.style.scrollBehavior = "auto";
+        track.scrollLeft = x * dir();
+        track.style.scrollBehavior = "";
+      };
+      const recentre = () => {
+        const w = setWidth();
+        if (!w) return;
+        const x = track.scrollLeft * dir();
+        if (x < w * 0.5) jump(x + w);
+        else if (x >= w * 1.5) jump(x - w);
+      };
+      const build = () => {
+        track.querySelectorAll(":scope > [data-rail-clone]").forEach((c) => c.remove());
+        looping = false;
+        const items = Array.from(track.children);
+        if (!loop || items.length < 2 || track.scrollWidth <= track.clientWidth + 1) return;
+        const copy = (el) => {
+          const c = el.cloneNode(true);
+          c.setAttribute("data-rail-clone", "");
+          c.setAttribute("aria-hidden", "true");
+          c.classList.remove("rv-child");
+          c.querySelectorAll("a, button").forEach((f) => f.setAttribute("tabindex", "-1"));
+          return c;
+        };
+        track.prepend(...items.map(copy));
+        track.append(...items.map(copy));
+        looping = true;
+        jump(setWidth());
+      };
+
       const sync = () => {
         const max = track.scrollWidth - track.clientWidth - 1;
-        if (prev) prev.disabled = track.scrollLeft <= 0;
-        if (next) next.disabled = track.scrollLeft >= max;
+        if (prev) prev.disabled = !looping && track.scrollLeft <= 0;
+        if (next) next.disabled = !looping && track.scrollLeft >= max;
         const noScroll = track.scrollWidth <= track.clientWidth + 1;
         if (prev) prev.hidden = noScroll;
         if (next) next.hidden = noScroll;
       };
-      rail._railSync = sync;
+      /* Called after a shelf tab swaps the cards, so a looping rail
+         re-copies the new set. */
+      rail._railSync = () => {
+        build();
+        sync();
+      };
 
+      let settle;
       if (prev) prev.addEventListener("click", () => track.scrollBy({ left: -step(), behavior: "smooth" }));
       if (next) next.addEventListener("click", () => track.scrollBy({ left: step(), behavior: "smooth" }));
-      track.addEventListener("scroll", sync, { passive: true });
-      window.addEventListener("resize", sync);
+      track.addEventListener(
+        "scroll",
+        () => {
+          sync();
+          if (!looping) return;
+          clearTimeout(settle);
+          settle = setTimeout(recentre, 120);
+        },
+        { passive: true }
+      );
+      window.addEventListener("resize", () => {
+        sync();
+        recentre();
+      });
+      build();
       /* Cards are lazily filled by initShelves, so measure after layout. */
       requestAnimationFrame(sync);
       window.addEventListener("load", sync, { once: true });
@@ -789,7 +857,7 @@
       <div class="hdr-currency" data-currency>
         <button type="button" class="hdr-currency__btn" data-currency-toggle aria-haspopup="listbox" aria-expanded="false">
           <img src="images/flag-eg.webp" alt="" width="17" height="13" class="hdr-currency__flag" />
-          <span data-currency-code>£EGP</span>
+          <span data-currency-code>EGP</span>
         </button>
         <span class="hdr-currency__rule" aria-hidden="true"></span>
         <button type="button" class="hdr-currency__btn" data-currency-toggle data-lang-label>EN</button>
@@ -821,10 +889,10 @@
               <ul class="regpop__list" data-country-list role="listbox" aria-labelledby="regpop-country">
                 ${CURRENCIES.map(
                   (c) =>
-                    `<li role="option" tabindex="0" data-currency-pick="${c.symbol}${c.code}" data-country-name="${c.label}">
+                    `<li role="option" tabindex="0" data-currency-pick="${c.code}" data-country-name="${c.label}">
                        <img src="${c.flag}" alt="" width="17" height="13" />
                        <span class="regpop__country">${c.label}</span>
-                       <span class="regpop__code">${c.symbol}${c.code}</span>
+                       <span class="regpop__code">${c.code}</span>
                      </li>`,
                 ).join("")}
               </ul>
@@ -876,6 +944,12 @@
                    (m) =>
                      `<a href="${pageHref(m.url)}" class="hdr-raillink${currentPath().startsWith(m.url) ? " is-current" : ""}">${esc(m.name)}</a>`,
                  ).join("")}
+                 <span class="hdr-rail__cart">
+                   <button type="button" data-open="cart" class="hdr-icon hdr-bag" aria-label="Cart">
+                     ${ico("shopping-bag-03", "ico-24")}
+                     <span class="hdr-bag__count" data-cart-count>1</span>
+                   </button>
+                 </span>
                </nav>`
         }
       </div>`;
@@ -949,6 +1023,9 @@
         <div class="acct-menu__user">
           <span class="acct-tier"><span class="acct-tier__dot" aria-hidden="true"></span>GOLD</span>
           <p class="acct-menu__name">${esc(ACCOUNT.name)}</p>
+          <!-- Phones only: the help block (and its Logout) is hidden there,
+               so Logout rides on the name row instead. -->
+          <a href="index.html" class="acct-menu__out">Logout</a>
         </div>
         <span class="acct-menu__rule" aria-hidden="true"></span>
         <div class="acct-menu__tabs">${tabs}</div>
@@ -1053,6 +1130,115 @@
     },
   ];
 
+  /* One line item in the cart drawer — Figma 74:2002 right column. Thumb +
+     name + attribute list + price on the left; a boxed [-] N [+] stepper on
+     the right. Shared by the seeded rows and by quick-add, so a row added
+     from "You May Also Like" is indistinguishable from one there on load.
+     `key` names the product plus its chosen options, so adding the same
+     thing again raises the quantity instead of adding a second row. */
+  function cartRowHTML(it) {
+    const attrs =
+      it.variants && it.variants.length
+        ? `<p class="cart-row__attrs">${it.variants
+            .map(([, v]) => esc(v))
+            .join(' <span aria-hidden="true">·</span> ')}</p>`
+        : "";
+    return `
+      <div class="cart-row" data-cart-row data-unit-price="${it.price}"${it.key ? ` data-line-key="${esc(it.key)}"` : ""}>
+        <img src="${it.img}" alt="${esc(it.name)}" class="cart-row__thumb" />
+        <div class="cart-row__body">
+          <p class="cart-row__name">${esc(it.name)}</p>
+          ${attrs}
+          <p class="cart-row__price">${egp(it.price)}</p>
+        </div>
+        <div class="cart-row__stepper" data-stepper data-removable>
+          <button type="button" data-step="-1" class="cart-row__btn" aria-label="Decrease quantity"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+          <span data-qty class="cart-row__qty">${it.qty}</span>
+          <button type="button" data-step="1" class="cart-row__btn" aria-label="Increase quantity"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+        </div>
+      </div>`;
+  }
+
+  /* ---------------------------------------------------------------
+     YOU MAY ALSO LIKE — quick add from the cart drawer
+
+     Each card carries a + on its photo so a shopper can add without
+     leaving the bag. A simple product (one colour, size and fabric) goes
+     straight in. A variable one opens a small frosted menu over the photo,
+     one choice per step and only for the axes that actually vary: colour,
+     then size, then fabric. Choosing (or hovering) a colour switches the
+     card's photo to it, so the picture always shows what will be added.
+     Picking the last step adds it. Wired in initQuickAdd().
+     --------------------------------------------------------------- */
+  const UPSELL_SLUGS = ["pillowcase-pair", "wooden-tray", "sheet-set-sage", "towel-set", "fabric-swatch", "cotton-pillow"];
+
+  /* Short fabric names: the menu is 134px wide and shares each row with
+     a price. */
+  const FABRIC_SHORT = {
+    "tc-400": "400 TC", "tc-200": "200 TC", blend: "Easy-Care",
+    cotton: "Cotton", microfiber: "Microfiber", "memory-foam": "Memory Foam",
+  };
+
+  /* The choices a product needs, in the order they are asked. */
+  function quickAddSteps(p) {
+    const steps = [];
+    if (p.colours.length > 1) {
+      steps.push({
+        axis: "colour",
+        title: "Colour",
+        options: p.colours.map((c) => ({ value: c, label: COLOURWAYS[c].name, swatch: COLOURWAYS[c].hex })),
+      });
+    }
+    if (p.sizes.length > 1) {
+      steps.push({
+        axis: "size",
+        title: "Size",
+        // "180×200 (King)" reads as "King" with the dimensions beside it.
+        options: p.sizes.map((v) => {
+          const m = /^(.*?)\s*\((.+)\)$/.exec(v);
+          return { value: v, label: m ? m[2] : v, note: m ? m[1] : "" };
+        }),
+      });
+    }
+    if (p.fabrics.length > 1) {
+      steps.push({
+        axis: "fabric",
+        title: "Fabric",
+        options: p.fabrics.map((f) => ({
+          value: f,
+          label: FABRIC_SHORT[f] || FABRICS[f].name,
+          note: Number(p.price[f]).toLocaleString("en-US"),
+        })),
+      });
+    }
+    return steps;
+  }
+
+  function upsellCardHTML(p) {
+    const colour = p.colours[0];
+    const prices = p.fabrics.map((f) => p.price[f]);
+    const low = Math.min(...prices);
+    const priceLabel = (prices.some((v) => v !== low) ? "From " : "") + egp(low);
+    const variable = quickAddSteps(p).length > 0;
+    const href = "product.html?p=" + encodeURIComponent(p.slug);
+    return `
+      <div class="upsell-card" data-quick-add data-slug="${esc(p.slug)}" data-colour="${esc(colour)}">
+        <div class="upsell-card__stage">
+          <a class="upsell-card__media" href="${href}" tabindex="-1" aria-hidden="true">
+            <img src="${productArt(p, colour)}" alt="" loading="lazy" />
+          </a>
+          <button type="button" class="upsell-card__add" data-qa-toggle
+                  aria-label="${variable ? "Choose options for " : "Add to bag: "}${esc(p.name)}"
+                  ${variable ? `aria-expanded="false" aria-controls="qa-${esc(p.slug)}"` : ""}>
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
+          ${variable ? `<div class="qa-panel" id="qa-${esc(p.slug)}" data-qa-panel></div>` : ""}
+        </div>
+        <a class="upsell-card__name" href="${href}">${esc(p.name)}</a>
+        <span class="upsell-card__price">${priceLabel}</span>
+      </div>`;
+  }
+
   /* ---------------------------------------------------------------
      Overlays: backdrop, cart drawer, mobile menu, search, location
      --------------------------------------------------------------- */
@@ -1063,96 +1249,23 @@
        and the desktop nav can never list different things. Sub-categories
        ride along underneath at body size — on a phone there is no hover,
        so a mega-menu equivalent has to be a plain nested list. */
+    /* Menu — Figma 246:17978. Collections in uppercase ink, then the
+       secondary pages smaller and lighter under a divider. --i staggers
+       each row's fade-in as the sheet opens. */
     const menuCategoryLinks = MAIN_MENU.map(
-      (c) =>
-        `<li>
-          <a href="${pageHref(c.url)}" class="block text-primaryDark text-[19px] font-medium leading-tight transition-colors hover:text-cta">${esc(c.name)}</a>
-          ${
-            c.children && c.children.length
-              ? `<ul class="mt-2.5 flex flex-col gap-2 ps-0">${c.children
-                  .map(
-                    (k) =>
-                      `<li><a href="${pageHref(k.url)}" class="text-[13px] text-neutral-secondary transition-colors hover:text-primaryDark">${esc(k.name)}</a></li>`,
-                  )
-                  .join("")}</ul>`
-              : ""
-          }
-        </li>`,
+      (c, i) => `<li style="--i:${i}"><a href="${pageHref(c.url)}">${esc(c.name)}</a></li>`,
     ).join("");
-
-    /* Bottom section: the secondary pages (About, FAQs, …) — still reachable,
-       deliberately quieter than the categories above them. */
     const menuSecondaryLinks = SUPPORT_MENU.map(
-      (i) =>
-        `<li><a href="${pageHref(i.url)}" class="text-textSecondary text-[15px] font-medium leading-none hover:text-cta transition-colors">${esc(i.title)}</a></li>`,
+      (p, i) => `<li style="--i:${i + MAIN_MENU.length}"><a href="${pageHref(p.url)}">${esc(p.title)}</a></li>`,
     ).join("");
 
     const demoCartItems = DEMO_CART_ITEMS;
-    // Variation tags — variable products only; simple products get no row.
-    const vtags = (variants) =>
-      variants && variants.length
-        ? `<div class="vtags mt-1.5">${variants
-            .map(([k, v]) => `<span class="vtag"><span class="vtag__k">${esc(k)}:</span><span class="vtag__v">${esc(v)}</span></span>`)
-            .join("")}</div>`
-        : "";
-    /* Cart row — Figma 74:2002 right column. Thumb + name + attribute list
-       + price on the left; a boxed [-] N [+] stepper on the right. */
-    const cartAttrs = (variants) =>
-      variants && variants.length
-        ? `<p class="cart-row__attrs">${variants
-            .map(([, v]) => esc(v))
-            .join(' <span aria-hidden="true">·</span> ')}</p>`
-        : "";
-    const cartRows = demoCartItems
-      .map(
-        (it) => `
-      <div class="cart-row" data-cart-row data-unit-price="${it.price}">
-        <img src="${it.img}" alt="${esc(it.name)}" class="cart-row__thumb" />
-        <div class="cart-row__body">
-          <p class="cart-row__name">${esc(it.name)}</p>
-          ${cartAttrs(it.variants)}
-          <p class="cart-row__price">${egp(it.price)}</p>
-        </div>
-        <div class="cart-row__stepper" data-stepper data-removable>
-          <button type="button" data-step="-1" class="cart-row__btn" aria-label="Decrease quantity"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
-          <span data-qty class="cart-row__qty">${it.qty}</span>
-          <button type="button" data-step="1" class="cart-row__btn" aria-label="Increase quantity"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
-        </div>
-      </div>`,
-      )
-      .join("");
+    const cartRows = demoCartItems.map(cartRowHTML).join("");
 
-    /* Cross-sell grid — "Goes with this". Sits inside the same
-       scrollable region as the line items (not pinned above the footer),
-       so it doesn't eat into checkout visibility on a short drawer. Fixed
-       2-row × 3-column grid (not a carousel — everything is visible at
-       once, no swiping needed for 6 items). Reuses the standard
-       data-add-widget/data-add-btn quick-add pattern (see product cards)
-       at a smaller scale, so the existing global click-delegation in
-       initDelegation() wires it up for free — no drawer-specific JS. */
-    const demoUpsellItems = [
-      { name: "Percale 400 Pillow Case", price: 620, img: "images/product-06-pillow-taupe.webp" },
-      { name: "Memory Foam Pillow", price: 1150, img: "images/product-05-pillowcase-pair-burgundy.webp" },
-      { name: "Percale 200 Flat Sheet", price: 1680, img: "images/product-03-sheet-set-sage.webp" },
-      { name: "Mattress Topper 160×200", price: 2100, img: "images/product-08-sheet-set-white-styled.webp" },
-      { name: "Bath Towel, set of two", price: 890, img: "images/product-02-towel-set-white.webp" },
-      { name: "Handmade Spread Sheet", price: 3400, img: "images/product-07-sheet-kit-packaging.webp" },
-    ];
     /* Upsell widget — Figma 74:1983 "You May Also Like" left column. A
-       vertical stack of 134-wide widgets: square-ish media plate, name on
-       two lines, price. Each widget links to its PDP. */
-    const upsellCards = demoUpsellItems
-      .map(
-        (it) => `
-      <a class="upsell-card" href="product.html">
-        <span class="upsell-card__media">
-          <img src="${it.img}" alt="${esc(it.name)}" loading="lazy" />
-        </span>
-        <span class="upsell-card__name">${esc(it.name)}</span>
-        <span class="upsell-card__price">${egp(it.price)}</span>
-      </a>`,
-      )
-      .join("");
+       vertical stack of 134-wide widgets: photo plate with a quick-add +,
+       name on two lines, price. See "YOU MAY ALSO LIKE" above. */
+    const upsellCards = UPSELL_SLUGS.map((slug) => upsellCardHTML(productBySlug(slug))).join("");
     const cartUpsell = `
       <p class="cart-drawer__aside-title">You May Also Like</p>
       <div class="cart-drawer__aside-list">${upsellCards}</div>`;
@@ -1174,8 +1287,6 @@
          and the shopping bag summary on the right (500px). Close ×
          floats outside the panel's left edge. -->
     <aside data-drawer="cart" class="side-drawer side-drawer--right cart-drawer" aria-label="Shopping cart">
-      <button type="button" data-close class="side-drawer__close cart-drawer__close" aria-label="Close cart">${ICON.close}</button>
-
       <aside class="cart-drawer__aside" aria-label="You may also like">
         ${cartUpsell}
       </aside>
@@ -1187,6 +1298,9 @@
             <span class="cart-drawer__count" data-cart-count>${demoCartItems.length}</span>
           </h2>
           <a href="cart.html" class="cart-drawer__viewbag">View Cart</a>
+          <!-- Absolutely placed against the drawer on desktop (just outside
+               its edge); in the phone bottom sheet it sits in this row. -->
+          <button type="button" data-close class="side-drawer__close cart-drawer__close" aria-label="Close cart">${ICON.close}</button>
         </div>
 
         <div class="cart-drawer__list" data-cart-rows>${cartRows}</div>
@@ -1199,35 +1313,53 @@
           </div>
           <a href="checkout.html" class="cart-drawer__checkout">
             <span>CHECKOUT</span>
-            <span data-cart-subtotal>${egp(initialSubtotal)}</span>
+            <span data-cart-grand>${egp(initialSubtotal)}</span>
           </a>
           <a href="shop.html" class="cart-drawer__continue">CONTINUE SHOPPING</a>
         </div>
       </div>
     </aside>
 
-    <!-- Menu drawer: secondary pages (white panel, opens from the menu button) -->
-    <aside data-drawer="menu" class="side-drawer side-drawer--left bg-white" aria-label="Menu">
-      <div class="px-6 pt-6">
-        <button type="button" data-close aria-label="Close menu" class="grid place-items-center bg-white rounded text-primaryDark shadow-custom-5 border border-gray-200 size-[52px]">${ICON.close2}</button>
-      </div>
-      <nav class="flex-1 overflow-y-auto px-6 pb-4 pt-8">
-        <ul class="flex flex-col gap-5">
-          ${menuCategoryLinks}
-        </ul>
-        <hr class="my-7 border-gray-200" />
-        <ul class="flex flex-col gap-4 pb-2">
-          ${menuSecondaryLinks}
-        </ul>
-      </nav>
-      <div class="flex flex-col gap-3 border-t border-gray-200 px-6 py-5">
-        <button type="button" data-open="lang" class="flex w-full items-center gap-2 rounded border border-gray-200 px-3 py-2.5 text-primaryDark transition-colors hover:border-primaryDark">
-          <span data-lang-flag class="text-base leading-none">🇪🇬</span>
-          <span class="flex-1 text-start text-sm font-medium">Regional Settings</span>
-          <span data-lang-label class="text-[13px] font-medium text-textSecondary">EN | Egy</span>
+    <!-- Menu — Figma 246:17978. A full-screen sheet that drops from the
+         top: a bar (× · logo), a row of shortcut icons, the collections,
+         then the secondary pages. Shortcuts that open another panel close
+         the menu first (see the [data-open] handler). -->
+    <aside data-drawer="menu" class="side-drawer menu-sheet" aria-label="Menu">
+      <!-- The bar is laid exactly over the header row it opens from (the
+           positions are measured on open), so the logo stays put and the
+           menu icon's three lines turn into the × in place. -->
+      <div class="menu-sheet__bar">
+        <button type="button" data-close class="menu-sheet__toggle" aria-label="Close menu">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path class="menu-sheet__line menu-sheet__line--1" d="M2 12H22" />
+            <path class="menu-sheet__line menu-sheet__line--2" d="M2 12H22" />
+            <path class="menu-sheet__line menu-sheet__line--3" d="M2 12H22" />
+          </svg>
         </button>
-        <a href="login.html" class="btn btn--black btn--md w-full justify-center">Sign In</a>
+        <a href="index.html" class="menu-sheet__logo" aria-label="Percaal home">${logoMark(true, 26)}</a>
       </div>
+
+      <div class="menu-sheet__shortcuts">
+        <button type="button" data-open="lang" class="menu-sheet__currency" aria-label="Country and language">
+          <span data-menu-currency>EGP</span>${ico("arrow-right-01-sharp", "ico-16")}
+        </button>
+        <span class="menu-sheet__rule" aria-hidden="true"></span>
+        <button type="button" data-open="search" class="menu-sheet__icon" aria-label="Search">${ico("search", "ico-24")}</button>
+        <span class="menu-sheet__rule" aria-hidden="true"></span>
+        <a href="login.html" class="menu-sheet__icon" aria-label="Account">${ico("user", "ico-24")}</a>
+        <span class="menu-sheet__rule" aria-hidden="true"></span>
+        <a href="my-account-favorites.html" class="menu-sheet__icon" aria-label="Wishlist">${ico("favourite", "ico-24")}</a>
+        <span class="menu-sheet__rule" aria-hidden="true"></span>
+        <button type="button" data-open="cart" class="menu-sheet__icon hdr-bag" aria-label="Cart">
+          ${ico("shopping-bag-03", "ico-24")}
+          <span class="hdr-bag__count" data-cart-count>1</span>
+        </button>
+      </div>
+
+      <nav class="menu-sheet__nav" aria-label="Shop">
+        <ul class="menu-sheet__cats">${menuCategoryLinks}</ul>
+        <ul class="menu-sheet__pages">${menuSecondaryLinks}</ul>
+      </nav>
     </aside>
 
     <!-- Search — Figma 193:11401. A 592px drawer off the right edge on
@@ -1302,31 +1434,55 @@
       </div>
     </div>
 
-    <!-- Country & Language modal (opened by the header lang button) -->
-    <!-- Regional settings (Figma 6324-60291). A .bottom-sheet, not a
-         .modal-shell: it slides up from the bottom on phones and becomes a
-         centered popup at md+, which is exactly what the design asks for. -->
-    <div data-modal="lang" class="bottom-sheet !px-0 !pt-0">
-      <div class="flex items-center gap-2 px-4 py-4">
-        <button type="button" data-close aria-label="Close" class="grid shrink-0 place-items-center rounded border border-[#e3e6e5] bg-white text-primaryDark size-[32px]">${ICON.close}</button>
-        <h2 class="flex-1 pe-[32px] text-center text-[18px] font-semibold leading-[1.3] text-primaryDark">Regional Settings</h2>
-      </div>
-      <div class="flex flex-col gap-6 px-4 pb-2">
-        <div class="flex flex-col gap-2">
-          <span class="text-[12px] font-normal leading-[1.3] text-textSecondary">Choose Country*</span>
-          <div class="grid grid-cols-2 gap-2.5">
-            <button type="button" data-country="egy" class="lang-opt lang-opt--stacked"><span class="text-xl leading-none">🇪🇬</span> Egypt</button>
-            <button type="button" data-country="ksa" class="lang-opt lang-opt--stacked"><span class="text-xl leading-none">🇸🇦</span> KSA</button>
+    <!-- Regional settings — the phone version of the header's regional
+         panel (.regpop), built from the same pieces so the two match: a
+         country field and the English / العربية tabs. Tapping the country
+         slides the sheet over to a searchable country list; picking one
+         slides back. Wired in initRegSheet(). -->
+    <div data-modal="lang" class="bottom-sheet regsheet" role="dialog" aria-label="Regional settings">
+      <div class="regsheet__track" data-regsheet-track>
+        <section class="regsheet__view is-active" data-regsheet-view="main">
+          <div class="regsheet__head">
+            <h2 class="regsheet__title">Regional Settings</h2>
+            <button type="button" data-close class="regsheet__icon" aria-label="Close">${ico("cancel-01", "ico-16")}</button>
           </div>
-        </div>
-        <div class="flex flex-col gap-2">
-          <span class="text-[12px] font-normal leading-[1.3] text-textSecondary">Choose Language*</span>
-          <div class="grid grid-cols-2 gap-2.5">
-            <button type="button" data-lang-pick="en" class="lang-opt lang-opt--stacked">English</button>
-            <button type="button" data-lang-pick="ar" class="lang-opt lang-opt--stacked" style="font-family: 'Noto Kufi Arabic', 'Google Sans Flex', sans-serif;">العربية</button>
+          <p class="regpop__label">Country</p>
+          <button type="button" class="cselect__field regsheet__field" data-regsheet-go="countries" aria-label="Choose country">
+            <img class="cselect__flag" data-regsheet-flag src="images/flag-eg.webp" alt="" width="17" height="13" />
+            <span class="cselect__value" data-regsheet-country>Egypt</span>
+            <span class="regsheet__code" data-regsheet-code>EGP</span>
+            <span class="ico ico-16 regsheet__chev" aria-hidden="true">${ico("arrow-right-01-sharp", "ico-16")}</span>
+          </button>
+          <span class="regpop__rule" aria-hidden="true"></span>
+          <p class="regpop__label">Language</p>
+          <div class="regpop__tabs" role="tablist" aria-label="Language">
+            <button type="button" class="regpop__tab" data-lang-tab="en" role="tab">English</button>
+            <button type="button" class="regpop__tab" data-lang-tab="ar" role="tab" lang="ar">العربية</button>
           </div>
-        </div>
-        <button type="button" data-lang-confirm class="btn btn--primary btn--lg w-full justify-center">Select</button>
+        </section>
+
+        <section class="regsheet__view" data-regsheet-view="countries" aria-label="Choose country">
+          <div class="regsheet__head">
+            <button type="button" class="regsheet__icon" data-regsheet-go="main" aria-label="Back">${ico("arrow-left-01-sharp", "ico-16")}</button>
+            <h2 class="regsheet__title">Choose Country</h2>
+            <button type="button" data-close class="regsheet__icon" aria-label="Close">${ico("cancel-01", "ico-16")}</button>
+          </div>
+          <label class="regpop__search">
+            ${ico("search", "ico-16")}
+            <input type="search" data-regsheet-search placeholder="Search countries" autocomplete="off" aria-label="Search countries" />
+          </label>
+          <ul class="regpop__list regsheet__list" role="listbox" aria-label="Countries">
+            ${CURRENCIES.map(
+              (c) =>
+                `<li role="option" tabindex="0" data-regsheet-pick="${c.code}" data-country-name="${c.label}" data-flag="${c.flag}">
+                   <img src="${c.flag}" alt="" width="17" height="13" />
+                   <span class="regpop__country">${c.label}</span>
+                   <span class="regpop__code">${c.code}</span>
+                 </li>`,
+            ).join("")}
+          </ul>
+          <p class="regpop__empty" data-regsheet-empty hidden>No country matches that.</p>
+        </section>
       </div>
     </div>
 
@@ -1411,9 +1567,37 @@
     schedule: '[data-modal="schedule"]',
     voucher: '[data-modal="voucher"]',
     redeem: '[data-modal="redeem"]',
+    "voucher-add": '[data-modal="voucher-add"]',
+    "voucher-apply": '[data-modal="voucher-apply"]',
     address: '[data-modal="address"]',
   };
   let openEl = null;
+
+  /* The menu sheet opens from the header row: its top edge sits on that
+     row's top edge, and its toggle and logo take the exact positions of
+     the header's menu icon and logo. Measured on each open, so it holds
+     with or without the announcement bar, at any width, and when the
+     page has been scrolled a little. */
+  function placeMenuSheet(burger) {
+    const sheet = document.querySelector('[data-drawer="menu"]');
+    const row = burger && burger.closest(".hdr-mobile__row");
+    if (!sheet || !row) return;
+    const r = row.getBoundingClientRect();
+    const top = Math.max(0, r.top);
+    const b = burger.getBoundingClientRect();
+    const logo = row.querySelector(".hdr-mobile__logo");
+    const l = logo ? logo.getBoundingClientRect() : null;
+    const set = (k, v) => sheet.style.setProperty(k, Math.round(v) + "px");
+    set("--sheet-top", top);
+    set("--bar-h", r.bottom - top);
+    set("--tog-x", b.left);
+    set("--tog-y", b.top - top);
+    set("--tog-s", b.width);
+    if (l) {
+      set("--logo-x", l.left);
+      set("--logo-y", l.top - top);
+    }
+  }
 
   function openOverlay(key) {
     const sel = openMap[key];
@@ -2077,9 +2261,39 @@
 
   /* Drawer totals. Discount + Total stay hidden until a code is applied,
      so the drawer is just "Subtotal" in the normal case. */
+  /* A code applied in the cart drawer keeps its RULE, not a fixed amount,
+     so a percentage stays right when quantities change afterwards. */
+  let drawerPromoRule = null;
+  function drawerSubtotal() {
+    const drawer = document.querySelector('[data-drawer="cart"]');
+    let sum = 0;
+    if (drawer)
+      drawer.querySelectorAll("[data-cart-row]").forEach((row) => {
+        const qtyEl = row.querySelector("[data-qty]");
+        sum += (parseFloat(row.dataset.unitPrice) || 0) * (qtyEl ? parseInt(qtyEl.textContent, 10) || 0 : 0);
+      });
+    return sum;
+  }
+  const promoAmount = (rule, base) =>
+    rule.type === "percent" ? Math.round(base * rule.value) / 100 : Math.min(rule.value, base);
+  const promoDesc = (rule, amount) =>
+    rule.type === "percent" ? rule.value + "% discount (−" + egp(amount) + ")" : egp(amount) + " off your order";
+
   function syncCartDrawerTotals() {
     const drawer = document.querySelector('[data-drawer="cart"]');
     if (!drawer) return;
+    /* The drawer's own promo: recompute the saving from today's subtotal,
+       refresh its line, and show the discounted total on CHECKOUT. */
+    const sub = drawerSubtotal();
+    const saving = drawerPromoRule ? promoAmount(drawerPromoRule, sub) : 0;
+    if (drawerPromoRule) {
+      promoDiscount = saving;
+      const desc = drawer.querySelector("[data-promo] [data-promo-desc]");
+      if (desc) desc.textContent = promoDesc(drawerPromoRule, saving);
+    }
+    drawer.querySelectorAll("[data-cart-grand]").forEach((el) => {
+      el.textContent = egp(Math.max(0, sub - saving));
+    });
     const subEl = drawer.querySelector("[data-cart-subtotal]");
     const dRow = drawer.querySelector("[data-cart-discount-row]");
     const dEl = drawer.querySelector("[data-cart-discount]");
@@ -2109,6 +2323,10 @@
     const deliveryEl = document.querySelector("[data-summary-delivery]");
     const subtotal = parseEGP(subtotalEl.textContent);
     const delivery = deliveryEl ? parseEGP(deliveryEl.textContent) : 0;
+    // Write the inputs back in the same format as the total they sum to,
+    // so the block never mixes "12,000 EGP" with "EGP 12,100.00".
+    subtotalEl.textContent = egp(subtotal);
+    if (deliveryEl) deliveryEl.textContent = delivery ? egp(delivery) : "Free";
 
     const discountRow = document.querySelector("[data-summary-discount-row]");
     const discountEl = document.querySelector("[data-summary-discount]");
@@ -2125,7 +2343,10 @@
     if (walletRow) walletRow.hidden = walletUsed <= 0;
     if (walletEl) walletEl.textContent = "− " + egp(walletUsed);
 
-    totalEl.textContent = egp(Math.max(0, afterPromo - walletUsed));
+    const total = egp(Math.max(0, afterPromo - walletUsed));
+    totalEl.textContent = total;
+    // The cart page repeats the total on its CHECKOUT button.
+    document.querySelectorAll("[data-summary-total-cta]").forEach((el) => { el.textContent = total; });
     return { afterPromo, walletUsed };
   }
 
@@ -2157,7 +2378,8 @@
      jumps or colour-flashes when the threshold flips — only the bar and
      the words change. Reuses promoPaperBurst() for the celebration so
      cart and promo-code success feel like the same brand moment. */
-  const FREE_SHIP_THRESHOLD = 2500; // must match the header announcement bar
+  const FREE_SHIP_THRESHOLD = 5000; // must match the header announcement bar ("above 5,000 EGP")
+  const SHIPPING_FEE = 100; // below the threshold
   function freeShippingHTML(subtotal) {
     const remaining = Math.max(0, FREE_SHIP_THRESHOLD - subtotal);
     const pct = Math.min(100, Math.round((subtotal / FREE_SHIP_THRESHOLD) * 100));
@@ -2181,8 +2403,7 @@
      toward. */
   function updateFreeShipping() {
     const drawer = document.querySelector('[data-drawer="cart"]');
-    const mount = drawer && drawer.querySelector("[data-free-shipping]");
-    if (!drawer || !mount) return;
+    if (!drawer) return;
     const rows = drawer.querySelectorAll("[data-cart-row]");
     let subtotal = 0;
     rows.forEach((row) => {
@@ -2191,12 +2412,18 @@
       const qty = qtyEl ? parseInt(qtyEl.textContent, 10) || 0 : 0;
       subtotal += price * qty;
     });
-    // Update the footer subtotal BEFORE the empty-cart early-return, or an
-    // emptied cart keeps showing the last non-zero total.
-    const subtotalEl = drawer.querySelector("[data-cart-subtotal]");
-    if (subtotalEl) subtotalEl.textContent = egp(subtotal);
+    // Update every subtotal (the CHECKOUT button carries one too) BEFORE
+    // any early return, or the totals go stale: an emptied cart keeps its
+    // last figure, and a drawer without a free-shipping strip never updated
+    // at all.
+    drawer.querySelectorAll("[data-cart-subtotal]").forEach((el) => {
+      el.textContent = egp(subtotal);
+    });
     // Re-apply any active promo against the new subtotal.
     syncCartDrawerTotals();
+
+    const mount = drawer.querySelector("[data-free-shipping]");
+    if (!mount) return;
 
     if (!rows.length) {
       mount.classList.add("hidden");
@@ -2427,7 +2654,7 @@
     const old = st !== "available";
     return `
       <li class="voucher${old ? " voucher--old" : ""}" data-voucher-id="${v.id}" data-voucher-value="${v.value}" data-voucher-state="${st}">
-        <span class="voucher__ico"><img src="icons/gift-card.svg" alt="" /></span>
+        <span class="voucher__ico"><span class="ico ico-line" data-ico="gift-card" aria-hidden="true">${window.icon ? window.icon("gift-card") : ""}</span></span>
         <span class="voucher__body">
           <span class="voucher__title">${v.value} EGP Discount</span>
           <span class="voucher__meta">${voucherMeta(v)}</span>
@@ -2436,7 +2663,7 @@
           old
             ? ""
             : `<button type="button" class="voucher__action" data-voucher-activate aria-label="Activate ${v.value} EGP voucher">
-                 <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+                 <span class="ico ico-line" data-ico="plus-sign" aria-hidden="true">${window.icon ? window.icon("plus-sign") : ""}</span>
                </button>`
         }
       </li>`;
@@ -2616,7 +2843,7 @@
      top up a balance that never changed. This is the only persisted
      state on the site; clear `ex_voucher_redeemed` to reset the demo.
      --------------------------------------------------------------- */
-  const WALLET_BASE = 1250;
+  const WALLET_BASE = 2000; // the balance the Figma wallet shows
   const VOUCHER_STORE = "ex_voucher_redeemed";
   function voucherRedeemed() {
     try {
@@ -2885,6 +3112,7 @@
   function promoFieldHTML() {
     return `
       <div class="promo__form" data-promo-form>
+        <span class="promo__icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M3 7.5A1.5 1.5 0 0 1 4.5 6h15A1.5 1.5 0 0 1 21 7.5v2a2.5 2.5 0 0 0 0 5v2a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 16.5v-2a2.5 2.5 0 0 0 0-5v-2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="m9.5 14.5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="9.75" cy="9.75" r="0.9" fill="currentColor"/><circle cx="14.25" cy="14.25" r="0.9" fill="currentColor"/></svg></span>
         <input type="text" class="promo__input" placeholder="Promo code" aria-label="Promo code" data-promo-input />
         <button type="button" class="promo__apply" data-promo-apply>Apply</button>
       </div>
@@ -2896,8 +3124,106 @@
         </span>
         <button type="button" class="promo__remove" data-promo-remove aria-label="Remove promo code"><svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></button>
       </div>
-      <span class="promo__flash" aria-hidden="true"><span class="promo__wipe"></span></span>
       <p class="promo__error" data-promo-error role="alert" hidden></p>`;
+  }
+
+  /* ORDER NOTE — one field for the bag summaries (cart, checkout, card
+     page) and the place-holder <div data-nteinp></div> is all a page needs.
+     Three states: a quiet "+ Add Order Notes" link; the open field with an
+     ADD link (Enter works too); and the saved note, marked "Note added"
+     with a tick, the note itself (tap it to edit) and a delete icon. The
+     note is kept for the session, so one written in the bag is still there
+     at checkout. */
+  const NOTE_KEY = "percaal-order-note";
+  const noteStore = {
+    get() { try { return sessionStorage.getItem(NOTE_KEY) || ""; } catch (e) { return ""; } },
+    set(v) { try { v ? sessionStorage.setItem(NOTE_KEY, v) : sessionStorage.removeItem(NOTE_KEY); } catch (e) { /* session-only */ } },
+  };
+  function noteFieldHTML() {
+    return `
+      <button type="button" class="nteinp__ghost" data-nteinp-open>
+        <span class="bagsum__ghost-icon" aria-hidden="true"></span>
+        <span>Add Order Notes</span>
+      </button>
+      <div class="nteinp__open" data-nteinp-input>
+        <div class="nteinp__open-head">
+          <span>Add Order Notes</span>
+          <button type="button" class="nteinp__close" data-nteinp-close aria-label="Cancel note">
+            <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="nteinp__input">
+          <input type="text" data-nteinp-value placeholder="Type an order note…" maxlength="200" aria-label="Order note" />
+          <button type="button" class="nteinp__add" data-nteinp-add disabled>Add</button>
+        </div>
+      </div>
+      <div class="nteinp__saved" data-nteinp-saved>
+        <span class="promo__check" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="m5 12.5 4.5 4.5L19 7.5" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+        <button type="button" class="nteinp__saved-meta" data-nteinp-edit aria-label="Edit order note">
+          <span class="nteinp__saved-label">Note added</span>
+          <span class="nteinp__saved-text" data-nteinp-text></span>
+        </button>
+        <button type="button" class="nteinp__delete" data-nteinp-delete aria-label="Delete order note">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M19.5 5.5 18.88 15.6c-.16 2.58-.24 3.87-.88 4.8a4 4 0 0 1-1.2 1.13c-.97.57-2.26.57-4.85.57-2.6 0-3.89 0-4.86-.57A4 4 0 0 1 5.9 20.4c-.65-.93-.72-2.22-.88-4.81L4.5 5.5M3 5.5h18M16.06 5.5l-.68-1.4c-.45-.94-.68-1.4-1.07-1.7a2 2 0 0 0-.27-.17C13.6 2 13.08 2 12.04 2c-1.07 0-1.6 0-2.04.24a2 2 0 0 0-.28.18c-.4.3-.62.79-1.06 1.76L8.05 5.5M9.5 16.5v-6M14.5 16.5v-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>`;
+  }
+  function initNoteInput(scope) {
+    scope.querySelectorAll("[data-nteinp]").forEach((wrap) => {
+      if (wrap.dataset.noteReady) return;
+      wrap.dataset.noteReady = "1";
+      wrap.classList.add("nteinp");
+      wrap.innerHTML = noteFieldHTML();
+      const input = wrap.querySelector("[data-nteinp-value]");
+      const addBtn = wrap.querySelector("[data-nteinp-add]");
+      const text = wrap.querySelector("[data-nteinp-text]");
+
+      const syncAdd = () => { addBtn.disabled = !input.value.trim(); };
+      const show = (state) => {
+        wrap.classList.toggle("is-open", state === "open");
+        wrap.classList.toggle("is-saved", state === "saved");
+      };
+      const open = () => {
+        show("open");
+        syncAdd();
+        setTimeout(() => input.focus(), 60);
+      };
+      const save = () => {
+        const v = input.value.trim();
+        if (!v) return;
+        text.textContent = v;
+        noteStore.set(v);
+        show("saved");
+      };
+
+      const kept = noteStore.get();
+      if (kept) {
+        input.value = kept;
+        text.textContent = kept;
+        show("saved");
+      }
+
+      input.addEventListener("input", syncAdd);
+      input.addEventListener("keydown", (e) => {
+        // Never let Enter submit a surrounding checkout form.
+        if (e.key === "Enter") { e.preventDefault(); save(); }
+        if (e.key === "Escape") { e.preventDefault(); input.value = noteStore.get(); show(noteStore.get() ? "saved" : ""); }
+      });
+      wrap.querySelector("[data-nteinp-open]").addEventListener("click", open);
+      wrap.querySelector("[data-nteinp-edit]").addEventListener("click", open);
+      addBtn.addEventListener("click", save);
+      // Cancel goes back to whatever was saved before (or to nothing).
+      wrap.querySelector("[data-nteinp-close]").addEventListener("click", () => {
+        input.value = noteStore.get();
+        show(noteStore.get() ? "saved" : "");
+      });
+      wrap.querySelector("[data-nteinp-delete]").addEventListener("click", () => {
+        noteStore.set("");
+        input.value = "";
+        text.textContent = "";
+        show("");
+      });
+    });
   }
 
   function initPromo(scope) {
@@ -2913,8 +3239,14 @@
       const errorEl = promo.querySelector("[data-promo-error]");
       if (!form || !input || !success) return;
 
-      const subtotalEl = document.querySelector("[data-summary-subtotal]");
-      const subtotal = subtotalEl ? parseEGP(subtotalEl.textContent) : 0;
+      // In the drawer the base is the drawer's own subtotal; elsewhere the
+      // page summary's. Read at apply time, not once at load.
+      const inDrawer = !!promo.closest('[data-drawer="cart"]');
+      const baseSubtotal = () => {
+        if (inDrawer) return drawerSubtotal();
+        const el = document.querySelector("[data-summary-subtotal]");
+        return el ? parseEGP(el.textContent) : 0;
+      };
 
       // The link is inert until there's something to apply.
       const syncApply = () => {
@@ -2945,20 +3277,18 @@
         // so that's the one to point people at.
         if (!rule) return fail("That code isn't valid. Try PERCAAL10.");
 
-        const discount = rule.type === "percent" ? Math.round(subtotal * rule.value) / 100 : rule.value;
-        const desc =
-          rule.type === "percent"
-            ? rule.value + "% discount (−" + egp(discount) + ")"
-            : egp(discount) + " off your order";
+        const discount = promoAmount(rule, baseSubtotal());
+        const desc = promoDesc(rule, discount);
 
         promo.classList.remove("is-invalid");
         if (errorEl) errorEl.hidden = true;
+
+        /* Activation, one box throughout: the field's contents fade up and
+           out while the box itself eases to the success tint, then the
+           success row fades in on the same tint and its tick pops. The
+           confetti fires as the row arrives. See "PROMO CODE" in
+           styles.css for the timings. */
         promo.classList.add("is-applying");
-
-        // Launch from the centre of the field, as the wipe opens.
-        const r = promo.getBoundingClientRect();
-        setTimeout(() => promoPaperBurst(r.left + r.width / 2, r.top + r.height / 2), 160);
-
         const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         setTimeout(
           () => {
@@ -2968,9 +3298,12 @@
             success.hidden = false;
             promo.classList.remove("is-applying");
             promo.classList.add("is-applied");
+            if (inDrawer) drawerPromoRule = rule;
             promoSyncSummary(discount);
+            const r = promo.getBoundingClientRect();
+            promoPaperBurst(r.left + r.width / 2, r.top + r.height / 2);
           },
-          reduce ? 0 : 400,
+          reduce ? 0 : 260,
         );
       };
 
@@ -2990,12 +3323,23 @@
       const removeBtn = promo.querySelector("[data-promo-remove]");
       if (removeBtn)
         removeBtn.addEventListener("click", () => {
-          success.hidden = true;
-          form.hidden = false;
-          promo.classList.remove("is-applied");
-          input.value = "";
-          syncApply();
-          promoSyncSummary(0);
+          // The reverse: the success row fades out, the empty field fades in.
+          const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          promo.classList.add("is-removing");
+          setTimeout(
+            () => {
+              success.hidden = true;
+              form.hidden = false;
+              promo.classList.remove("is-applied", "is-removing");
+              promo.classList.add("is-returning");
+              setTimeout(() => promo.classList.remove("is-returning"), 320);
+              input.value = "";
+              syncApply();
+              if (inDrawer) drawerPromoRule = null;
+              promoSyncSummary(0);
+            },
+            reduce ? 0 : 180,
+          );
         });
 
       // Start from a clean slate so the demo total is always consistent.
@@ -3134,8 +3478,388 @@
   }
   document.addEventListener("click", uiSelectCloseAll);
 
+  /* Add a product to the bag drawer — the one path every "add" takes
+     (the drawer's quick-add and the product page's ADD TO BAG / BUY NOW).
+     `opts` picks the variant: colour, size, fabric (each defaulting to the
+     product's first) and qty (default 1). The same product + options
+     raises the quantity of its existing row instead of adding a second
+     one. Updates the badge and the drawer totals; returns the row. */
+  function addLineToBag(slug, opts) {
+    const drawer = document.querySelector('[data-drawer="cart"]');
+    const list = drawer && drawer.querySelector("[data-cart-rows]");
+    if (!list) return null;
+    const o = opts || {};
+    const p = productBySlug(slug);
+    const colour = o.colour || p.colours[0];
+    const size = o.size || p.sizes[0];
+    const fabric = o.fabric || p.fabrics[0];
+    const qty = Math.max(1, parseInt(o.qty, 10) || 1);
+    const variants = [];
+    if (p.sizes.length > 1) variants.push(["Size", size]);
+    if (p.fabrics.length > 1) variants.push(["Fabric", FABRICS[fabric].name]);
+    if (p.colours.length > 1) variants.push(["Colour", COLOURWAYS[colour].name]);
+    const key = [p.slug, colour, size, fabric].join("|");
+
+    let row = [...list.querySelectorAll("[data-line-key]")].find((r) => r.dataset.lineKey === key);
+    if (row) {
+      const qtyEl = row.querySelector("[data-qty]");
+      const q = (parseInt(qtyEl.textContent, 10) || 0) + qty;
+      qtyEl.textContent = q;
+      const dec = row.querySelector('[data-step="-1"]');
+      if (dec && q > 1) {
+        dec.innerHTML = STEP_ICON_MINUS;
+        dec.setAttribute("aria-label", "Decrease quantity");
+      }
+    } else {
+      if (!list.querySelector("[data-cart-row]")) list.innerHTML = ""; // clear the empty state
+      list.insertAdjacentHTML(
+        "afterbegin",
+        cartRowHTML({ name: p.name, price: p.price[fabric], qty, img: productArt(p, colour), variants, key }),
+      );
+      row = list.firstElementChild;
+      initSteppers(row);
+    }
+    // A soft flash on the row that changed, scrolled into view.
+    row.classList.remove("is-added");
+    void row.offsetWidth;
+    row.classList.add("is-added");
+    row.scrollIntoView({ block: "nearest", behavior: "smooth" });
+    bumpCart(qty);
+    updateFreeShipping();
+    return row;
+  }
+  window.kAddLine = addLineToBag;
+  window.kOpenCart = () => {
+    const btn = document.querySelector('[data-open="cart"]');
+    if (btn) btn.click();
+  };
+
+  /* BUY NOW — express checkout for a single item. The product page sends
+     ?buy=<slug>&colour=&size=&fabric=&qty= to checkout.html (and the
+     checkout carries it on to the card page), so the Bag Summary there
+     shows just that item instead of the bag. Unknown options fall back to
+     the product's first, so a hand-edited URL can't show an impossible
+     variant. No-op without ?buy or without a summary on the page. */
+  function initBuyNowSummary() {
+    const q = new URLSearchParams(location.search);
+    const slug = q.get("buy");
+    const sum = document.querySelector("[data-order-summary]");
+    const p = slug && PRODUCTS.find((x) => x.slug === slug);
+    if (!sum || !p) return;
+    const pick = (v, list) => (list.includes(v) ? v : list[0]);
+    const colour = pick(q.get("colour"), p.colours);
+    const size = pick(q.get("size"), p.sizes);
+    const fabric = pick(q.get("fabric"), p.fabrics);
+    const qty = Math.min(99, Math.max(1, parseInt(q.get("qty"), 10) || 1));
+    const subtotal = p.price[fabric] * qty;
+    const shipping = subtotal >= FREE_SHIP_THRESHOLD ? 0 : SHIPPING_FEE;
+
+    const attrs = [];
+    if (p.sizes.length > 1) attrs.push(size);
+    if (p.colours.length > 1) attrs.push(COLOURWAYS[colour].name);
+    if (p.fabrics.length > 1) attrs.push(FABRICS[fabric].name);
+    if (qty > 1) attrs.push("Qty " + qty);
+    const items = sum.querySelector(".bagsum__items");
+    if (items) {
+      items.innerHTML = `
+        <li class="bagsum__item">
+          <img src="${productArt(p, colour)}" alt="" class="bagsum__item-thumb" />
+          <div class="bagsum__item-body">
+            <p class="bagsum__item-name">${esc(p.name)}</p>
+            <p class="bagsum__item-attrs">${attrs
+              .map((a) => `<span>${esc(a)}</span>`)
+              .join('<span class="cartpg__attr-dot" aria-hidden="true"></span>')}</p>
+          </div>
+          <p class="bagsum__item-price">${money(subtotal)}</p>
+        </li>`;
+    }
+    // The bag isn't involved, so "Edit" goes back to the product.
+    const edit = sum.querySelector(".bagsum__editbag");
+    if (edit) {
+      edit.textContent = "Edit";
+      edit.href = "product.html?p=" + encodeURIComponent(p.slug);
+    }
+    const set = (sel, txt) => sum.querySelectorAll(sel).forEach((el) => { el.textContent = txt; });
+    set("[data-summary-subtotal]", egp(subtotal));
+    set("[data-summary-delivery]", shipping ? egp(shipping) : "Free");
+    syncSummary(); // total, with any promo / wallet, from the one owner
+  }
+
+  /* Phone bottom sheet: drag the cart down by its header to close it.
+     Follows the finger, and closes past 90px (or a quick flick); anything
+     less springs back. Desktop never sees it (the media query below is
+     the same breakpoint the sheet styles use). */
+  function initCartSheetDrag() {
+    const drawer = document.querySelector('[data-drawer="cart"]');
+    const head = drawer && drawer.querySelector(".cart-drawer__head");
+    if (!head) return;
+    const phone = window.matchMedia("(max-width: 768px)");
+    let startY = 0, dy = 0, t0 = 0, dragging = false;
+    head.addEventListener("touchstart", (e) => {
+      if (!phone.matches || drawer.scrollTop > 0 || e.target.closest("a, button")) return;
+      dragging = true;
+      startY = e.touches[0].clientY;
+      dy = 0;
+      t0 = Date.now();
+      drawer.style.transition = "none";
+    }, { passive: true });
+    head.addEventListener("touchmove", (e) => {
+      if (!dragging) return;
+      dy = Math.max(0, e.touches[0].clientY - startY);
+      drawer.style.transform = "translateY(" + dy + "px)";
+    }, { passive: true });
+    head.addEventListener("touchend", () => {
+      if (!dragging) return;
+      dragging = false;
+      drawer.style.transition = "";
+      drawer.style.transform = "";
+      const flick = dy > 40 && dy / Math.max(1, Date.now() - t0) > 0.6;
+      if (dy > 90 || flick) closeOverlay();
+    });
+  }
+
+  /* Quick add in the cart drawer's "You May Also Like" column — see
+     "YOU MAY ALSO LIKE" near the catalogue for the markup. One menu is open
+     at a time; Escape or a click elsewhere closes it and returns focus to
+     its +. */
+  function initQuickAdd() {
+    const drawer = document.querySelector('[data-drawer="cart"]');
+    if (!drawer) return;
+    const PLUS = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+    const CHECK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="m5 12.5 4.5 4.5L19 7.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const BACK = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M15 6 9 12l6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+    const CLOSE = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M7 7l10 10M17 7 7 17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+
+    const panelOf = (card) => card.querySelector("[data-qa-panel]");
+    // Swap the card photo to a colourway (used for picks and hover previews).
+    const showColour = (card, colour) => {
+      const img = card.querySelector(".upsell-card__media img");
+      const src = productArt(productBySlug(card.dataset.slug), colour);
+      if (img && !img.src.endsWith(src)) img.src = src;
+    };
+    const toggleOf = (card) => card.querySelector("[data-qa-toggle]");
+
+    const render = (card) => {
+      const p = productBySlug(card.dataset.slug);
+      const steps = quickAddSteps(p);
+      const st = card._qa;
+      const step = steps[st.step];
+      const prev = steps[st.step - 1];
+      panelOf(card).innerHTML = `
+        <div class="qa-panel__head">
+          ${prev ? `<button type="button" class="qa-panel__icon" data-qa-back aria-label="Back to ${prev.title.toLowerCase()}">${BACK}</button>` : ""}
+          <span class="qa-panel__title">${step.title}</span>
+          <button type="button" class="qa-panel__icon" data-qa-close aria-label="Close">${CLOSE}</button>
+        </div>
+        <ul class="qa-panel__list" aria-label="${step.title}">
+          ${step.options
+            .map(
+              (o) => `<li><button type="button" class="qa-opt${o.value === st.picks[step.axis] ? " is-picked" : ""}" data-qa-pick="${esc(o.value)}">
+                <span class="qa-opt__label">${o.swatch ? `<span class="qa-opt__swatch" style="--sw:${o.swatch}" aria-hidden="true"></span>` : ""}${esc(o.label)}</span>${o.note ? `<span class="qa-opt__note">${esc(o.note)}</span>` : ""}
+              </button></li>`,
+            )
+            .join("")}
+        </ul>`;
+      const first = panelOf(card).querySelector(".qa-opt");
+      if (first) first.focus({ preventScroll: true });
+    };
+
+    const close = (card, returnFocus) => {
+      const panel = panelOf(card);
+      if (!panel || !panel.classList.contains("is-open")) return;
+      panel.classList.remove("is-open");
+      toggleOf(card).setAttribute("aria-expanded", "false");
+      if (returnFocus) toggleOf(card).focus({ preventScroll: true });
+    };
+    const closeAll = (except) =>
+      drawer.querySelectorAll("[data-quick-add]").forEach((c) => c !== except && close(c, false));
+
+    const open = (card) => {
+      closeAll(card);
+      card._qa = { step: 0, picks: {} };
+      // Open before rendering: render() focuses the first option, and a
+      // still-hidden panel can't take focus.
+      panelOf(card).classList.add("is-open");
+      toggleOf(card).setAttribute("aria-expanded", "true");
+      render(card);
+    };
+
+    const addToBag = (card, picks) => {
+      addLineToBag(card.dataset.slug, {
+        colour: picks.colour || card.dataset.colour,
+        size: picks.size,
+        fabric: picks.fabric,
+      });
+
+      // The + confirms with a tick for a moment, then resets.
+      const btn = toggleOf(card);
+      btn.classList.add("is-done");
+      btn.innerHTML = CHECK;
+      clearTimeout(btn._qaTimer);
+      btn._qaTimer = setTimeout(() => {
+        btn.classList.remove("is-done");
+        btn.innerHTML = PLUS;
+      }, 1400);
+    };
+
+    drawer.addEventListener("click", (e) => {
+      const card = e.target.closest("[data-quick-add]");
+      if (!card) return;
+      if (e.target.closest("[data-qa-toggle]")) {
+        if (!panelOf(card)) return addToBag(card, {});
+        return panelOf(card).classList.contains("is-open") ? close(card, true) : open(card);
+      }
+      if (e.target.closest("[data-qa-close]")) return close(card, true);
+      if (e.target.closest("[data-qa-back]")) {
+        card._qa.step -= 1;
+        return render(card);
+      }
+      const pick = e.target.closest("[data-qa-pick]");
+      if (pick) {
+        const steps = quickAddSteps(productBySlug(card.dataset.slug));
+        const axis = steps[card._qa.step].axis;
+        card._qa.picks[axis] = pick.dataset.qaPick;
+        if (axis === "colour") {
+          card.dataset.colour = pick.dataset.qaPick; // the card now pictures this colour
+          showColour(card, pick.dataset.qaPick);
+        }
+        if (card._qa.step < steps.length - 1) {
+          card._qa.step += 1;
+          return render(card);
+        }
+        close(card, true);
+        addToBag(card, card._qa.picks);
+      }
+    });
+    // Hovering or focusing a colour previews it on the photo; leaving the
+    // list goes back to the card's current colour.
+    const preview = (e) => {
+      const opt = e.target.closest && e.target.closest("[data-qa-pick]");
+      const card = opt && opt.closest("[data-quick-add]");
+      if (!card || !card._qa) return;
+      const steps = quickAddSteps(productBySlug(card.dataset.slug));
+      if (steps[card._qa.step].axis === "colour") showColour(card, opt.dataset.qaPick);
+    };
+    const unpreview = (e) => {
+      const list = e.target.closest && e.target.closest(".qa-panel__list");
+      if (!list || list.contains(e.relatedTarget)) return;
+      const card = list.closest("[data-quick-add]");
+      showColour(card, card.dataset.colour);
+    };
+    drawer.addEventListener("mouseover", preview);
+    drawer.addEventListener("focusin", preview);
+    drawer.addEventListener("mouseout", unpreview);
+    drawer.addEventListener("focusout", unpreview);
+
+    drawer.addEventListener("keydown", (e) => {
+      if (e.key !== "Escape") return;
+      const card = e.target.closest("[data-quick-add]");
+      if (card && panelOf(card) && panelOf(card).classList.contains("is-open")) {
+        e.stopPropagation(); // close the menu, not the whole drawer
+        close(card, true);
+      }
+    });
+    // Close on a click outside any card. Read the path the event was
+    // dispatched along, not e.target.closest(): picking an option re-renders
+    // the menu, so by now the clicked button is detached from the card.
+    document.addEventListener("click", (e) => {
+      const inCard = e.composedPath().some((n) => n.matches && n.matches("[data-quick-add]"));
+      if (!inCard) closeAll(null);
+    });
+  }
+
+  /* Regional settings sheet (phones) — see its markup in overlaysHTML.
+     Two views in one sheet: the summary (country field + language tabs)
+     and the country list. Switching slides between them while the sheet's
+     height eases to the new view's. The language tabs are the shared
+     [data-lang-tab] buttons, so they apply exactly as on desktop. */
+  function setRegion(code) {
+    const c = CURRENCIES.find((x) => x.code === code);
+    if (!c) return;
+    // The header pill (desktop) and its panel's field and list…
+    document.querySelectorAll("[data-currency-code]").forEach((el) => { el.textContent = c.code; });
+    document.querySelectorAll(".hdr-currency__flag, .cselect__flag").forEach((el) => { el.src = c.flag; });
+    document.querySelectorAll("[data-cselect-value]").forEach((el) => { el.textContent = c.label; });
+    document.querySelectorAll("[data-currency-pick]").forEach((li) =>
+      li.classList.toggle("is-selected", li.dataset.currencyPick === c.code),
+    );
+    // …the phone menu's shortcut and this sheet.
+    document.querySelectorAll("[data-menu-currency], [data-regsheet-code]").forEach((el) => { el.textContent = c.code; });
+    document.querySelectorAll("[data-regsheet-country]").forEach((el) => { el.textContent = c.label; });
+    document.querySelectorAll("[data-regsheet-pick]").forEach((li) => {
+      const on = li.dataset.regsheetPick === c.code;
+      li.classList.toggle("is-selected", on);
+      li.setAttribute("aria-selected", on ? "true" : "false");
+    });
+  }
+  function initRegSheet() {
+    const sheet = document.querySelector('[data-modal="lang"].regsheet');
+    if (!sheet) return;
+    const track = sheet.querySelector("[data-regsheet-track]");
+    const search = sheet.querySelector("[data-regsheet-search]");
+    const empty = sheet.querySelector("[data-regsheet-empty]");
+    const view = (name) => sheet.querySelector('[data-regsheet-view="' + name + '"]');
+
+    const go = (name, focus) => {
+      const next = view(name);
+      if (!next || next.classList.contains("is-active")) return;
+      const from = track.offsetHeight;
+      sheet.querySelectorAll("[data-regsheet-view]").forEach((v) => v.classList.toggle("is-active", v === next));
+      // Ease the sheet from the old view's height to the new one's.
+      track.style.height = from + "px";
+      void track.offsetHeight;
+      track.style.height = next.offsetHeight + "px";
+      setTimeout(() => { track.style.height = ""; }, 320);
+      if (name === "countries" && focus) setTimeout(() => search.focus({ preventScroll: true }), 260);
+    };
+    sheet.regsheetReset = () => {
+      sheet.querySelectorAll("[data-regsheet-view]").forEach((v) =>
+        v.classList.toggle("is-active", v.dataset.regsheetView === "main"),
+      );
+      track.style.height = "";
+      if (search) { search.value = ""; search.dispatchEvent(new Event("input")); }
+      const code = (document.querySelector("[data-currency-code]") || {}).textContent;
+      setRegion((code || "EGP").trim());
+      syncLangTabs();
+    };
+
+    sheet.addEventListener("click", (e) => {
+      const to = e.target.closest("[data-regsheet-go]");
+      if (to) return go(to.dataset.regsheetGo, true);
+      const pick = e.target.closest("[data-regsheet-pick]");
+      if (pick) {
+        setRegion(pick.dataset.regsheetPick);
+        setTimeout(() => go("main"), 120); // let the tick register first
+      }
+    });
+    sheet.addEventListener("keydown", (e) => {
+      const pick = e.target.closest("[data-regsheet-pick]");
+      if (pick && (e.key === "Enter" || e.key === " ")) {
+        e.preventDefault();
+        pick.click();
+      }
+    });
+    if (search) {
+      search.addEventListener("input", () => {
+        const q = search.value.trim().toLowerCase();
+        let shown = 0;
+        sheet.querySelectorAll("[data-regsheet-pick]").forEach((li) => {
+          const hit = !q || (li.dataset.countryName + " " + li.dataset.regsheetPick).toLowerCase().includes(q);
+          li.hidden = !hit;
+          if (hit) shown++;
+        });
+        if (empty) empty.hidden = shown > 0;
+      });
+    }
+  }
+
   function initSteppers(scope) {
     scope.querySelectorAll("[data-stepper]").forEach((st) => {
+      /* Once per stepper. kInit runs on boot and again from page scripts
+         (the product page calls it after rendering), and a second pass
+         bound a second set of listeners, so every +/− moved by 2. */
+      if (st.dataset.stepperReady) return;
+      st.dataset.stepperReady = "1";
       const qtyEl = st.querySelector("[data-qty]");
       // Only [data-removable] counters (cart line items + cart summary) swap
       // the minus for a trash icon at qty 1; the product-page picker keeps minus.
@@ -3757,36 +4481,62 @@
   /* ---------------------------------------------------------------
      STICKY HEADER
 
-     The base template stuck the icon category rail once the coloured
-     header above it scrolled away. Percaal has no category rail, so the
-     masthead itself sticks — logo, nav and utilities stay reachable
-     through a long grid, and only the announcement bar scrolls off.
+     On desktop the category rail stays pinned on every page: the header
+     is sticky with a negative top equal to the rail's distance from the
+     header's top (--rail-top), so the announcement and logo row scroll off
+     and the rail stops at the viewport edge. Once it is pinned the header
+     gets .is-stuck, which reveals the rail's own cart.
 
-     The measured height is published as --header-h so anything else that
-     wants to stick under it (the category page's filter bar) can offset
-     itself without hard-coding a number that breaks the moment the nav
-     wraps to two lines.
+     Also published: --header-h (the full header) and --sticky-top (the
+     pinned rail's height, 0 where nothing pins), so other sticky columns
+     can sit below the rail instead of under it.
      --------------------------------------------------------------- */
   function initStickyNav() {
     const bar = document.querySelector(".site-header");
     if (!bar) return;
 
-    const publish = () => {
-      const h = Math.round(bar.getBoundingClientRect().height);
-      document.documentElement.style.setProperty("--header-h", h + "px");
+    const rail = bar.querySelector(".hdr-rail");
+    const root = document.documentElement.style;
+    // offsetParent is null while the rail is hidden (below 1024px); the
+    // mobile row pins there instead.
+    const railShown = () => !!(rail && rail.offsetParent);
+    const row = bar.querySelector(".hdr-mobile");
+    const rowShown = () => !!(row && row.offsetParent);
+    // The rail's distance from the header's top. Summed up the offset chain
+    // rather than read off getBoundingClientRect, which the arrival
+    // animation's transform would skew.
+    const railTop = () => {
+      let y = 0;
+      for (let el = rail; el && el !== bar; el = el.offsetParent) y += el.offsetTop;
+      return y;
     };
-    publish();
-    window.addEventListener("resize", publish);
-    /* The nav can wrap after webfonts land, which changes the height after
-       first paint — re-measure once everything has loaded. */
-    window.addEventListener("load", publish, { once: true });
 
-    /* A hairline appears under the masthead only once the page has scrolled,
-       so at rest the header is separated from the hero by nothing at all. */
-    const onScroll = () => {
-      bar.classList.toggle("is-stuck", window.scrollY > 4);
+    const publish = () => {
+      root.setProperty("--header-h", Math.round(bar.getBoundingClientRect().height) + "px");
+      root.setProperty("--rail-top", (railShown() ? railTop() : 0) + "px");
+      // How far down the header the mobile row starts: the announcement
+      // bar above it, which scrolls away while the row stays pinned.
+      root.setProperty("--mobile-top", (rowShown() ? row.offsetTop : 0) + "px");
+      root.setProperty(
+        "--sticky-top",
+        (railShown() ? rail.offsetHeight : rowShown() ? row.offsetHeight : 0) + "px"
+      );
+      onScroll();
     };
-    onScroll();
+
+    const onScroll = () => {
+      const pinned = railShown()
+        ? rail.getBoundingClientRect().top <= 0.5
+        : rowShown()
+          ? row.getBoundingClientRect().top <= 0.5
+          : window.scrollY > 4;
+      bar.classList.toggle("is-stuck", pinned);
+    };
+
+    /* Re-measure whenever the header changes size: a dismissed
+       announcement, webfonts landing, or crossing the mobile breakpoint. */
+    new ResizeObserver(publish).observe(bar);
+    publish();
     window.addEventListener("scroll", onScroll, { passive: true });
   }
 
@@ -3814,7 +4564,7 @@
   }
 
   /* Filter the country list as you type. Matches the country name and
-     its currency code, so "egy", "egp" and "£" all find Egypt. */
+     its currency code, so "egy" and "egp" both find Egypt. */
   function initCountrySearch(scope) {
     scope.querySelectorAll("[data-country-search]").forEach((input) => {
       if (input.dataset.searchReady) return;
@@ -3848,8 +4598,18 @@
   function applyLang(lang) {
     lang = lang === "ar" ? "ar" : "en";
     const html = document.documentElement;
+    /* Flip direction with transitions off. Otherwise everything positioned
+       with a logical side animates across the page, most visibly the closed
+       drawers, which sit just off one edge and would sweep over to the
+       other. The class covers the style recalc that the reflow forces, and
+       comes off two frames later, once the new layout has painted. */
+    html.classList.add("is-switching-lang");
     html.setAttribute("lang", lang);
     html.setAttribute("dir", lang === "ar" ? "rtl" : "ltr");
+    void html.offsetWidth;
+    requestAnimationFrame(() =>
+      requestAnimationFrame(() => html.classList.remove("is-switching-lang")),
+    );
     try {
       localStorage.setItem("percaal-lang", lang);
     } catch (e) {
@@ -4006,6 +4766,32 @@
       }
     });
     document.addEventListener("click", (e) => {
+      /* --- Product page wishlist heart. Saving fills it, bounces it and
+         throws a ring of short lines out from it; un-saving just returns
+         it to the outline. The lines are built on first use. --- */
+      const wish = e.target.closest(".pdp__fav");
+      if (wish) {
+        const on = wish.getAttribute("aria-pressed") !== "true";
+        wish.setAttribute("aria-pressed", String(on));
+        wish.setAttribute("aria-label", on ? "Remove from wishlist" : "Save to wishlist");
+        if (on) {
+          if (!wish.querySelector(".pdp__fav-burst")) {
+            wish.insertAdjacentHTML(
+              "beforeend",
+              `<span class="pdp__fav-burst" aria-hidden="true">${Array.from({ length: 8 }, (_, i) => `<i style="--a:${i * 45}deg"></i>`).join("")}</span>`,
+            );
+          }
+          wish.classList.remove("is-saved-anim");
+          void wish.offsetWidth; // restart the animation on a quick re-save
+          wish.classList.add("is-saved-anim");
+          clearTimeout(wish._favTimer);
+          wish._favTimer = setTimeout(() => wish.classList.remove("is-saved-anim"), 700);
+        } else {
+          wish.classList.remove("is-saved-anim");
+        }
+        return;
+      }
+
       /* --- Product card add-to-cart (preventDefault stops the card link) --- */
       const favBtn = e.target.closest("[data-fav]");
       if (favBtn) {
@@ -4168,6 +4954,7 @@
         const flag = wrap && wrap.querySelector(".hdr-currency__flag");
         if (label) label.textContent = code;
         if (flag && src) flag.src = src.getAttribute("src");
+        setRegion(code); // and everywhere else that shows it
 
         const sel = curPick.closest("[data-cselect]");
         if (sel) {
@@ -4226,6 +5013,18 @@
       if (opener) {
         e.preventDefault();
         const key = opener.getAttribute("data-open");
+        // A shortcut inside the full-screen menu swaps panels, never stacks.
+        if (opener.closest('[data-drawer="menu"]')) closeOverlay();
+        if (key === "menu") {
+          const code = document.querySelector("[data-currency-code]");
+          const out = document.querySelector("[data-menu-currency]");
+          if (code && out) out.textContent = code.textContent.trim();
+          placeMenuSheet(opener);
+        }
+        if (key === "lang") {
+          const rs = document.querySelector('[data-modal="lang"].regsheet');
+          if (rs && rs.regsheetReset) rs.regsheetReset();
+        }
         openOverlay(key);
         if (key === "lang") syncLangModal();
         return;
@@ -4268,6 +5067,9 @@
          gets its own index from the innermost match only, so nothing is
          delayed twice. */
       if (el.closest(".rv-child") && el.closest(".rv-child") !== el) return;
+      /* A looping rail's copies arrive with their section, unstaged, so
+         they don't spend the stagger before the real cards get a turn. */
+      if (el.closest("[data-rail-clone]")) return;
       /* Cap the ramp: past ~10 items the delay stops growing, otherwise the
          tail of a long grid arrives seconds after the head. */
       el.style.setProperty("--i", String(Math.min(i, 10)));
@@ -5129,8 +5931,19 @@
     });
   }
 
+  /* Fill any [data-ico] placeholder that is still empty with its icon from
+     icons.js. Most pages do this in their own script; this catches the
+     rest, and content swapped in by initAccountNav. */
+  function initIcons(scope) {
+    if (!window.icon) return;
+    scope.querySelectorAll("[data-ico]").forEach((el) => {
+      if (!el.querySelector("svg")) el.innerHTML = window.icon(el.getAttribute("data-ico"));
+    });
+  }
+
   window.kInit = function (scope) {
     scope = scope || document;
+    initIcons(scope);
     initShelves(scope);
     initShelfTabs(scope);
     initFeatured(scope);
@@ -5149,6 +5962,7 @@
     initPdpCallouts(scope);
     initShippingCallout(scope);
     initPromo(scope);
+    initNoteInput(scope);
     initOrderNote(scope);
     initWalletToggle(scope);
     initGiftToggle(scope);
@@ -5176,6 +5990,7 @@
     initPasswordFields(scope);
     initOtpAuth(scope);
     initOrderStatus(scope);
+    initWallet(scope);
   };
 
   /* ---------------------------------------------------------------
@@ -5285,6 +6100,287 @@
     });
   }
 
+  /* ---------------------------------------------------------------
+     MY WALLET — Figma 163:6451 / 261:11353, popups 177:5794 / 177:5820.
+     The wallet is credited by vouchers only. A voucher sits in "Available
+     Vouchers" until applied; Apply confirms in a popup, then the value
+     lands on the balance (the same balance the checkout wallet toggle
+     reads: walletBalance()), the voucher leaves the list and a line is
+     added to the history. Add Voucher takes a code and puts a new voucher
+     in the list. The list and history persist in localStorage so the demo
+     holds across pages; clear `percaal-wallet` (and
+     `ex_voucher_redeemed`) to reset it.
+     --------------------------------------------------------------- */
+  const WALLET_STORE = "percaal-wallet";
+  const WALLET_SEED = {
+    vouchers: [
+      { id: "w1", code: "TFH100A", value: 100, expires: "2027-04-23" },
+      { id: "w2", code: "TFH100B", value: 100, expires: "2027-04-23" },
+    ],
+    history: [
+      { sign: "-", amount: 150, date: "2025-03-28", reason: "Order #453545243", total: 1200 },
+      { sign: "+", amount: 1000, date: "2025-03-28", reason: "Voucher #8469353", total: 1350 },
+      { sign: "-", amount: 150, date: "2023-03-28", reason: "Order #453545243", total: 1200 },
+    ],
+  };
+  const walletState = {
+    read() {
+      try {
+        const v = JSON.parse(localStorage.getItem(WALLET_STORE));
+        if (v && Array.isArray(v.vouchers) && Array.isArray(v.history)) return v;
+      } catch (e) { /* fall through to the seed */ }
+      return JSON.parse(JSON.stringify(WALLET_SEED));
+    },
+    write(v) {
+      try { localStorage.setItem(WALLET_STORE, JSON.stringify(v)); } catch (e) { /* session only */ }
+    },
+  };
+  const walletEGP = (n) => "EGP " + Math.round(n).toLocaleString("en-US");
+  const walletDate = (iso) =>
+    new Date(iso + "T00:00:00").toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" });
+  const walletValid = (iso) =>
+    new Date(iso + "T00:00:00").toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+
+  function renderWallet(root) {
+    const st = walletState.read();
+    const amount = root.querySelector("[data-wallet-amount]");
+    if (amount) amount.textContent = walletEGP(walletBalance());
+    const list = root.querySelector("[data-wallet-vouchers]");
+    if (list) {
+      list.innerHTML = st.vouchers
+        .map(
+          (v) => `
+        <li class="wvoucher" data-voucher-id="${esc(v.id)}">
+          <span class="wvoucher__icon"><span class="ico ico-line" aria-hidden="true">${window.icon ? window.icon("invoice-01") : ""}</span></span>
+          <span class="wvoucher__body">
+            <span class="wvoucher__title">${v.value} EGP Discount</span>
+            <span class="wvoucher__meta">Valid till ${walletValid(v.expires)}</span>
+          </span>
+          <button type="button" class="wvoucher__apply" data-voucher-apply aria-label="Apply ${v.value} EGP voucher">Apply</button>
+        </li>`,
+        )
+        .join("");
+      const empty = root.querySelector("[data-wallet-empty]");
+      if (empty) empty.hidden = st.vouchers.length > 0;
+    }
+    const hist = root.querySelector("[data-wallet-history]");
+    if (hist) {
+      const icon = (n) => (window.icon ? window.icon(n) : "");
+      hist.innerHTML =
+        `<li class="pts-row pts-row--head" aria-hidden="true"><span>Value</span><span>Date</span><span>Reason</span><span>Total</span></li>` +
+        st.history
+          .map(
+            (h) => `
+          <li class="pts-row pts-row--${h.sign === "+" ? "in" : "out"}">
+            <span class="pts-row__amount"><span class="ico ico-line" aria-hidden="true">${icon(h.sign === "+" ? "plus-sign" : "minus-sign")}</span>${h.amount.toLocaleString("en-US")} EGP</span>
+            <span class="pts-row__date">${walletDate(h.date)}</span>
+            <span class="pts-row__reason">${esc(h.reason)}</span>
+            <span class="pts-row__total"><span class="pts-row__total-label">Total</span>${Math.round(h.total).toLocaleString("en-US")} EGP</span>
+          </li>`,
+          )
+          .join("");
+    }
+  }
+
+  function initWallet(scope) {
+    const sc = scope || document;
+    const root = sc.matches && sc.matches("[data-wallet]") ? sc : sc.querySelector("[data-wallet]");
+    if (root) renderWallet(root);
+    if (document.body.dataset.walletBound) return; // popups are wired once
+    document.body.dataset.walletBound = "1";
+    let pending = null;
+
+    document.addEventListener("click", (e) => {
+      // Apply on a voucher: confirm first.
+      const apply = e.target.closest("[data-voucher-apply]");
+      if (apply) {
+        const li = apply.closest("[data-voucher-id]");
+        const v = walletState.read().vouchers.find((x) => x.id === li.dataset.voucherId);
+        if (!v) return;
+        pending = v.id;
+        const text = document.querySelector("[data-voucher-apply-text]");
+        if (text) text.textContent = v.value + " EGP will be added to your wallet balance";
+        openOverlay("voucher-apply");
+        return;
+      }
+      // Confirmed: credit the balance, retire the voucher, log it.
+      if (e.target.closest("[data-voucher-apply-confirm]")) {
+        const st = walletState.read();
+        const v = st.vouchers.find((x) => x.id === pending);
+        pending = null;
+        if (!v) return closeOverlay();
+        addVoucherRedeemed(v.value);
+        st.vouchers = st.vouchers.filter((x) => x.id !== v.id);
+        st.history.unshift({
+          sign: "+",
+          amount: v.value,
+          date: new Date().toISOString().slice(0, 10),
+          reason: "Voucher #" + v.code,
+          total: walletBalance(),
+        });
+        walletState.write(st);
+        closeOverlay();
+        const r = document.querySelector("[data-wallet]");
+        if (r) {
+          renderWallet(r);
+          const amt = r.querySelector("[data-wallet-amount]");
+          const box = amt && amt.getBoundingClientRect();
+          if (box && window.kBurst) setTimeout(() => window.kBurst(box.left + box.width / 2, box.top + box.height / 2, { count: 60, spread: 200 }), 200);
+          r.querySelector(".wal-balance")?.classList.add("is-credited");
+          setTimeout(() => r.querySelector(".wal-balance")?.classList.remove("is-credited"), 1200);
+          r.querySelector("[data-wallet-history] .pts-row:not(.pts-row--head)")?.classList.add("is-added");
+        }
+      }
+    });
+
+    // Add Voucher: a code in, a new voucher in the list.
+    document.addEventListener("submit", (e) => {
+      const form = e.target.closest("[data-voucher-add-form]");
+      if (!form) return;
+      e.preventDefault();
+      const input = form.querySelector("[data-voucher-code]");
+      const err = form.querySelector("[data-voucher-error]");
+      const code = input.value.trim().toUpperCase();
+      if (!code) {
+        if (err) err.hidden = false;
+        input.focus();
+        return;
+      }
+      if (err) err.hidden = true;
+      const st = walletState.read();
+      const exp = new Date();
+      exp.setMonth(exp.getMonth() + 6);
+      const v = { id: "u" + Date.now(), code, value: 100, expires: exp.toISOString().slice(0, 10) };
+      st.vouchers.unshift(v);
+      walletState.write(st);
+      input.value = "";
+      closeOverlay();
+      const r = document.querySelector("[data-wallet]");
+      if (r) {
+        renderWallet(r);
+        r.querySelector('[data-voucher-id="' + v.id + '"]')?.classList.add("is-added");
+      }
+    });
+    document.addEventListener("input", (e) => {
+      if (e.target.matches("[data-voucher-code]")) {
+        const err = e.target.closest("form")?.querySelector("[data-voucher-error]");
+        if (err) err.hidden = true;
+      }
+    });
+  }
+
+  /* ---------------------------------------------------------------
+     ACCOUNT TABS WITHOUT A RELOAD
+     The account pages are separate files, but moving between them from
+     the account menu shouldn't feel like leaving: no loader, no flash,
+     the header and the tab strip stay exactly where they are. A tab click
+     fetches the page, swaps in its content beside the live menu, slides
+     the new panel in from the side of the tab that was chosen, and
+     re-runs the page's set-up (kInit plus its own inline script). The URL
+     and title update, and Back / Forward swap the same way. If anything
+     fails, it falls back to an ordinary page load.
+     --------------------------------------------------------------- */
+  function initAccountNav() {
+    const menuHost = document.getElementById("account-menu");
+    if (!menuHost || !window.fetch || !window.DOMParser || !history.pushState) return;
+    let busy = false;
+
+    const tabIndex = (href) =>
+      ACCOUNT_TABS.findIndex((t) => href && new URL(t[3], location.href).pathname === new URL(href, location.href).pathname);
+
+    const swap = async (href, push) => {
+      if (busy) return;
+      busy = true;
+      const from = tabIndex(location.href);
+      const to = tabIndex(href);
+      try {
+        const res = await fetch(href, { credentials: "same-origin" });
+        if (!res.ok) throw new Error(res.status);
+        const doc = new DOMParser().parseFromString(await res.text(), "text/html");
+        const newMain = doc.querySelector("main");
+        const slot = newMain && newMain.querySelector("#account-menu");
+        const main = document.querySelector("main");
+        const menu = document.getElementById("account-menu");
+        if (!newMain || !slot || !main || !menu) throw new Error("shape");
+
+        // The live menu takes the incoming page's slot (its layout classes
+        // and active tab), so it never re-renders or jumps.
+        menu.className = slot.className;
+        const active = slot.getAttribute("data-active");
+        menu.setAttribute("data-active", active);
+        menu.querySelectorAll(".acct-tab").forEach((a) => {
+          const on = a.getAttribute("href") === ACCOUNT_TABS.find((t) => t[0] === active)?.[3];
+          a.classList.toggle("is-active", on);
+          if (on) a.setAttribute("aria-current", "page");
+          else a.removeAttribute("aria-current");
+        });
+        slot.replaceWith(menu);
+        main.className = newMain.className;
+        main.replaceChildren(...newMain.childNodes);
+
+        document.title = doc.title;
+        ["data-page", "data-path"].forEach((k) => {
+          const v = doc.body.getAttribute(k);
+          if (v) document.body.setAttribute(k, v);
+        });
+        if (push) history.pushState({ acct: true }, "", href);
+
+        // Page-level popups (a [data-modal] that is a direct child of <body>,
+        // like Points' Redeem or Wallet's Add / Apply) belong to the page:
+        // drop the old page's, bring the new page's.
+        document.querySelectorAll("body > [data-modal]").forEach((m) => m.remove());
+        doc.querySelectorAll("body > [data-modal]").forEach((m) => document.body.appendChild(document.importNode(m, true)));
+
+        // Re-run the page's set-up on the new content, then its own script.
+        const panels = [...menu.parentElement.children].filter((el) => el !== menu);
+        panels.forEach((p) => window.kInit(p));
+        document.querySelectorAll("body > [data-modal]").forEach((m) => initIcons(m));
+        doc.body.querySelectorAll("script:not([src])").forEach((old) => {
+          const js = document.createElement("script");
+          js.textContent = old.textContent;
+          document.body.appendChild(js);
+          js.remove();
+        });
+
+        // Slide the panel in from the side of the chosen tab.
+        const dir = to >= 0 && from >= 0 && to < from ? -1 : 1;
+        panels.forEach((p) => {
+          p.style.setProperty("--swap-dir", dir);
+          p.classList.remove("acct-swap-in");
+          void p.offsetWidth;
+          p.classList.add("acct-swap-in");
+        });
+
+        // Keep the chosen tab in view, and the page where the menu is.
+        const strip = menu.querySelector(".acct-menu__tabs");
+        const on = strip && strip.querySelector(".acct-tab.is-active");
+        if (on && strip.scrollWidth > strip.clientWidth) {
+          const sr = strip.getBoundingClientRect();
+          const r = on.getBoundingClientRect();
+          strip.scrollBy({ left: r.left + r.width / 2 - (sr.left + sr.width / 2), behavior: "smooth" });
+        }
+        const menuTop = menu.getBoundingClientRect().top + window.scrollY;
+        if (window.scrollY > menuTop) window.scrollTo({ top: Math.max(0, menuTop - 80), behavior: "smooth" });
+      } catch (err) {
+        location.href = href; // ordinary navigation as the fallback
+      } finally {
+        busy = false;
+      }
+    };
+
+    document.addEventListener("click", (e) => {
+      const a = e.target.closest("#account-menu .acct-tab");
+      if (!a || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+      e.preventDefault(); // also stops initPageExit's fade-out
+      if (a.classList.contains("is-active")) return;
+      swap(a.getAttribute("href"), true);
+    });
+    history.replaceState({ acct: true }, "", location.href);
+    window.addEventListener("popstate", (e) => {
+      if (e.state && e.state.acct && document.getElementById("account-menu")) swap(location.href, false);
+    });
+  }
+
   function boot() {
     initLoader();
     const header = document.getElementById("site-header");
@@ -5292,7 +6388,24 @@
     const acct = document.getElementById("account-menu");
     if (header) header.innerHTML = headerHTML();
     if (footer) footer.innerHTML = footerHTML();
-    if (acct) acct.innerHTML = accountMenuHTML(acct.getAttribute("data-active"));
+    if (acct) {
+      acct.innerHTML = accountMenuHTML(acct.getAttribute("data-active"));
+      /* On phones the tabs are a sliding strip: bring the current page's
+         tab to the middle so it's in view on arrival. */
+      const strip = acct.querySelector(".acct-menu__tabs");
+      const on = strip && strip.querySelector(".acct-tab.is-active");
+      if (on) {
+        // Measured against the strip itself, once layout (and fonts) settle.
+        const centre = () => {
+          if (strip.scrollWidth <= strip.clientWidth) return;
+          const s = strip.getBoundingClientRect();
+          const r = on.getBoundingClientRect();
+          strip.scrollLeft += r.left + r.width / 2 - (s.left + s.width / 2);
+        };
+        requestAnimationFrame(centre);
+        window.addEventListener("load", centre, { once: true });
+      }
+    }
 
     const overlays = document.createElement("div");
     overlays.id = "site-overlays";
@@ -5311,6 +6424,11 @@
     }
 
     initDelegation();
+    initQuickAdd();
+    initCartSheetDrag();
+    initRegSheet();
+    initAccountNav();
+    initBuyNowSummary();
     initPageExit();
     initStickyNav();
     applyLang(initialLang());

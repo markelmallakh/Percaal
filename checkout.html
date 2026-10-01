@@ -21,10 +21,12 @@
     </div>
 
     <main class="overflow-x-clip">
-      <!-- ==================== CHECKOUT 1 — Figma 102:3685 ====================
-           Two equal 756px halves on a 1512 frame. The left half holds the
-           logo + form; the right half is the Bag Summary panel (offwhite
-           #F6F5F3) that fills the full height. -->
+      <!-- ==================== CHECKOUT — Figma 102:3685 ====================
+           One page: Personal Info, Shipping Info and Payment Method in the
+           left half; the Bag Summary panel (offwhite #F6F5F3) fills the
+           right. The CTA follows the payment method: Cash on Delivery
+           places the order from here; Credit Card continues to the card
+           page (payment.html). -->
       <section class="chk">
 
         <div class="chk__form-col">
@@ -47,16 +49,16 @@
               <div class="chk__row chk__row--2">
                 <label class="field">
                   <span class="field__label">First Name</span>
-                  <input class="field__input" type="text" value="Mark" />
+                  <input class="field__input" type="text" value="Mark" required autocomplete="given-name" />
                 </label>
                 <label class="field">
                   <span class="field__label">Last Name</span>
-                  <input class="field__input" type="text" value="Amir" />
+                  <input class="field__input" type="text" value="Amir" required autocomplete="family-name" />
                 </label>
               </div>
               <label class="field">
                 <span class="field__label">Your Email Address</span>
-                <input class="field__input" type="email" value="mark.amir@mitchdesigns.com" />
+                <input class="field__input" type="email" value="mark.amir@mitchdesigns.com" required autocomplete="email" />
               </label>
               <label class="field">
                 <span class="field__label">Your Phone Number</span>
@@ -66,7 +68,7 @@
                     <span>+20</span>
                     <span class="ico ico-16" data-ico="arrow-down-01-sharp"></span>
                   </button>
-                  <input class="field__input field__input--phone" type="tel" value="01001234567" />
+                  <input class="field__input field__input--phone" type="tel" value="01001234567" required autocomplete="tel-national" />
                 </div>
               </label>
             </section>
@@ -91,7 +93,7 @@
                   <div class="chk__row chk__row--2">
                     <label class="field field--small">
                       <span class="field__label">Recipient Name</span>
-                      <input class="field__input" type="text" placeholder="Salma Alaa" />
+                      <input class="field__input" type="text" placeholder="Salma Alaa" data-gift-required />
                     </label>
                     <label class="field field--small">
                       <span class="field__label">Recipient Phone Number</span>
@@ -102,7 +104,7 @@
                           <span class="ico ico-16" data-ico="arrow-down-01-sharp"></span>
                         </button>
                         <span class="field__divider" aria-hidden="true"></span>
-                        <input class="field__phone-input" type="tel" placeholder="01001234567" />
+                        <input class="field__phone-input" type="tel" placeholder="01001234567" data-gift-required />
                       </div>
                     </label>
                   </div>
@@ -149,7 +151,7 @@
 
               <label class="field">
                 <span class="field__label">Enter Address</span>
-                <input class="field__input" type="text" placeholder="32B Kattamya Heights 1" />
+                <input class="field__input" type="text" placeholder="32B Kattamya Heights 1" required autocomplete="street-address" />
               </label>
 
               <div class="chk__typerow">
@@ -168,7 +170,7 @@
               <div class="chk__row chk__row--3">
                 <label class="field">
                   <span class="field__label">Building Number</span>
-                  <input class="field__input" type="text" placeholder="32B" />
+                  <input class="field__input" type="text" placeholder="32B" required />
                 </label>
                 <label class="field">
                   <span class="field__label">Floor</span>
@@ -181,11 +183,45 @@
               </div>
             </section>
 
+            <!-- Payment Method — the choice that decides the CTA below. -->
+            <section class="chk__block">
+              <h2 class="chk__block-title">Payment Method</h2>
+
+              <div class="paym is-active" data-paym data-pay-method="cod">
+                <div class="paym__row">
+                  <label class="chk__radio paym__radio">
+                    <input type="radio" name="pay" value="cod" checked data-paym-radio />
+                    <span class="chk__radio-dot" aria-hidden="true"></span>
+                    <span>Cash On Delivery</span>
+                  </label>
+                  <span class="ico ico-24 paym__icon" data-ico="cash-02"></span>
+                </div>
+                <p class="paym__note" data-paym-note>Pay in cash when your order arrives.</p>
+              </div>
+
+              <div class="paym__rule"></div>
+
+              <div class="paym" data-paym data-pay-method="card">
+                <div class="paym__row">
+                  <label class="chk__radio paym__radio">
+                    <input type="radio" name="pay" value="card" data-paym-radio />
+                    <span class="chk__radio-dot" aria-hidden="true"></span>
+                    <span>Credit / Debit Card</span>
+                  </label>
+                  <div class="paym__logos">
+                    <img src="images/payment-method-mastercard.webp" alt="Mastercard" width="42" height="26" />
+                    <img src="images/payment-method-visa.webp" alt="Visa" width="42" height="26" />
+                  </div>
+                </div>
+                <p class="paym__note">You'll enter your card details on the next page.</p>
+              </div>
+            </section>
+
             <div data-checkout-actions>
-              <a href="payment.html" class="bagsum__cta chk__next">
-              <span class="bagsum__cta-label">NEXT</span>
-              <span class="ico ico-20" data-ico="arrow-right-01-sharp"></span>
-            </a>
+              <button type="submit" class="bagsum__cta chk__next" data-checkout-cta>
+                <span class="bagsum__cta-label" data-cta-label>PLACE ORDER</span>
+                <span class="ico ico-20" data-ico="arrow-right-01-sharp"></span>
+              </button>
             </div>
           </form>
         </div>
@@ -235,61 +271,17 @@
                 <span class="bagsum__wallet-amount bagsum__wallet-amount--tinted">1,000 EGP</span>
               </label>
 
-              <!-- Promocode: expands from a plus-ghost into a bordered input;
-                   Apply flips it to an applied chip with a checkmark; X reverts. -->
-              <div class="pinp" data-pinp>
-                <button type="button" class="pinp__ghost" data-pinp-open>
-                  <span class="bagsum__ghost-icon" aria-hidden="true"></span>
-                  <span>Enter Promocode</span>
-                </button>
-                <div class="pinp__open" data-pinp-input>
-                  <div class="pinp__open-head">
-                    <span>Enter Promocode</span>
-                    <button type="button" class="pinp__close" data-pinp-close aria-label="Close">
-                      <span class="ico ico-14" data-ico="cancel-01"></span>
-                    </button>
-                  </div>
-                  <div class="pinp__input">
-                    <input type="text" data-pinp-code placeholder="Welcome 10" />
-                    <button type="button" class="pinp__apply" data-pinp-apply>APPLY</button>
-                  </div>
-                </div>
-                <div class="pinp__applied" data-pinp-applied>
-                  <div class="pinp__applied-row">
-                    <span class="pinp__check ico ico-20" data-ico="checkmark-circle-03"></span>
-                    <span class="pinp__applied-code" data-pinp-code-out>Welcome 10</span>
-                    <button type="button" class="pinp__clear" data-pinp-clear aria-label="Remove promocode">
-                      <span class="ico ico-14" data-ico="cancel-01"></span>
-                    </button>
-                  </div>
-                  <p class="pinp__msg">PROMOCODE ADDED</p>
-                </div>
-              </div>
+              <!-- Promo code — the shared one-box field (initPromo), the same
+                   component as the cart drawer's. Feeds syncSummary(). -->
+              <div class="bagsum__promo" data-promo></div>
 
-              <!-- Note: expands from a plus-ghost into a filled input that
-                   holds the note; X reverts. -->
-              <div class="nteinp" data-nteinp>
-                <button type="button" class="nteinp__ghost" data-nteinp-open>
-                  <span class="bagsum__ghost-icon" aria-hidden="true"></span>
-                  <span>Add Order Notes</span>
-                </button>
-                <div class="nteinp__open" data-nteinp-input>
-                  <div class="nteinp__open-head">
-                    <span>Add Order Notes</span>
-                    <button type="button" class="nteinp__close" data-nteinp-close aria-label="Close">
-                      <span class="ico ico-14" data-ico="cancel-01"></span>
-                    </button>
-                  </div>
-                  <div class="nteinp__input">
-                    <input type="text" data-nteinp-value placeholder="Type an order note…" />
-                  </div>
-                </div>
-              </div>
+              <!-- Order note — the shared field (initNoteInput). -->
+              <div data-nteinp></div>
 
               <div class="bagsum__totals">
-                <div class="bagsum__total-row"><span>Subtotal</span><span>12,000 EGP</span></div>
-                <div class="bagsum__total-row"><span>Shipping Fees</span><span>100 EGP</span></div>
-                <div class="bagsum__total-row"><span>Discount</span><span>-1,000 EGP</span></div>
+                <div class="bagsum__total-row"><span>Subtotal</span><span data-summary-subtotal>12,000 EGP</span></div>
+                <div class="bagsum__total-row"><span>Shipping Fees</span><span data-summary-delivery>100 EGP</span></div>
+                <div class="bagsum__total-row" data-summary-discount-row hidden><span>Discount</span><span data-summary-discount></span></div>
                 <div class="bagsum__rule"></div>
                 <div class="bagsum__total-row bagsum__total-row--grand"><span>Total</span><span data-summary-total>11,100 EGP</span></div>
               </div>
@@ -309,59 +301,69 @@
           el.innerHTML = ic(el.getAttribute('data-ico'));
         });
 
-        /* Gift toggle: reveals recipient fields when on. */
-        document.addEventListener('change', function (e) {
-          if (e.target.matches('[data-gift-toggle]')) {
-            var body = document.querySelector('[data-gift-body]');
-            if (body) body.hidden = !e.target.checked;
-          }
-        });
+        var form = document.querySelector('[data-checkout-form]');
+        var codNote = document.querySelector('[data-pay-method="cod"] [data-paym-note]');
+        var COD_NOTE = codNote ? codNote.textContent : '';
 
-        /* Promocode + Note interactions — click ghost to open, X to
-           revert, Apply to swap into the applied chip. Animation is
-           handled entirely by CSS transitions on the .is-open /
-           .is-applied classes. */
-        document.addEventListener('click', function (e) {
-          var t;
-          if ((t = e.target.closest('[data-pinp-open]'))) {
-            var wrap = t.closest('[data-pinp]');
-            wrap.classList.add('is-open');
-            wrap.classList.remove('is-applied', 'is-error');
-            setTimeout(function () {
-              var input = wrap.querySelector('[data-pinp-code]');
-              if (input) input.focus();
-            }, 60);
+        /* Payment method: the chosen row is marked active, and the CTA
+           names what happens next: PLACE ORDER for cash on delivery,
+           CONTINUE TO PAYMENT for a card. */
+        function syncPayment() {
+          var checked = document.querySelector('[data-paym-radio]:checked');
+          document.querySelectorAll('[data-paym]').forEach(function (row) {
+            row.classList.toggle('is-active', row.contains(checked));
+          });
+          var label = document.querySelector('[data-cta-label]');
+          if (label) label.textContent = checked && checked.value === 'card' ? 'CONTINUE TO PAYMENT' : 'PLACE ORDER';
+        }
+
+        /* Gift toggle: reveals the recipient fields (and makes them
+           required), and takes Cash on Delivery off the table: the row is
+           dimmed and says why, and the payment moves to card. Turning it
+           off restores the row. */
+        function syncGift(on) {
+          var body = document.querySelector('[data-gift-body]');
+          if (body) body.hidden = !on;
+          document.querySelectorAll('[data-gift-required]').forEach(function (el) { el.required = on; });
+          var cod = document.querySelector('[data-pay-method="cod"]');
+          if (!cod) return;
+          var radio = cod.querySelector('[data-paym-radio]');
+          cod.classList.toggle('is-disabled', on);
+          radio.disabled = on;
+          if (codNote) {
+            codNote.textContent = on ? 'Not available for gift orders.' : COD_NOTE;
+            codNote.classList.toggle('paym__note--error', on);
           }
-          if ((t = e.target.closest('[data-pinp-apply]'))) {
-            var wrap2 = t.closest('[data-pinp]');
-            var code = (wrap2.querySelector('[data-pinp-code]') || {}).value || '';
-            code = code.trim() || 'Welcome 10';
-            var out = wrap2.querySelector('[data-pinp-code-out]');
-            if (out) out.textContent = code;
-            wrap2.classList.remove('is-open');
-            wrap2.classList.add('is-applied');
+          if (on && radio.checked) {
+            document.querySelector('[data-pay-method="card"] [data-paym-radio]').checked = true;
           }
-          if ((t = e.target.closest('[data-pinp-clear], [data-pinp-close]'))) {
-            var wrap3 = t.closest('[data-pinp]');
-            wrap3.classList.remove('is-open', 'is-applied', 'is-error');
-            var inp = wrap3.querySelector('[data-pinp-code]');
-            if (inp) inp.value = '';
-          }
-          if ((t = e.target.closest('[data-nteinp-open]'))) {
-            var wrap4 = t.closest('[data-nteinp]');
-            wrap4.classList.add('is-open');
-            setTimeout(function () {
-              var input = wrap4.querySelector('[data-nteinp-value]');
-              if (input) input.focus();
-            }, 60);
-          }
-          if ((t = e.target.closest('[data-nteinp-clear], [data-nteinp-close]'))) {
-            var wrap5 = t.closest('[data-nteinp]');
-            wrap5.classList.remove('is-open');
-            var inp2 = wrap5.querySelector('[data-nteinp-value]');
-            if (inp2) inp2.value = '';
-          }
+          syncPayment();
+        }
+
+        document.addEventListener('change', function (e) {
+          if (e.target.matches('[data-gift-toggle]')) syncGift(e.target.checked);
+          if (e.target.matches('[data-paym-radio]')) syncPayment();
         });
+        syncPayment();
+
+        /* Submit: every required field must pass first (the first one that
+           doesn't is focused and explained). Then cash on delivery places
+           the order; a card continues to the card page. A Buy Now
+           checkout's ?buy=… query rides along so the next page shows the
+           same item. */
+        if (form) {
+          form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (!form.checkValidity()) {
+              var bad = form.querySelector(':invalid');
+              if (bad) bad.reportValidity();
+              return;
+            }
+            var method = (document.querySelector('[data-paym-radio]:checked') || {}).value;
+            location.href = (method === 'card' ? 'payment.html' : 'thanks.html') + location.search;
+          });
+        }
+
       })();
     </script>
   </body>

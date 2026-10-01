@@ -26,9 +26,9 @@
     <!-- Shared header is injected here by scripts.js -->
     <div id="site-header"></div>
 
-    <main class="overflow-x-clip bg-gray-100">
+    <main class="overflow-x-clip acct-page">
       <!-- Account layout: two-column grid (sidebar collapses above content on mobile) -->
-      <div class="flex lg:flex-row flex-col items-start gap-7 md:gap-10 mx-auto px-4 py-10 md:py-20 max-w-[1392px]">
+      <div class="flex lg:flex-row flex-col items-start gap-7 md:gap-8 container-design py-10 md:py-20">
         <!-- ============================ ACCOUNT SIDEBAR ============================ -->
         <!-- ============================ MOBILE ACCOUNT NAV (pills) ============================ -->
         <!-- Shared account rail (Figma 159:8116), injected by
@@ -37,100 +37,43 @@
         <div id="account-menu" data-active="wallet" class="w-full lg:w-[384px] shrink-0"></div>
 
         <!-- ============================ ACCOUNT CONTENT ============================ -->
-        <div class="w-full lg:w-[calc(75%-36px)]">
-          <nav class="mb-6 flex items-center gap-2 text-sm text-gray-700" aria-label="Breadcrumb">
-            <a href="my-account.html" class="hover:text-primaryDark">My Account</a>
-            <span>/</span>
-            <span class="font-medium text-textSecondary">Wallet</span>
-          </nav>
-
-          <div class="flex flex-col gap-5 md:gap-7">
-            <!-- Page header -->
-            <div class="flex flex-wrap items-center justify-between gap-4">
-              <div class="flex items-center gap-2.5">
-                <h1 class="text-[28px] font-semibold capitalize leading-[50px] text-textSecondary">My Wallet</h1>
-              </div>
-            </div>
-
-            <!-- Wallet balance card + top-up CTA -->
-            <div class="flex w-full flex-col items-start justify-between gap-4 rounded-lg border border-gray-300 bg-white px-4 py-6 xl:flex-row xl:items-center 2xl:px-[32px]">
-              <div class="flex items-center gap-2 text-primaryColor md:gap-[10px]">
-                <span class="h-[80px] w-[80px]">
-                  <img src="icons/wallet-02.svg" alt="Wallet" width="80" height="80" class="object-contain" />
-                </span>
-                <div class="flex flex-col gap-1">
-                  <span class="font-normal text-textSecondary md:text-[18px]">Wallet balance</span>
-                  <span class="text-[32px] font-semibold text-success" data-wallet-balance>EGP 1,250.00</span>
-                </div>
-              </div>
-              <!-- Vouchers are the only way to add balance (no card top-up) -->
-              <a href="my-account-vouchers.html" class="btn btn--black btn--md flex h-fit items-center gap-2">
-                <span class="text-sm">Explore Vouchers</span>
-              </a>
-            </div>
-
-            <!-- Transaction history -->
-            <section>
-              <div class="rounded border border-gray-300 bg-white px-5 py-6 md:px-8">
-                <div class="overflow-auto styled-scrollbar">
-                  <table class="w-full border-collapse">
-                    <thead class="border-b border-beige-500">
-                      <tr>
-                        <th colspan="4" class="text-start"><h2 class="mb-4 text-xl font-medium md:text-[18px] xl:mb-[22px]">Wallet History</h2></th>
-                      </tr>
-                    </thead>
-                    <thead class="border-b border-beige-500">
-                      <tr>
-                        <th class="whitespace-nowrap p-4 text-start font-bold text-textSecondary md:text-base">Amount</th>
-                        <th class="whitespace-nowrap p-4 text-start font-bold text-textSecondary md:text-base">Date</th>
-                        <th class="whitespace-nowrap p-4 text-start font-bold text-textSecondary md:text-base">Reason</th>
-                        <th class="whitespace-nowrap p-4 text-start font-bold text-textSecondary md:text-base">Balance</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <!-- credit → text-success + arrow up ; debit → text-cardbadgecolor + arrow down -->
-                      <tr>
-                        <td class="flex items-center gap-2 whitespace-nowrap p-4 text-sm font-medium text-success xl:gap-3"><span class="h-3 w-3 md:h-4 md:w-4"><svg viewBox="0 0 24 24" fill="none" class="w-full"><path d="M12 19V5M6 11l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>+500.00 EGP</span></td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">02 Jul 2026</td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">Wallet top up</td>
-                        <td class="whitespace-nowrap p-4 text-sm font-semibold text-primaryDark md:text-lg">1,250.00 EGP</td>
-                      </tr>
-                      <tr>
-                        <td class="flex items-center gap-2 whitespace-nowrap p-4 text-sm font-medium text-cardbadgecolor xl:gap-3"><span class="h-3 w-3 md:h-4 md:w-4"><svg viewBox="0 0 24 24" fill="none" class="w-full"><path d="M12 5v14M6 13l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>-320.00 EGP</span></td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">28 Jun 2026</td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">Order #10482 payment</td>
-                        <td class="whitespace-nowrap p-4 text-sm font-semibold text-primaryDark md:text-lg">750.00 EGP</td>
-                      </tr>
-                      <tr>
-                        <td class="flex items-center gap-2 whitespace-nowrap p-4 text-sm font-medium text-success xl:gap-3"><span class="h-3 w-3 md:h-4 md:w-4"><svg viewBox="0 0 24 24" fill="none" class="w-full"><path d="M12 19V5M6 11l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>+150.00 EGP</span></td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">21 Jun 2026</td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">Points redemption</td>
-                        <td class="whitespace-nowrap p-4 text-sm font-semibold text-primaryDark md:text-lg">1,070.00 EGP</td>
-                      </tr>
-                      <tr>
-                        <td class="flex items-center gap-2 whitespace-nowrap p-4 text-sm font-medium text-cardbadgecolor xl:gap-3"><span class="h-3 w-3 md:h-4 md:w-4"><svg viewBox="0 0 24 24" fill="none" class="w-full"><path d="M12 5v14M6 13l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>-260.00 EGP</span></td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">14 Jun 2026</td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">Order #10391 payment</td>
-                        <td class="whitespace-nowrap p-4 text-sm font-semibold text-primaryDark md:text-lg">920.00 EGP</td>
-                      </tr>
-                      <tr>
-                        <td class="flex items-center gap-2 whitespace-nowrap p-4 text-sm font-medium text-success xl:gap-3"><span class="h-3 w-3 md:h-4 md:w-4"><svg viewBox="0 0 24 24" fill="none" class="w-full"><path d="M12 19V5M6 11l6-6 6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>+80.00 EGP</span></td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">05 Jun 2026</td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">Order #10318 refund</td>
-                        <td class="whitespace-nowrap p-4 text-sm font-semibold text-primaryDark md:text-lg">1,180.00 EGP</td>
-                      </tr>
-                      <tr>
-                        <td class="flex items-center gap-2 whitespace-nowrap p-4 text-sm font-medium text-cardbadgecolor xl:gap-3"><span class="h-3 w-3 md:h-4 md:w-4"><svg viewBox="0 0 24 24" fill="none" class="w-full"><path d="M12 5v14M6 13l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span>-440.00 EGP</span></td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">30 May 2026</td>
-                        <td class="whitespace-nowrap p-4 text-xs text-gray-700 md:text-sm">Order #10256 payment</td>
-                        <td class="whitespace-nowrap p-4 text-sm font-semibold text-primaryDark md:text-lg">1,100.00 EGP</td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            </section>
+        <!-- Wallet panel — Figma 163:6451 (desktop) / 261:11353 (phone).
+             Balance, the vouchers waiting to be applied, Add Voucher, and
+             the history. The vouchers and history are drawn by initWallet()
+             in scripts.js; the Add / Apply popups are below <main>. -->
+        <div class="w-full min-w-0 lg:flex-1 wal" data-wallet>
+          <div class="acct-head">
+            <nav class="acct-crumb" aria-label="Breadcrumb">
+              <a href="index.html">Home</a>
+              <span class="ico" data-ico="arrow-right-01-sharp" aria-hidden="true"></span>
+              <span class="acct-crumb__here" aria-current="page">My Wallet</span>
+            </nav>
+            <h1 class="acct-title">My Wallet</h1>
           </div>
+
+          <button type="button" class="wal-add" data-open="voucher-add">
+            <span class="ico ico-line" data-ico="plus-sign" aria-hidden="true"></span>
+            Add Voucher
+          </button>
+
+          <section class="wal-balance" aria-label="Wallet balance">
+            <span class="wal-balance__icon"><span class="ico ico-line" data-ico="wallet-02" aria-hidden="true"></span></span>
+            <div>
+              <p class="pts-card__label">Wallet Balance</p>
+              <p class="pts-card__value" data-wallet-amount>EGP 2,000</p>
+            </div>
+          </section>
+
+          <section class="wal-vouchers" aria-labelledby="wal-vouchers-title">
+            <h2 class="wal-vouchers__title" id="wal-vouchers-title">Available Vouchers</h2>
+            <ul class="wal-vouchers__list" data-wallet-vouchers></ul>
+            <p class="wal-vouchers__empty" data-wallet-empty hidden>No vouchers to apply. Add one with its code.</p>
+          </section>
+
+          <section class="pts-history wal-history" aria-labelledby="wal-history-title">
+            <h2 class="pts-history__title" id="wal-history-title">Wallet History</h2>
+            <ul class="pts-history__list" data-wallet-history></ul>
+          </section>
         </div>
       </div>
     </main>
@@ -139,19 +82,33 @@
     <div id="site-footer"></div>
 
     <!-- Toggle the inline top-up form -->
-    <script>
-      (function () {
-        document.querySelectorAll("[data-toggle-form]").forEach(function (btn) {
-          btn.addEventListener("click", function () {
-            var form = document.getElementById(btn.getAttribute("data-toggle-form"));
-            if (!form) return;
-            form.classList.toggle("hidden");
-            if (!form.classList.contains("hidden")) {
-              form.scrollIntoView({ behavior: "smooth", block: "center" });
-            }
-          });
-        });
-      })();
-    </script>
+    <!-- Add Voucher (Figma 177:5794 / 261:11951) and Apply Voucher (Figma
+         177:5820 / 261:12010). .bottom-sheet: a sheet with a grab handle
+         on phones, a centred 400px popup from 768px. Wired by initWallet(). -->
+    <div data-modal="voucher-add" class="bottom-sheet vsheet" role="dialog" aria-modal="true" aria-labelledby="vsheet-add-title">
+      <div class="vsheet__head">
+        <span class="ico ico-line vsheet__ico" data-ico="invoice-01" aria-hidden="true"></span>
+        <h2 class="vsheet__title" id="vsheet-add-title">Add Voucher</h2>
+        <button type="button" class="vsheet__close" data-close aria-label="Close"><span class="ico ico-line" data-ico="cancel-01" aria-hidden="true"></span></button>
+      </div>
+      <form class="vsheet__body" data-voucher-add-form novalidate>
+        <label class="vsheet__label" for="vsheet-code">Enter Voucher Code</label>
+        <input class="vsheet__input" id="vsheet-code" type="text" data-voucher-code autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="e.g. TFH738990#723" />
+        <p class="vsheet__error" data-voucher-error hidden>Enter the code printed on your voucher.</p>
+        <button type="submit" class="vsheet__cta">Enter Voucher</button>
+      </form>
+    </div>
+
+    <div data-modal="voucher-apply" class="bottom-sheet vsheet" role="dialog" aria-modal="true" aria-labelledby="vsheet-apply-title">
+      <div class="vsheet__head">
+        <span class="ico ico-line vsheet__ico" data-ico="invoice-01" aria-hidden="true"></span>
+        <h2 class="vsheet__title" id="vsheet-apply-title">Apply Voucher</h2>
+        <button type="button" class="vsheet__close" data-close aria-label="Close"><span class="ico ico-line" data-ico="cancel-01" aria-hidden="true"></span></button>
+      </div>
+      <div class="vsheet__body">
+        <p class="vsheet__text" data-voucher-apply-text>100 EGP will be added to your wallet balance</p>
+        <button type="button" class="vsheet__cta" data-voucher-apply-confirm>Apply Voucher</button>
+      </div>
+    </div>
   </body>
 </html>

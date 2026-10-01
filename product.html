@@ -29,8 +29,9 @@
       <!-- ================= GALLERY + BUY BOX (Figma 60:5382) =================
            Left: photo grid, 2 columns of 456px images. Right: 446px buy
            box with breadcrumb, name/price, rating, size chips, colour
-           circles, ADD TO BAG, delivery line, description, and two
-           collapsible sections (Product Specifications, Delivering Info). -->
+           circles, ADD TO BAG, delivery line, description, two collapsible
+           sections (Product Specifications, Care) and an always-open FAQs
+           list. -->
       <section class="pdp">
         <div class="pdp__inner">
 
@@ -86,7 +87,23 @@
               <div class="pdp__swatches" data-colour-opts></div>
             </div>
 
-            <!-- ADD TO BAG + secondary delivery line -->
+            <!-- Fabric picker + description block. Fabric is a choice like
+                 Size and Colour, so it sits with them above ADD TO BAG, as
+                 one row of equal chips. The short note below repurposes the
+                 Figma "Introducing" block for whichever fabric is selected. -->
+            <div class="pdp__group" data-fabric-block>
+              <div class="pdp__group-head">
+                <span class="pdp__group-label">Fabric</span>
+                <span class="pdp__group-value" data-fabric-name></span>
+              </div>
+              <div class="pdp__chips pdp__chips--row" data-fabric-opts></div>
+              <p class="pdp__fabric-desc" data-fabric-desc></p>
+            </div>
+
+            <!-- Two CTAs. ADD TO BAG (secondary, outline) puts the chosen
+                 variant in the bag and opens the summary cart; BUY NOW
+                 (primary) skips the bag and goes straight to checkout with
+                 just this item. Then the delivery line. -->
             <div class="pdp__buy-block">
               <div class="pdp__qty-row">
                 <div class="pdp__stepper" data-stepper>
@@ -96,25 +113,14 @@
                 </div>
                 <button type="button" class="pdp__addtobag" data-add-to-bag>ADD TO BAG</button>
               </div>
+              <button type="button" class="pdp__buynow" data-buy-now>BUY NOW</button>
               <p class="pdp__delivery">
                 <span class="ico ico-24" data-ico="scooter-02"></span>
                 <span>DELIVER WITHIN 3 DAYS IN CAIRO AND GIZA</span>
               </p>
             </div>
 
-            <!-- Fabric picker + description block. Fabric is shown as chips
-                 like Size; the copy below repurposes the Figma "Introducing"
-                 block for whichever fabric the user has selected. -->
-            <div class="pdp__group" data-fabric-block>
-              <div class="pdp__group-head">
-                <span class="pdp__group-label">Fabric</span>
-                <span class="pdp__group-value" data-fabric-name></span>
-              </div>
-              <div class="pdp__chips" data-fabric-opts></div>
-              <p class="pdp__fabric-desc" data-fabric-desc></p>
-            </div>
-
-            <!-- Collapsible: Product Specifications, Delivering Info -->
+            <!-- Collapsible: Product Specifications, Care. One open at a time. -->
             <div class="pdp__acc" data-accordion>
               <section class="pdp__acc-item is-open">
                 <button type="button" class="pdp__acc-legend" aria-expanded="true">
@@ -125,21 +131,21 @@
               </section>
               <section class="pdp__acc-item">
                 <button type="button" class="pdp__acc-legend" aria-expanded="false">
-                  <span>Delivering Info</span>
-                  <span class="sfd__legend-sign" aria-hidden="true"></span>
-                </button>
-                <div class="pdp__acc-body">
-                  <p class="pdp__acc-copy">Orders are processed quickly and delivered within a few business days based on your location. After shipping, you'll get a confirmation with tracking details.</p>
-                </div>
-              </section>
-              <section class="pdp__acc-item">
-                <button type="button" class="pdp__acc-legend" aria-expanded="false">
                   <span>Care</span>
                   <span class="sfd__legend-sign" aria-hidden="true"></span>
                 </button>
                 <div class="pdp__acc-body"><p class="pdp__acc-copy" data-care></p></div>
               </section>
             </div>
+
+            <!-- Questions about this product, its delivery, care and making.
+                 Always open, so the questions are one tap away; each answer
+                 opens on its own. Built per product in the controller below,
+                 which also publishes them as FAQPage structured data. -->
+            <section class="pdp-faqs" aria-labelledby="pdp-faqs-title">
+              <h2 class="pdp-faqs__title" id="pdp-faqs-title">FAQs</h2>
+              <div class="faq__list pdp-faq" data-pdp-faq data-faq></div>
+            </section>
           </div>
         </div>
       </section>
@@ -152,6 +158,41 @@
         </div>
       </section>
     </main>
+
+    <!-- Gallery layout switch: "Multiple images" is the two-column grid,
+         "One image" a single framed plate that fits the screen. A review
+         control for comparing the two; the choice is remembered. -->
+    <div class="pdp-layout" role="group" aria-label="Gallery layout">
+      <div class="segmented" data-segmented>
+        <span class="segmented__thumb" aria-hidden="true"></span>
+        <button type="button" class="is-active" data-gallery-layout="grid" aria-pressed="true">Multiple images</button>
+        <button type="button" data-gallery-layout="single" aria-pressed="false">One image</button>
+      </div>
+    </div>
+    <script>
+      /* Runs while the page parses, ahead of the deferred scripts.js, so
+         the saved layout paints first time and the segmented thumb is
+         placed on it rather than sliding over after load. */
+      (function () {
+        var pdp = document.querySelector(".pdp");
+        var btns = document.querySelectorAll("[data-gallery-layout]");
+        function setLayout(mode) {
+          if (pdp) pdp.classList.toggle("pdp--single", mode === "single");
+          btns.forEach(function (b) {
+            var on = b.getAttribute("data-gallery-layout") === mode;
+            b.classList.toggle("is-active", on);
+            b.setAttribute("aria-pressed", on ? "true" : "false");
+          });
+          try { localStorage.setItem("percaal-pdp-gallery", mode); } catch (e) {}
+        }
+        var saved = "grid";
+        try { saved = localStorage.getItem("percaal-pdp-gallery") || "grid"; } catch (e) {}
+        setLayout(saved === "single" ? "single" : "grid");
+        btns.forEach(function (b) {
+          b.addEventListener("click", function () { setLayout(b.getAttribute("data-gallery-layout")); });
+        });
+      })();
+    </script>
 
     <div id="site-footer"></div>
 
@@ -188,6 +229,140 @@
         };
         var HANDMADE_CARE =
           "Hand wash only, cold, and dry flat in the shade. Made by hand from traditionally sourced Upper Egypt cotton — recommended for pet-free homes.";
+
+        /* ---- Product FAQs ------------------------------------------
+           Questions a shopper (and an answer engine) asks about this exact
+           product: what it is made of, which fabric and size to pick,
+           delivery, returns, washing, where it is made. Answers are built
+           from the catalogue and the site's published policies (the
+           announcement bar, the delivery line above and the FAQ page), so
+           they can't drift from what the rest of the site says. Rebuilt
+           on every render, because the fabric changes the answers. */
+        function faqs() {
+          var f = F[state.fabric] || {};
+          var name = p.name;
+          var list = [];
+
+          /* Wooden and furniture pieces carry a placeholder "cotton" fabric
+             in the catalogue, so the textile questions (material, washing,
+             colour of the cloth) are only asked of textiles; answering them
+             for a wooden tray would publish something untrue. */
+          var textile = p.sub !== "decor" && p.sub !== "furniture";
+
+          if (textile) {
+            // "400 TC · 100% Egyptian cotton" → "100% Egyptian cotton";
+            // lower-cased mid-sentence unless it starts with a figure.
+            var comp = (f.short || "").replace(/^\d+ TC · /, "");
+            comp = /^\d/.test(comp) ? comp : comp.charAt(0).toLowerCase() + comp.slice(1);
+            list.push([
+              "What is the " + name + " made of?",
+              (p.fabrics.length > 1 ? "In the " + f.name + " you have selected, it is " : "It is ") +
+                comp + ". " + (f.long || ""),
+            ]);
+          }
+
+          if (p.fabrics.length > 1) {
+            var TIP = {
+              "tc-400": "400 Thread Count for the smoothest, densest feel",
+              "tc-200": "200 Thread Count for a crisp, cool everyday weave",
+              blend: "the Easy-Care Blend if you would rather skip the iron",
+              "memory-foam": "Memory Foam for support that contours to you",
+              microfiber: "Microfiber for a softer, lighter pillow",
+            };
+            list.push([
+              "Which fabric should I choose?",
+              "It comes in " + p.fabrics.length + " fabrics: " +
+                p.fabrics.map(function (k) {
+                  return ((F[k] || {}).name || k) + " at " + money(p.price[k]);
+                }).join(", ") +
+                ". Choose " +
+                p.fabrics.map(function (k) { return TIP[k]; }).filter(Boolean).join("; or ") + ".",
+            ]);
+          }
+
+          if (p.sizes.length > 1) {
+            // Mattress advice only where it applies: sheets and duvet covers.
+            var bed = p.sub === "bed-sheets" || p.sub === "duvet-covers";
+            list.push([
+              "What sizes does the " + name + " come in?",
+              "It comes in " + p.sizes.join(", ") + "." +
+                (bed ? " Measure your mattress before ordering; if you are between sizes, go up, because a sheet one size large still holds and one size small will pop a corner." : ""),
+            ]);
+          }
+
+          list.push([
+            "How long does delivery take?",
+            "Within 3 working days in Cairo and Giza, and 2 to 4 working days to most other addresses in Egypt. Delivery is free on orders above 5,000 EGP, and selected international destinations are offered at checkout.",
+          ]);
+
+          list.push([
+            "Can I return or exchange it?",
+            "Yes. Unused, unwashed items in their original packaging can be returned or exchanged within 14 days of delivery. Start it from your account's Orders page, or in any Percaal store.",
+          ]);
+
+          if (textile) {
+            list.push([
+              "How do I wash and care for it?",
+              p.cat === "handmade" ? HANDMADE_CARE : CARE[state.fabric] || CARE.cotton,
+            ]);
+          }
+
+          list.push([
+            "Where is the " + name + " made?",
+            "In Egypt." +
+              (/egyptian cotton/i.test(f.short || "") ? " It is made from Egyptian cotton, the long-staple fibre the country is known for, which is what gives it its softness and strength." : ""),
+          ]);
+
+          if (textile) {
+            list.push([
+              "Is the colour exactly as shown?",
+              "Yes. Photography is shot in daylight with no colour retouching, so what you see is the cloth. Screens vary slightly, so order the Fabric Swatch Set if the exact shade matters.",
+            ]);
+          }
+
+          return list;
+        }
+
+        function renderFaqs() {
+          var mount = document.querySelector("[data-pdp-faq]");
+          if (!mount) return;
+          var items = faqs();
+          var openRow = mount.querySelector(".faq__item.is-open");
+          var openIndex = openRow ? Array.prototype.indexOf.call(mount.children, openRow) : -1;
+          var ic = window.icon || function () { return ""; };
+          mount.innerHTML = items
+            .map(function (qa, i) {
+              var open = i === openIndex;
+              return (
+                '<div class="faq__item' + (open ? " is-open" : "") + '">' +
+                '<button type="button" class="faq__q" aria-expanded="' + open + '" aria-controls="pdp-faq-' + i + '">' +
+                "<span>" + qa[0] + "</span>" +
+                '<span class="faq__sign">' +
+                '<span class="faq__plus ico ico-16">' + ic("plus-sign") + "</span>" +
+                '<span class="faq__minus ico ico-16">' + ic("minus-sign") + "</span>" +
+                "</span></button>" +
+                '<div class="faq__a" id="pdp-faq-' + i + '"><p>' + qa[1] + "</p></div></div>"
+              );
+            })
+            .join("");
+
+          /* The same questions as FAQPage structured data, for search and
+             answer engines. One script, replaced on each render. */
+          var ld = document.getElementById("pdp-faq-ld");
+          if (!ld) {
+            ld = document.createElement("script");
+            ld.type = "application/ld+json";
+            ld.id = "pdp-faq-ld";
+            document.head.appendChild(ld);
+          }
+          ld.textContent = JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: items.map(function (qa) {
+              return { "@type": "Question", name: qa[0], acceptedAnswer: { "@type": "Answer", text: qa[1] } };
+            }),
+          });
+        }
 
         function price() {
           return (p.price && p.price[state.fabric]) || p.from;
@@ -271,6 +446,7 @@
 
           var care = p.cat === "handmade" ? HANDMADE_CARE : CARE[state.fabric] || CARE.cotton;
           setText("[data-care]", care);
+          renderFaqs();
 
           var spec = document.querySelector("[data-spec]");
           if (spec) spec.innerHTML = [
@@ -294,13 +470,32 @@
           render();
         });
 
+        function qty() {
+          return parseInt((document.querySelector(".pdp__stepper [data-qty]") || {}).textContent || "1", 10) || 1;
+        }
+
+        /* ADD TO BAG: the chosen variant goes into the bag, then the
+           summary cart opens so the shopper sees it land. */
         var add = document.querySelector("[data-add-to-bag]");
         if (add) {
           add.addEventListener("click", function () {
-            var qty = parseInt((document.querySelector("[data-qty]") || {}).textContent || "1", 10) || 1;
-            if (window.kAddToCart) window.kAddToCart(qty, add);
-            add.textContent = "ADDED";
-            setTimeout(function () { add.textContent = "ADD TO BAG"; }, 1400);
+            if (window.kAddLine) {
+              window.kAddLine(p.slug, { colour: state.colour, size: state.size, fabric: state.fabric, qty: qty() });
+            }
+            if (window.kOpenCart) window.kOpenCart();
+          });
+        }
+
+        /* BUY NOW: an express checkout for just this item. The bag is left
+           alone; the item and its options travel in the URL, and the
+           checkout summary is built from them (initBuyNowSummary). */
+        var buy = document.querySelector("[data-buy-now]");
+        if (buy) {
+          buy.addEventListener("click", function () {
+            var q = new URLSearchParams({
+              buy: p.slug, colour: state.colour, size: state.size, fabric: state.fabric, qty: String(qty()),
+            });
+            location.href = "checkout.html?" + q.toString();
           });
         }
 
@@ -313,15 +508,19 @@
         });
 
         /* Accordion sections in the buy box (Product Specifications /
-           Delivering Info / Care). One item is-open at a time is not
-           required — each toggles independently. */
+           Care). One open at a time: opening one closes the other, and
+           tapping the open one closes it. */
         document.addEventListener("click", function (e) {
           var lg = e.target.closest(".pdp__acc-legend");
           if (!lg) return;
           var item = lg.closest(".pdp__acc-item");
-          var open = !item.classList.contains("is-open");
-          item.classList.toggle("is-open", open);
-          lg.setAttribute("aria-expanded", open ? "true" : "false");
+          var opening = !item.classList.contains("is-open");
+          item.closest(".pdp__acc").querySelectorAll(".pdp__acc-item").forEach(function (row) {
+            var on = row === item && opening;
+            row.classList.toggle("is-open", on);
+            var btn = row.querySelector(".pdp__acc-legend");
+            if (btn) btn.setAttribute("aria-expanded", on ? "true" : "false");
+          });
         });
 
         /* Related: other products in the same category, then anything else,

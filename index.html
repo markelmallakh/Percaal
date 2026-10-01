@@ -126,7 +126,7 @@
             <button type="button" data-shelf-tab="staff">Staff Picks</button>
           </div>
         </div>
-        <div class="rail" data-rail>
+        <div class="rail" data-rail data-rail-loop>
           <button type="button" class="rail__btn rail__btn--prev" data-rail-prev aria-label="Previous" data-ico="arrow-left-01-sharp"></button>
           <div class="rail__track" data-rail-track data-shelf="best"></div>
           <button type="button" class="rail__btn rail__btn--next" data-rail-next aria-label="Next" data-ico="arrow-right-01-sharp"></button>
@@ -216,10 +216,12 @@
         <div class="band__head">
           <h2 class="band__title">Our Blog</h2>
         </div>
-        <div class="rail" data-rail>
-          <div class="rail__track" data-rail-track data-blograil></div>
+        <!-- The blog page's own two-up grid and card, showing the two
+             newest posts, so the strip here and the blog page match. -->
+        <div class="container-design">
+          <div class="bloglist__grid" data-blograil></div>
         </div>
-        <div class="faq" style="margin-top: 32px">
+        <div class="faq" style="margin-top: 40px">
           <a href="blogs.html" class="link-more">
             Read More
             <span class="link-more__icon ico ico-20" data-ico="arrow-right-02-round"></span>
@@ -276,12 +278,11 @@
           }).join("");
         }
 
-        /* --- Our Blog ---------------------------------------------------- */
+        /* --- Our Blog: the two newest posts, as listed first on the blog
+           page (blogs.html), so the two never disagree. ------------------- */
         var POSTS = [
-          ["5 Tips to Elevate Your Everyday Style", "15 Feb 2026", "images/blog-post-03-cotton-field.webp"],
-          ["BRANDROOM New Collaboration", "15 Feb 2026", "images/blog-post-01-showroom.webp"],
-          ["Our New Store Is Now Open in Madinaty", "15 Feb 2026", "images/blog-post-02-trade-show.webp"],
-          ["How to Build a Bed That Lasts", "15 Feb 2026", "images/blog-post-03-cotton-field.webp"],
+          ["5 Tips to Elevate Your Everyday Style", "16 Feb 2026", "images/blog-post-03-cotton-field.webp"],
+          ["Percaal's New Collaboration", "16 Feb 2026", "images/blog-post-01-showroom.webp"],
         ];
         var bmount = document.querySelector("[data-blograil]");
         if (bmount) {

@@ -50,7 +50,7 @@
 
       <!-- Grid -->
       <section class="section section--tight">
-        <div class="mx-auto max-w-[1512px] px-6 lg:px-[60px]">
+        <div class="container-design">
           <div class="egrid egrid--4" data-grid></div>
           <p class="hidden py-24 text-center" data-empty>
             <span class="display-sm block">Nothing matches those filters.</span>
@@ -271,8 +271,9 @@
           var empty = document.querySelector("[data-empty]");
           grid.innerHTML = list.map(function (p) { return window.percaalCard(p); }).join("");
           empty.classList.toggle("hidden", list.length > 0);
-          document.querySelector("[data-result-count]").textContent =
-            list.length + (list.length === 1 ? " Product" : " Products");
+          document.querySelector("[data-result-count]").innerHTML =
+            list.length + '<span class="category-head__count-word">' +
+            (list.length === 1 ? " Product" : " Products") + "</span>";
           paintChips();
           if (window.kInit) window.kInit(grid);
         }

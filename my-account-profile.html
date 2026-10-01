@@ -29,8 +29,8 @@
 
     <div id="site-header"></div>
 
-    <main class="overflow-x-clip bg-gray-100">
-      <div class="flex lg:flex-row flex-col items-start gap-7 md:gap-10 mx-auto px-4 py-10 md:py-16 max-w-[1392px]">
+    <main class="overflow-x-clip acct-page">
+      <div class="flex lg:flex-row flex-col items-start gap-7 md:gap-8 container-design py-10 md:py-16">
 
         <!-- ============================ MOBILE ACCOUNT NAV (pills) ============================ -->
         <!-- Shared account rail (Figma 159:8116), injected by
@@ -39,7 +39,7 @@
         <div id="account-menu" data-active="profile" class="w-full lg:w-[384px] shrink-0"></div>
 
         <!-- ============================ ACCOUNT CONTENT ============================ -->
-        <div class="w-full lg:w-[calc(75%-36px)]">
+        <div class="w-full min-w-0 lg:flex-1">
           <nav class="mb-6 flex items-center gap-2 text-sm text-gray-700" aria-label="Breadcrumb">
             <a href="index.html" class="hover:text-primaryDark">Home</a>
             <span class="text-gray-400">/</span>
@@ -54,8 +54,8 @@
             </div>
 
             <!-- Edit profile form -->
-            <div class="flex flex-col gap-5 xl:gap-8 max-w-[538px] p-6 md:p-8 border items-center justify-center border-gray-300 rounded bg-white shadow-custom4">
-              <img src="icons/user.svg" alt="edit profile" width="60" height="60" class="w-[60px] h-[60px] object-contain" />
+            <div class="flex flex-col gap-5 xl:gap-8 max-w-[538px] p-6 md:p-8 items-center justify-center bg-white">
+              <span class="h-10 w-10"><span class="ico ico-line" data-ico="user" aria-hidden="true"></span></span>
               <!-- Demo form: prevents submit and shows a toast (see scripts.js) -->
               <form data-demo-form="Profile updated" data-reset="false" class="flex flex-col gap-5 w-full">
                 <div class="grid xl:grid-cols-2 gap-4 md:gap-6">
