@@ -5997,25 +5997,72 @@
      Boot
      --------------------------------------------------------------- */
   /* ---------------------------------------------------------------
-     ARRIVAL — see the ARRIVAL block in styles.css.
+     LOADER + ARRIVAL — see the block of that name in styles.css.
 
      The body carries .is-loading from the HTML; swapping it for
-     .is-ready once the first frame has painted plays the header and
-     hero entrance. Nothing is waited on — no fonts, no images — so the
-     page shows as soon as it can draw. (A full-screen loader used to
-     hold the first page of each visit behind a curtain for 1.1–2.6s;
-     it was removed so visitors see and can use the page at once.)
+     .is-ready plays the header and hero entrance.
+
+     Normally that happens on the first painted frame: nothing is waited
+     on. On a visitor's first visit only, the inline script at the top of
+     <body> has raised the loader curtain; then the curtain holds until
+     fonts and the hero are in (so nothing reflows behind it), for at
+     least MIN_HOLD so the logo sequence completes and never past
+     MAX_HOLD, and the entrance starts as it lifts.
      --------------------------------------------------------------- */
   function initArrival() {
     const body = document.body;
-    requestAnimationFrame(() =>
-      requestAnimationFrame(() => {
-        body.classList.remove("is-loading");
-        body.classList.add("is-ready");
-        const tile = document.querySelector(".featured");
-        if (tile) setTimeout(() => tile.classList.add("is-arrived"), 1000);
-      })
-    );
+    const loader = document.querySelector("[data-loader]");
+    const arrive = () => {
+      body.classList.remove("is-loading", "has-loader");
+      body.classList.add("is-ready");
+      const tile = document.querySelector(".featured");
+      if (tile) setTimeout(() => tile.classList.add("is-arrived"), 1000);
+    };
+    if (!loader) {
+      requestAnimationFrame(() => requestAnimationFrame(arrive));
+      return;
+    }
+
+    const MIN_HOLD = 1100;
+    const MAX_HOLD = 2600;
+    const started = performance.now();
+    const ready = Promise.race([
+      Promise.all([
+        document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve(),
+        new Promise((res) => {
+          if (document.readyState === "complete") res();
+          else window.addEventListener("load", res, { once: true });
+        }),
+        /* The hero poster / first image, so the fold does not pop in after
+           the curtain has gone. Resolves immediately when there is none. */
+        new Promise((res) => {
+          const hero = document.querySelector(".hero__media video, .hero__media img, main img");
+          if (!hero) return res();
+          if (hero.tagName === "VIDEO") {
+            const poster = hero.getAttribute("poster");
+            if (!poster) return res();
+            const im = new Image();
+            im.onload = im.onerror = res;
+            im.src = poster;
+          } else if (hero.complete) res();
+          else hero.addEventListener("load", res, { once: true }), hero.addEventListener("error", res, { once: true });
+        }),
+      ]),
+      new Promise((res) => setTimeout(res, MAX_HOLD)),
+    ]);
+
+    ready.then(() => {
+      const wait = Math.max(0, MIN_HOLD - (performance.now() - started));
+      setTimeout(() => {
+        loader.classList.add("is-done");
+        /* Start the arrival a beat into the lift, so the header is already
+           settling as the curtain clears it. */
+        setTimeout(arrive, 150);
+        const gone = () => loader.remove();
+        loader.addEventListener("transitionend", gone, { once: true });
+        setTimeout(gone, 1200); /* belt and braces if transitionend never fires */
+      }, wait);
+    });
   }
 
   /* Soft exit on internal navigation, so a click reads as the page

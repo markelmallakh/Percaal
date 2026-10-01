@@ -13,6 +13,30 @@
     <script defer src="scripts.js"></script>
   </head>
   <body data-page="category" data-path="/shop" class="antialiased bg-white is-loading">
+    <script>
+      /* First visit only: the loader curtain (styles.css "LOADER + ARRIVAL").
+         It is added here, before anything paints, instead of being written
+         into the page, so every visitor and every crawler gets the same
+         content. Crawlers, automated browsers and visitors who prefer
+         reduced motion never see it; nor does anyone on a later visit. */
+      (function () {
+        if (navigator.webdriver || /bot|crawl|spider|slurp|preview|inspectiontool|facebookexternalhit/i.test(navigator.userAgent)) return;
+        if (window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+        try {
+          if (localStorage.getItem("percaal-visited")) return;
+          localStorage.setItem("percaal-visited", "1");
+        } catch (e) {
+          return;
+        }
+        document.body.classList.add("has-loader");
+        document.body.insertAdjacentHTML(
+          "afterbegin",
+          '<div class="loader" data-loader aria-hidden="true"><div class="loader__inner">' +
+            '<img class="loader__logo" src="images/percaal-landscape-logo.svg" alt="" width="168" height="38" />' +
+            '<span class="loader__line"></span></div></div>'
+        );
+      })();
+    </script>
     <div id="site-header"></div>
 
     <main class="overflow-x-clip">
