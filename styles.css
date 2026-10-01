@@ -10914,6 +10914,9 @@ button.bagsum__cta {
   position: relative;
   display: inline-grid;
   place-items: center;
+  /* Top-aligned, so each glyph's own shape can't nudge its line box and
+     the four labels share one baseline. */
+  vertical-align: top;
   width: 52px;
   height: 52px;
 }
@@ -10948,6 +10951,23 @@ button.bagsum__cta {
   line-height: 1.3;
   color: var(--black);
 }
+/* Below 1024px four marks no longer fit one row, and a wrapping flex
+   row breaks them 1 + 2 + 1. A 2 × 2 grid keeps them paired. */
+@media (max-width: 1023px) {
+  .abt-marks .abt-marks__row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 40px 12px;
+  }
+}
+/* On phones each label keeps one line in its half-width column;
+   "Premium Quality Fabrics" is the longest. */
+@media (max-width: 767px) {
+  .abt-marks__row .abt-mark__label {
+    font-size: clamp(10.5px, 3.4vw, 16px);
+    white-space: nowrap;
+  }
+}
 
 /* --- shipping --------------------------------------------------- */
 .abt-ship {
@@ -10978,15 +10998,14 @@ button.bagsum__cta {
   transform: none;
   will-change: auto;
 }
-/* Parallax rides on the image so it never fights the entrance, which
-   owns the transform on the wrapper. */
-.abt-ship__media img {
+/* The box-closing clip, scrubbed by the scroll (see about.html). Square
+   footage in the drawn 612 × 534 slot, contained on the page white. */
+.abt-ship__video {
   width: 100%;
   aspect-ratio: 612 / 534;
   object-fit: contain;
   display: block;
-  transform: translate3d(0, var(--py, 0px), 0);
-  will-change: transform;
+  background: var(--white);
 }
 
 @media (max-width: 1199px) {
@@ -11006,8 +11025,7 @@ button.bagsum__cta {
   .abt-collage__plate,
   .abt-phil__hero,
   .abt-phil__pair img,
-  .abt-founder__media img,
-  .abt-ship__media img { transition: none; }
+  .abt-founder__media img { transition: none; }
 }
 
 /* =====================================================================

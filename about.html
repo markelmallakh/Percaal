@@ -134,11 +134,13 @@
         </div>
       </section>
 
-      <!-- Worldwide Shipping -->
-      <section class="abt-ship" data-parallax>
+      <!-- Worldwide Shipping. The box closes as you scroll — see the
+           shipping-video script at the foot of the page. -->
+      <section class="abt-ship">
         <div class="abt-ship__media">
-          <img src="images/about-03-packaging.webp" alt="A Percaal order boxed for shipping" loading="lazy"
-               data-parallax-item data-parallax-base="0" data-parallax-amp="34" />
+          <video class="abt-ship__video" src="images/percaal-box-close-white-1080-scrub.mp4#t=0.067"
+                 muted playsinline preload="auto" disableremoteplayback
+                 role="img" aria-label="A Percaal order boxed for shipping" data-ship-video></video>
         </div>
         <div>
           <h2 class="abt-label">Worldwide Shipping</h2>
@@ -162,6 +164,108 @@
         document.querySelectorAll('[data-ico]').forEach(function (el) {
           el.innerHTML = ic(el.getAttribute('data-ico'));
         });
+      })();
+
+      /* Worldwide Shipping: the box closes as you go.
+         Desktop (1024px and up) scrubs the clip with the scroll. It waits
+         until the box is well on screen (its top at 60% of the height),
+         so the closing is seen whole, and finishes as the box nears the
+         top (10%), or at the foot of the page if that comes first. Smaller screens play
+         it while it is on screen, forward while scrolling down and in
+         reverse while scrolling up, and stop it off screen. The file is
+         encoded all-intra (every frame a keyframe), so any frame shows at
+         once in either direction. Reduced motion: the closed box, still.
+         Until it moves, the clip rests on its first full frame: the
+         opening two fade in from white, so frame 2 (0.067s, also the
+         src's #t fragment) is the start, and the box is never hidden. */
+      (function () {
+        var video = document.querySelector('[data-ship-video]');
+        if (!video) return;
+        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var desktop = window.matchMedia('(min-width: 1024px)');
+        var START = 2 / 30;
+        var dur = 0, shown = START, dir = 1, visible = false, primed = false;
+        var raf = 0, lastT = 0, lastY = window.scrollY;
+
+        function ready(fn) {
+          if (video.readyState >= 1) fn();
+          else video.addEventListener('loadedmetadata', fn, { once: true });
+        }
+        if (reduce) {
+          ready(function () { video.currentTime = video.duration; });
+          return;
+        }
+
+        /* 0 until the box's top reaches 60% of the screen height, 1 once
+           it reaches 10% (or the page can scroll no further). */
+        function progress() {
+          var vh = window.innerHeight;
+          var top = video.getBoundingClientRect().top + window.scrollY;
+          var start = top - vh * 0.6;
+          var end = Math.min(top - vh * 0.1, document.documentElement.scrollHeight - vh);
+          if (end <= start) return 1;
+          return Math.max(0, Math.min(1, (window.scrollY - start) / (end - start)));
+        }
+
+        function tick(now) {
+          raf = 0;
+          var dt = lastT ? Math.min(0.1, (now - lastT) / 1000) : 0;
+          lastT = now;
+          var before = shown;
+          if (desktop.matches) {
+            /* Eased toward the scroll position, so a wheel's steps
+               read as one continuous motion. */
+            var target = START + progress() * (dur - START);
+            shown += (target - shown) * (1 - Math.exp(-dt * 12));
+            if (Math.abs(target - shown) < 0.005) shown = target;
+          } else {
+            shown = Math.max(START, Math.min(dur, shown + dir * dt));
+          }
+          if (Math.abs(video.currentTime - shown) > 0.015) video.currentTime = shown;
+          /* Sleep once nothing moves; scrolling wakes it again. Desktop
+             finishes easing even off screen, so a fast scroll past never
+             leaves the clip stranded mid-way. */
+          if (active() && (shown !== before || dt === 0)) raf = requestAnimationFrame(tick);
+          else lastT = 0;
+        }
+        function active() {
+          return desktop.matches || visible;
+        }
+        function wake() {
+          if (!raf && dur && active()) raf = requestAnimationFrame(tick);
+        }
+
+        ready(function () {
+          dur = video.duration;
+          video.currentTime = shown;
+          wake();
+        });
+
+        window.addEventListener('scroll', function () {
+          var y = window.scrollY;
+          if (Math.abs(y - lastY) > 2) dir = y > lastY ? 1 : -1;
+          lastY = y;
+          wake();
+        }, { passive: true });
+        window.addEventListener('resize', wake);
+
+        new IntersectionObserver(function (entries) {
+          visible = entries[0].isIntersecting;
+          /* iOS only paints frames for seeks once the video has played;
+             a muted play-and-pause primes it, then the clip returns to
+             where the script has it. */
+          if (visible && !primed && !desktop.matches) {
+            primed = true;
+            var settle = function () {
+              video.pause();
+              video.currentTime = shown;
+            };
+            var p = video.play();
+            if (p && p.then) p.then(settle, function () {});
+            else settle();
+          }
+          wake();
+        }, { threshold: 0.25 }).observe(video);
       })();
     </script>
   </body>
