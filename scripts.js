@@ -656,19 +656,56 @@
     if (root === document && document.body.dataset.swatchDelegated) return;
     if (root === document) document.body.dataset.swatchDelegated = "1";
 
-    const showShot = (card, index) => {
+    const reduce =
+      window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    /* Puts a photograph in the card. With `fade`, the new one is laid
+       over the old and faded in, then takes its place; a newer swap that
+       arrives mid-fade simply supersedes it. */
+    let swapId = 0;
+    const swapArt = (img, src, alt, fade) => {
+      const media = img.parentElement;
+      media.querySelectorAll(".pwidget__ghost").forEach((g) => g.remove());
+      const id = String(++swapId);
+      media.dataset.swap = id;
+      if (!fade || reduce || img.getAttribute("src") === src) {
+        img.src = src;
+        img.alt = alt;
+        return;
+      }
+      const ghost = document.createElement("img");
+      ghost.className = "pwidget__ghost";
+      ghost.alt = "";
+      ghost.src = src;
+      media.appendChild(ghost);
+      const settle = () => {
+        if (media.dataset.swap !== id) return;
+        img.src = src;
+        img.alt = alt;
+        ghost.remove();
+      };
+      const show = () => {
+        requestAnimationFrame(() => ghost.classList.add("is-in"));
+        ghost.addEventListener("transitionend", settle, { once: true });
+        setTimeout(settle, 700); /* in case transitionend never fires */
+      };
+      if (ghost.decode) ghost.decode().then(show, settle);
+      else show();
+    };
+
+    const showShot = (card, index, fade) => {
       const p = productBySlug(card.getAttribute("data-product"));
       const img = card.querySelector("[data-pcard-img]");
       if (!p || !img) return;
       const n = p.colours.length;
       const i = ((index % n) + n) % n; /* wrap both ways */
       card.setAttribute("data-gal-index", String(i));
-      img.src = productArt(p, p.colours[i]);
-      img.alt = p.name + " in " + (COLOURWAYS[p.colours[i]] || {}).name;
+      swapArt(img, productArt(p, p.colours[i]), p.name + " in " + (COLOURWAYS[p.colours[i]] || {}).name, fade);
       card.querySelectorAll(".pdot").forEach((d) =>
         d.classList.toggle("is-active", d.getAttribute("data-swatch") === p.colours[i]),
       );
     };
+    const shotAt = (card) => parseInt(card.getAttribute("data-gal-index") || "0", 10);
 
     const fromDot = (e) => {
       const sw = e.target.closest(".pwidget .pdot");
@@ -679,6 +716,51 @@
       showShot(card, p.colours.indexOf(sw.getAttribute("data-swatch")));
     };
 
+    /* Desktop hover: resting the mouse on a card's picture plays through
+       its other photographs, the next one at once and then one every
+       1.4s, and leaving puts back the one it started on. Using an arrow
+       takes over from the autoplay, and the photo chosen with it stays.
+       Mouse only (touch keeps the dots); no autoplay under reduced
+       motion. Delegated, so shelf tabs and rail copies are covered. */
+    const hovering = new WeakMap();
+    const stopCycle = (h) => {
+      if (h && h.timer) {
+        clearInterval(h.timer);
+        h.timer = 0;
+      }
+    };
+    const stageOf = (e) => {
+      const stage = e.target.closest && e.target.closest(".pwidget__stage");
+      return stage && !stage.contains(e.relatedTarget) ? stage : null;
+    };
+    document.addEventListener("pointerover", (e) => {
+      if (e.pointerType !== "mouse") return;
+      const stage = stageOf(e);
+      const card = stage && stage.closest(".pwidget");
+      if (!card || hovering.has(card)) return;
+      const p = productBySlug(card.getAttribute("data-product"));
+      if (!p || p.colours.length < 2) return;
+      p.colours.forEach((k) => {
+        new Image().src = productArt(p, k); /* warm the cache, so fades start at once */
+      });
+      const h = { home: shotAt(card), timer: 0, manual: false };
+      hovering.set(card, h);
+      if (reduce) return;
+      const next = () => showShot(card, shotAt(card) + 1, true);
+      next();
+      h.timer = setInterval(next, 1400);
+    });
+    document.addEventListener("pointerout", (e) => {
+      if (e.pointerType !== "mouse") return;
+      const stage = stageOf(e);
+      const card = stage && stage.closest(".pwidget");
+      const h = card && hovering.get(card);
+      if (!h) return;
+      stopCycle(h);
+      hovering.delete(card);
+      if (!h.manual) showShot(card, h.home, true);
+    });
+
     document.addEventListener("mouseover", fromDot);
     document.addEventListener("click", (e) => {
       /* Arrows sit over the media link, so their click must not navigate. */
@@ -687,8 +769,10 @@
         e.preventDefault();
         e.stopPropagation();
         const card = arrow.closest(".pwidget");
-        const at = parseInt(card.getAttribute("data-gal-index") || "0", 10);
-        showShot(card, at + parseInt(arrow.getAttribute("data-gal"), 10));
+        const h = hovering.get(card);
+        stopCycle(h);
+        if (h) h.manual = true;
+        showShot(card, shotAt(card) + parseInt(arrow.getAttribute("data-gal"), 10), true);
         return;
       }
       if (e.target.closest(".pwidget .pdot")) {
