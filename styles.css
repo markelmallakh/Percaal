@@ -1100,6 +1100,12 @@ body:has(.menu-sheet.is-open) .overlay-backdrop { opacity: 0; }
   transition: background-color 0.2s ease;
 }
 .cart-drawer__checkout:hover { background: #57503f; }
+/* The total is what the shopper is agreeing to, so it carries the weight;
+   even-width figures keep it from shifting as the amount changes. */
+.cart-drawer__checkout [data-cart-grand] {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
 
 .cart-drawer__continue {
   display: flex;
