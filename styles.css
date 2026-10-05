@@ -1500,9 +1500,24 @@ body:has(.menu-sheet.is-open) .overlay-backdrop { opacity: 0; }
   .pdp__thumbs,
   .pdp__arrow { display: none; }
   .pdp__stage { width: auto; }
-  /* Capped on tablets, where a full-width 4:5 photo would fill the
-     screen before the buy box starts. */
-  .pdp__slide { max-height: 75svh; }
+  /* A peeking slider: each photo starts on the page gutter and is
+     narrower than the screen, so the next one shows at the edge and it
+     is plain there is more to swipe to. 88% of a phone; on tablets the
+     height cap leads, so the photo keeps its 4:5 shape uncropped. */
+  .pdp__track {
+    gap: 8px;
+    padding-inline: var(--gutter);
+    scroll-padding-inline: var(--gutter);
+    background: none;
+  }
+  .pdp__slide {
+    flex-basis: min(88%, calc(75svh * 0.8));
+    width: min(88%, calc(75svh * 0.8));
+    background: var(--gray-1);
+  }
+  /* A single photo has nothing to peek at: full bleed. */
+  .pdp__gallery--single .pdp__track { padding-inline: 0; }
+  .pdp__gallery--single .pdp__slide { flex-basis: 100%; width: 100%; }
   .pdp__dots {
     display: flex;
     justify-content: center;

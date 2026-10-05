@@ -497,17 +497,43 @@
           if (!gallery) return;
           var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
           var track = function () { return gallery.querySelector("[data-gal-track]"); };
-          var current = function () {
+          /* Slides are narrower than the track on phones (the next one
+             peeks in), so positions are measured, not divided out. The
+             leading edge is the track's start padding, in either text
+             direction. */
+          function edge(t) {
+            var r = t.getBoundingClientRect();
+            var cs = getComputedStyle(t);
+            return cs.direction === "rtl"
+              ? { rtl: true, at: r.right - parseFloat(cs.paddingRight) }
+              : { rtl: false, at: r.left + parseFloat(cs.paddingLeft) };
+          }
+          function current() {
             var t = track();
-            return t && t.clientWidth ? Math.round(Math.abs(t.scrollLeft) / t.clientWidth) : 0;
-          };
+            if (!t) return 0;
+            var slides = t.querySelectorAll(".pdp__slide");
+            /* At the far end the last slide cannot reach the leading
+               edge, so the end of the scroll counts as the last slide. */
+            if (Math.abs(t.scrollLeft) >= t.scrollWidth - t.clientWidth - 2) return slides.length - 1;
+            var e = edge(t), best = 0, gap = Infinity;
+            slides.forEach(function (sl, i) {
+              var r = sl.getBoundingClientRect();
+              var d = Math.abs((e.rtl ? r.right : r.left) - e.at);
+              if (d < gap) { gap = d; best = i; }
+            });
+            return best;
+          }
           function go(i) {
             var t = track();
-            var n = gallery.querySelectorAll(".pdp__slide").length;
-            if (!t || !n) return;
-            i = ((i % n) + n) % n;
-            var dir = getComputedStyle(t).direction === "rtl" ? -1 : 1;
-            t.scrollTo({ left: dir * i * t.clientWidth, behavior: reduce ? "auto" : "smooth" });
+            var slides = t ? t.querySelectorAll(".pdp__slide") : [];
+            if (!slides.length) return;
+            i = ((i % slides.length) + slides.length) % slides.length;
+            var e = edge(t), r = slides[i].getBoundingClientRect();
+            /* An absolute scrollTo, not scrollBy: a relative scroll is
+               treated like a key press and stops at every snap point on
+               the way, so wrapping from the last photo would halt at the
+               one before. */
+            t.scrollTo({ left: t.scrollLeft + (e.rtl ? r.right : r.left) - e.at, behavior: reduce ? "auto" : "smooth" });
           }
           function mark() {
             var i = current();
