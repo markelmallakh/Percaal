@@ -41,7 +41,7 @@
 
     <main class="overflow-x-clip">
       <!-- ================= GALLERY + BUY BOX (Figma 60:5382) =================
-           Left: photo grid, 2 columns of 456px images. Right: 446px buy
+           Left: the gallery, one large photo with thumbnails. Right: 446px buy
            box with breadcrumb, name/price, rating, size chips, colour
            circles, ADD TO BAG, delivery line, description, two collapsible
            sections (Product Specifications, Care) and an always-open FAQs
@@ -49,8 +49,9 @@
       <section class="pdp">
         <div class="pdp__inner">
 
-          <!-- Gallery — Figma 60:5972. Two-column grid of equal 456×570
-               tiles, all photos visible at once (no hero/thumbnail split). -->
+          <!-- Gallery: one large photo with thumbnails beside it and arrows
+               over it on desktop, a full-bleed swipe carousel on phones and
+               tablets. Built by render() below; see "Gallery" in styles.css. -->
           <div class="pdp__gallery" data-gallery></div>
 
           <!-- Buy box -->
@@ -172,41 +173,6 @@
         </div>
       </section>
     </main>
-
-    <!-- Gallery layout switch: "Multiple images" is the two-column grid,
-         "One image" a single framed plate that fits the screen. A review
-         control for comparing the two; the choice is remembered. -->
-    <div class="pdp-layout" role="group" aria-label="Gallery layout">
-      <div class="segmented" data-segmented>
-        <span class="segmented__thumb" aria-hidden="true"></span>
-        <button type="button" class="is-active" data-gallery-layout="grid" aria-pressed="true">Multiple images</button>
-        <button type="button" data-gallery-layout="single" aria-pressed="false">One image</button>
-      </div>
-    </div>
-    <script>
-      /* Runs while the page parses, ahead of the deferred scripts.js, so
-         the saved layout paints first time and the segmented thumb is
-         placed on it rather than sliding over after load. */
-      (function () {
-        var pdp = document.querySelector(".pdp");
-        var btns = document.querySelectorAll("[data-gallery-layout]");
-        function setLayout(mode) {
-          if (pdp) pdp.classList.toggle("pdp--single", mode === "single");
-          btns.forEach(function (b) {
-            var on = b.getAttribute("data-gallery-layout") === mode;
-            b.classList.toggle("is-active", on);
-            b.setAttribute("aria-pressed", on ? "true" : "false");
-          });
-          try { localStorage.setItem("percaal-pdp-gallery", mode); } catch (e) {}
-        }
-        var saved = "grid";
-        try { saved = localStorage.getItem("percaal-pdp-gallery") || "grid"; } catch (e) {}
-        setLayout(saved === "single" ? "single" : "grid");
-        btns.forEach(function (b) {
-          b.addEventListener("click", function () { setLayout(b.getAttribute("data-gallery-layout")); });
-        });
-      })();
-    </script>
 
     <div id="site-footer"></div>
 
@@ -439,23 +405,61 @@
             .map(function (s) { return chip(s, "size", s, s === state.size); })
             .join("");
 
-          /* Gallery — Figma 60:5972. A 2-column grid of equal-size tiles;
-             every photo is visible at once. Uses this product's colourway
-             artwork as the source set so switching a colourway still
-             refreshes the gallery. */
+          /* Gallery: one photograph per colourway, the selected one first.
+             Thumbnails and arrows (desktop) and swipes (phones) all move
+             one scroll-snap track; the controls are wired once, further
+             down. Rebuilt only when the product or colourway changes, so
+             picking a size never jumps back to the first photo. */
           var gallery = document.querySelector("[data-gallery]");
-          if (gallery) {
+          var galleryKey = p.slug + "|" + state.colour;
+          if (gallery && gallery.dataset.key !== galleryKey) {
+            gallery.dataset.key = galleryKey;
+            var gic = window.icon || function () { return ""; };
             var shots = p.colours.slice(0, 6);
-            /* Put the selected colourway first so its plate leads. */
             shots = [state.colour].concat(shots.filter(function (k) { return k !== state.colour; }));
-            gallery.innerHTML = shots
-              .map(function (k) {
-                return (
-                  '<img class="pdp__gallery-img" src="' + art(p, k) +
-                  '" alt="' + p.name + " in " + (((CW[k] || {}).name) || k) + '" loading="lazy" />'
-                );
-              })
-              .join("");
+            var many = shots.length > 1;
+            var shotName = function (k) { return p.name + " in " + (((CW[k] || {}).name) || k); };
+            gallery.classList.toggle("pdp__gallery--single", !many);
+            gallery.innerHTML =
+              (many
+                ? '<div class="pdp__thumbs">' +
+                  shots
+                    .map(function (k, i) {
+                      return (
+                        '<button type="button" class="pdp__thumb' + (i === 0 ? " is-active" : "") +
+                        '" data-gal-go="' + i + '" aria-label="Show image ' + (i + 1) + " of " + shots.length + '"' +
+                        (i === 0 ? ' aria-current="true"' : "") + ">" +
+                        '<img src="' + art(p, k) + '" alt="" loading="lazy" /></button>'
+                      );
+                    })
+                    .join("") +
+                  "</div>"
+                : "") +
+              '<div class="pdp__stage">' +
+              '<div class="pdp__track" data-gal-track tabindex="0" aria-label="Product images">' +
+              shots
+                .map(function (k, i) {
+                  /* The first photo is the page's largest element: load it
+                     straight away, ahead of everything else. */
+                  return (
+                    '<img class="pdp__slide" src="' + art(p, k) + '" alt="' + shotName(k) + '"' +
+                    (i === 0 ? ' fetchpriority="high"' : ' loading="lazy"') + " />"
+                  );
+                })
+                .join("") +
+              "</div>" +
+              (many
+                ? '<button type="button" class="pdp__arrow pdp__arrow--prev" data-gal-step="-1" aria-label="Previous image">' +
+                  gic("arrow-left-01-sharp") + "</button>" +
+                  '<button type="button" class="pdp__arrow pdp__arrow--next" data-gal-step="1" aria-label="Next image">' +
+                  gic("arrow-right-01-sharp") + "</button>"
+                : "") +
+              "</div>" +
+              (many
+                ? '<div class="pdp__dots" aria-hidden="true">' +
+                  shots.map(function (k, i) { return '<span class="pdp__dot' + (i === 0 ? " is-active" : "") + '"></span>'; }).join("") +
+                  "</div>"
+                : "");
           }
 
           var care = p.cat === "handmade" ? HANDMADE_CARE : CARE[state.fabric] || CARE.cotton;
@@ -483,6 +487,54 @@
           else state.size = el.getAttribute("data-size");
           render();
         });
+
+        /* Gallery controls. Delegated, because render() rebuilds the
+           gallery; the track's scroll is caught in the capture phase for
+           the same reason (scroll events do not bubble). Arrows wrap from
+           the last photo to the first. */
+        (function () {
+          var gallery = document.querySelector("[data-gallery]");
+          if (!gallery) return;
+          var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          var track = function () { return gallery.querySelector("[data-gal-track]"); };
+          var current = function () {
+            var t = track();
+            return t && t.clientWidth ? Math.round(Math.abs(t.scrollLeft) / t.clientWidth) : 0;
+          };
+          function go(i) {
+            var t = track();
+            var n = gallery.querySelectorAll(".pdp__slide").length;
+            if (!t || !n) return;
+            i = ((i % n) + n) % n;
+            var dir = getComputedStyle(t).direction === "rtl" ? -1 : 1;
+            t.scrollTo({ left: dir * i * t.clientWidth, behavior: reduce ? "auto" : "smooth" });
+          }
+          function mark() {
+            var i = current();
+            gallery.querySelectorAll(".pdp__thumb").forEach(function (b, k) {
+              b.classList.toggle("is-active", k === i);
+              if (k === i) b.setAttribute("aria-current", "true");
+              else b.removeAttribute("aria-current");
+            });
+            gallery.querySelectorAll(".pdp__dot").forEach(function (d, k) {
+              d.classList.toggle("is-active", k === i);
+            });
+          }
+          gallery.addEventListener("click", function (e) {
+            var to = e.target.closest("[data-gal-go]");
+            if (to) return go(parseInt(to.getAttribute("data-gal-go"), 10));
+            var step = e.target.closest("[data-gal-step]");
+            if (step) go(current() + parseInt(step.getAttribute("data-gal-step"), 10));
+          });
+          var queued = 0;
+          gallery.addEventListener(
+            "scroll",
+            function () {
+              if (!queued) queued = requestAnimationFrame(function () { queued = 0; mark(); });
+            },
+            true
+          );
+        })();
 
         function qty() {
           return parseInt((document.querySelector(".pdp__stepper [data-qty]") || {}).textContent || "1", 10) || 1;

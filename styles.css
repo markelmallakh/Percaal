@@ -1396,20 +1396,126 @@ body:has(.menu-sheet.is-open) .overlay-backdrop { opacity: 0; }
   align-items: start;
 }
 
-/* Gallery — Figma 60:5972. Every photo is a 456×570 tile in a
-   2-column grid; there is no hero/thumbnail split any more. */
+/* Gallery. Desktop: one large photo, sized to the screen height so it
+   is never cropped, with a column of thumbnails beside it and arrows
+   over it; it stays in view while the buy box scrolls. Phones and
+   tablets: a full-bleed swipe carousel with a dash per photo beneath.
+   One horizontal scroll-snap track drives both, so thumbnails, arrows,
+   swipes and trackpads all move the same slides. (Replaces Figma
+   60:5972's two-column grid of every photo.) */
 .pdp__gallery {
+  position: sticky;
+  top: calc(var(--sticky-top, 0px) + 24px);
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 2px;
+  grid-template-columns: 76px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
 }
-.pdp__gallery-img {
+.pdp__gallery--single { grid-template-columns: minmax(0, 1fr); }
+.pdp__thumbs {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: calc(100vh - var(--sticky-top, 0px) - 48px);
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.pdp__thumbs::-webkit-scrollbar { display: none; }
+.pdp__thumb {
+  flex: none;
+  display: block;
+  width: 76px;
+  padding: 0;
+  border: 0;
+  background: var(--gray-1);
+  cursor: pointer;
+  opacity: 0.5;
+  outline: 1px solid transparent;
+  outline-offset: -1px;
+  transition: opacity 0.2s ease, outline-color 0.2s ease;
+}
+.pdp__thumb img {
   display: block;
   width: 100%;
-  height: 100%;
+  aspect-ratio: 4 / 5;
   object-fit: cover;
+}
+.pdp__thumb:hover { opacity: 0.85; }
+.pdp__thumb.is-active { opacity: 1; outline-color: var(--black); }
+/* As wide as the column allows, but no taller than the screen: the
+   photos are 4:5, so the width follows from the height. */
+.pdp__stage {
+  position: relative;
+  width: min(100%, calc(max(560px, 100vh - var(--sticky-top, 0px) - 48px) * 0.8));
+}
+.pdp__track {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
   background: var(--gray-1);
-  aspect-ratio: 456 / 570;
+}
+.pdp__track::-webkit-scrollbar { display: none; }
+.pdp__slide {
+  flex: 0 0 100%;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+/* The same frosted square as the rail arrows. */
+.pdp__arrow {
+  position: absolute;
+  top: 50%;
+  z-index: 1;
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.4);
+  -webkit-backdrop-filter: blur(14px) saturate(1.6);
+  backdrop-filter: blur(14px) saturate(1.6);
+  color: var(--black);
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+.pdp__arrow:hover { background: rgba(255, 255, 255, 0.7); }
+.pdp__arrow svg { width: 18px; height: 18px; }
+.pdp__arrow--prev { inset-inline-start: 12px; }
+.pdp__arrow--next { inset-inline-end: 12px; }
+.pdp__dots { display: none; }
+
+@media (max-width: 1023px) {
+  .pdp__gallery {
+    position: static;
+    display: block;
+    margin-inline: calc(-1 * var(--gutter));
+  }
+  .pdp__thumbs,
+  .pdp__arrow { display: none; }
+  .pdp__stage { width: auto; }
+  /* Capped on tablets, where a full-width 4:5 photo would fill the
+     screen before the buy box starts. */
+  .pdp__slide { max-height: 75svh; }
+  .pdp__dots {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 12px;
+  }
+  .pdp__dot {
+    width: 16px;
+    height: 2px;
+    background: var(--gray-3);
+    transition: width 0.25s ease, background-color 0.25s ease;
+  }
+  .pdp__dot.is-active { width: 28px; background: var(--black); }
 }
 
 .pdp__buy { position: sticky; top: calc(var(--sticky-top, 0px) + 24px); align-self: start; }
@@ -12934,80 +13040,5 @@ nav[aria-label="Breadcrumb"] > :last-child {
   /* Room under the footer's last line, so the bar never sits on it. */
   [data-page="category"] .ftr-credits {
     padding-bottom: calc(12px + 60px + env(safe-area-inset-bottom));
-  }
-}
-
-
-/* =====================================================================
-   PRODUCT GALLERY — layout switch (product.html)
-   A compact frosted toggle fixed to the bottom of the screen swaps the
-   gallery between the two-column grid ("Multiple images") and a single
-   plate ("One image", .pdp--single). The single plate is the selected
-   colourway's photograph at exactly one grid tile's size, so the same
-   image file serves both layouts; on desktop the plate and the buy box
-   then sit together as one block centred on the page.
-   ===================================================================== */
-.pdp-layout {
-  position: fixed;
-  bottom: calc(16px + env(safe-area-inset-bottom));
-  left: 50%;
-  z-index: 40;
-  transform: translateX(-50%);
-}
-/* The same compact frosted chip as the category page's Sort & Filter. */
-.pdp-layout .segmented {
-  padding: 3px;
-  background: rgba(255, 255, 255, 0.8);
-  -webkit-backdrop-filter: blur(24px) saturate(1.8);
-  backdrop-filter: blur(24px) saturate(1.8);
-  box-shadow:
-    inset 0 0 0 1px rgba(44, 41, 41, 0.1),
-    0 4px 14px rgba(44, 41, 41, 0.12);
-}
-.pdp-layout .segmented__thumb { top: 3px; bottom: 3px; background: var(--black); }
-.pdp-layout .segmented > button {
-  position: relative;
-  height: 24px;
-  padding: 0 12px;
-  font-size: 11px;
-  line-height: 1;
-  letter-spacing: 0.5px;
-  text-transform: uppercase;
-  color: var(--gray-5);
-}
-.pdp-layout .segmented > button:hover:not(.is-active) { color: var(--black); }
-.pdp-layout .segmented.is-ready > button.is-active { color: var(--offwhite); }
-/* Room under the footer's last line, so the toggle never sits on it. */
-[data-page="product"] .ftr-credits {
-  padding-bottom: calc(12px + 56px + env(safe-area-inset-bottom));
-}
-
-.pdp--single .pdp__gallery { grid-template-columns: minmax(0, 1fr); }
-.pdp--single .pdp__gallery-img:not(:first-child) { display: none; }
-@media (min-width: 1024px) {
-  /* The gallery column narrows to one tile: half of what the grid's
-     column would be (the row minus the 446px buy box, the 66px gap and
-     the grid's own 2px gap) — 439px at 1512, the same as each tile in
-     "Multiple images". The leftover width centres the pair. */
-  .pdp--single .pdp__inner {
-    grid-template-columns: calc((100% - 514px) / 2) 446px;
-    justify-content: center;
-  }
-  .pdp--single .pdp__gallery {
-    position: sticky;
-    top: calc(var(--sticky-top, 0px) + 24px);
-  }
-}
-@media (max-width: 1023px) {
-  /* One full-width photograph, capped so the buy box starts on screen. */
-  .pdp--single .pdp__gallery-img { max-height: 78vh; }
-}
-@media (max-width: 767px) {
-  /* Drawn small, but each half still gets a 44px-tall target. */
-  .pdp-layout .segmented { overflow: visible; }
-  .pdp-layout .segmented > button::after {
-    content: "";
-    position: absolute;
-    inset: -10px 0;
   }
 }
