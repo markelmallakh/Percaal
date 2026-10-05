@@ -4816,11 +4816,46 @@
         el.setAttribute("aria-label", "Cart is empty");
       }
     });
+    /* Pages that change with the bag's state (the product page's CTAs)
+       read body.has-cart, or listen for "percaal:cart". */
+    document.body.classList.toggle("has-cart", n > 0);
+    document.dispatchEvent(new CustomEvent("percaal:cart", { detail: { count: n } }));
   }
   function bumpCart(delta) {
     cartCount = Math.max(0, cartCount + delta);
     setCartCount(cartCount);
   }
+
+  /* Demo cart: empty the bag, or refill it with the seeded lines, in
+     place, so a client can be walked through both states (the product
+     page's "Empty cart / Filled cart" switch). The choice is remembered
+     and applied as each page loads; adding items still works on top. */
+  const DEMO_CART_KEY = "percaal-demo-cart";
+  function setDemoCart(state, remember) {
+    const drawer = document.querySelector('[data-drawer="cart"]');
+    const rows = drawer && drawer.querySelector("[data-cart-rows]");
+    if (!rows) return;
+    if (state === "empty") {
+      rows.innerHTML = "";
+      checkCartEmpty();
+      cartCount = 0;
+    } else {
+      rows.innerHTML = DEMO_CART_ITEMS.map(cartRowHTML).join("");
+      initSteppers(rows);
+      cartCount = DEMO_CART_ITEMS.reduce((n, it) => n + it.qty, 0);
+    }
+    if (remember !== false) {
+      try {
+        localStorage.setItem(DEMO_CART_KEY, state);
+      } catch (e) {
+        /* storage unavailable — the switch still works for this page */
+      }
+    }
+    setCartCount(cartCount);
+    syncCartDrawerTotals();
+    updateFreeShipping();
+  }
+  window.kSetDemoCart = setDemoCart;
   function pwQty(w) {
     const q = w.querySelector("[data-qty]");
     return q ? parseInt(q.textContent, 10) || 0 : 0;
@@ -6532,6 +6567,13 @@
     initStickyNav();
     applyLang(initialLang());
     window.kInit(document);
+    /* A demo-cart choice made earlier (see setDemoCart) holds on every
+       page, so the bag reads the same wherever the client is shown. */
+    try {
+      if (localStorage.getItem(DEMO_CART_KEY) === "empty") setDemoCart("empty", false);
+    } catch (e) {
+      /* storage unavailable — keep the seeded bag */
+    }
     // The badge markup carries a hardcoded placeholder; sync every badge
     // (and the floating cart's empty/full icon) to the real seeded count.
     setCartCount(cartCount);
