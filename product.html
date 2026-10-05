@@ -430,9 +430,11 @@
             var many = shots.length > 1;
             var shotName = function (k) { return p.name + " in " + (((CW[k] || {}).name) || k); };
             gallery.classList.toggle("pdp__gallery--single", !many);
+            /* Thumbnails always show on desktop, even for a single photo,
+               so every product page has the same frame; the arrows and
+               phone dashes only appear when there is more than one. */
             gallery.innerHTML =
-              (many
-                ? '<div class="pdp__thumbs">' +
+              ('<div class="pdp__thumbs">' +
                   shots
                     .map(function (k, i) {
                       return (
@@ -443,8 +445,7 @@
                       );
                     })
                     .join("") +
-                  "</div>"
-                : "") +
+                  "</div>") +
               '<div class="pdp__stage">' +
               '<div class="pdp__track" data-gal-track tabindex="0" aria-label="Product images">' +
               shots
