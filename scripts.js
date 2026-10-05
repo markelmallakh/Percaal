@@ -729,7 +729,15 @@
       "/my-account": "my-account.html",
     };
     if (map[clean]) return map[clean];
-    if (clean.startsWith("/shop/")) return "shop-category.html";
+    /* A category with products behind it opens its own listing; one
+       without (Offers, for now) keeps the plain listing rather than an
+       empty page. */
+    if (clean.startsWith("/shop/")) {
+      const c = clean.split("/")[2];
+      return PRODUCTS.some((p) => p.cat === c || p.sub === c)
+        ? "shop-category.html?c=" + encodeURIComponent(c)
+        : "shop-category.html";
+    }
     if (clean.startsWith("/products/")) return "product.html";
     if (clean.startsWith("/blogs/")) return "blog.html";
     if (clean.startsWith("/my-account/"))
@@ -786,6 +794,20 @@
 
   const isCheckout = () => document.body.getAttribute("data-page") === "checkout";
   const currentPath = () => document.body.getAttribute("data-path") || "/";
+
+  /* The catalogue category this page belongs to, for the header's active
+     link: a category page's ?c= (a sub-category counts as its parent, and
+     no ?c= means Bedding, as on that page), or a product page's own
+     category. Anything else — a fabric listing, the home page — has none. */
+  function currentCategory() {
+    const q = new URLSearchParams(location.search);
+    const page = document.body.getAttribute("data-page");
+    if (page === "product") return productBySlug(q.get("p") || "").cat;
+    if (page !== "category") return "";
+    const c = q.get("c") || "bedding";
+    const hit = PRODUCTS.find((p) => p.cat === c) || PRODUCTS.find((p) => p.sub === c);
+    return hit ? hit.cat : "";
+  }
 
   /* ---------------------------------------------------------------
      Brand logo.
@@ -942,7 +964,9 @@
                <nav class="hdr-rail" aria-label="Categories">
                  ${MAIN_MENU.map(
                    (m) =>
-                     `<a href="${pageHref(m.url)}" class="hdr-raillink${currentPath().startsWith(m.url) ? " is-current" : ""}">${esc(m.name)}</a>`,
+                     `<a href="${pageHref(m.url)}" class="hdr-raillink${
+                       currentPath().startsWith(m.url) || m.url === "/shop/" + currentCategory() ? " is-current" : ""
+                     }"${m.url === "/shop/" + currentCategory() ? ' aria-current="page"' : ""}>${esc(m.name)}</a>`,
                  ).join("")}
                  <span class="hdr-rail__cart">
                    <button type="button" data-open="cart" class="hdr-icon hdr-bag" aria-label="Cart">

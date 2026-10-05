@@ -6723,8 +6723,13 @@ a.ord-status__card:hover {
   letter-spacing: 1px;
   text-transform: uppercase;
   white-space: nowrap;
-  color: var(--black);
+  /* A shade softer than ink, so the current category, in full black,
+     stands out from the rest. */
+  color: var(--gray-8);
+  transition: color 0.2s ease;
 }
+.hdr-raillink:hover,
+.hdr-raillink.is-current { color: var(--black); }
 .hdr-raillink::after {
   content: "";
   position: absolute;
@@ -6738,6 +6743,8 @@ a.ord-status__card:hover {
 }
 .hdr-raillink:hover::after,
 .hdr-raillink.is-current::after { transform: scaleX(1); }
+/* The current category's line is drawn heavier than the hover line. */
+.hdr-raillink.is-current::after { height: 2px; }
 
 /* Desktop: the whole header is sticky, pulled up by everything above the
    rail (--rail-top, measured in initStickyNav), so the announcement and
