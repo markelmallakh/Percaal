@@ -1396,14 +1396,16 @@ body:has(.menu-sheet.is-open) .overlay-backdrop { opacity: 0; }
   align-items: start;
 }
 
-/* Gallery. Desktop: one large photo, sized to the screen height so it
-   is never cropped, with a column of thumbnails beside it and arrows
-   over it; it stays in view while the buy box scrolls. Phones and
+/* Gallery. Desktop: one large photo filling its column, no taller than
+   the screen, with a column of thumbnails beside it and arrows over it;
+   it stays in view while the buy box scrolls. Phones and
    tablets: a full-bleed swipe carousel with a dash per photo beneath.
    One horizontal scroll-snap track drives both, so thumbnails, arrows,
    swipes and trackpads all move the same slides. (Replaces Figma
    60:5972's two-column grid of every photo.) */
 .pdp__gallery {
+  /* The tallest the photo may be: the screen below the pinned header. */
+  --gal-h: max(560px, calc(100vh - var(--sticky-top, 0px) - 48px));
   position: sticky;
   top: calc(var(--sticky-top, 0px) + 24px);
   display: grid;
@@ -1416,7 +1418,7 @@ body:has(.menu-sheet.is-open) .overlay-backdrop { opacity: 0; }
   display: flex;
   flex-direction: column;
   gap: 8px;
-  max-height: calc(100vh - var(--sticky-top, 0px) - 48px);
+  max-height: var(--gal-h);
   overflow-y: auto;
   scrollbar-width: none;
 }
@@ -1442,11 +1444,27 @@ body:has(.menu-sheet.is-open) .overlay-backdrop { opacity: 0; }
 }
 .pdp__thumb:hover { opacity: 0.85; }
 .pdp__thumb.is-active { opacity: 1; outline-color: var(--black); }
-/* As wide as the column allows, but no taller than the screen: the
-   photos are 4:5, so the width follows from the height. */
+/* The photo fills its column, so it sits the layout's 66px gap from the
+   buy box. Held to the screen height, a 4:5 photo gives up a little top
+   and bottom; the width is capped at 0.9 × that height, so it never
+   loses more than a tenth. */
 .pdp__stage {
   position: relative;
-  width: min(100%, calc(max(560px, 100vh - var(--sticky-top, 0px) - 48px) * 0.8));
+  width: min(100%, calc(var(--gal-h) * 0.9));
+}
+/* Desktop: the gallery column is exactly as wide as the photo (worked
+   out from the row's width: 100cqw less the buy box, the gap and the
+   thumbnails), and the pair is centred. Where the photo's height cap
+   stops it filling the row, on very wide screens, the spare space goes
+   to the outer edges instead of between the photo and the buy box. */
+@media (min-width: 1024px) {
+  .pdp__inner {
+    container-type: inline-size;
+    grid-template-columns: auto 446px;
+    justify-content: center;
+  }
+  .pdp__stage { width: min(calc(100cqw - 446px - 66px - 88px), calc(var(--gal-h) * 0.9)); }
+  .pdp__gallery--single .pdp__stage { width: min(calc(100cqw - 446px - 66px), calc(var(--gal-h) * 0.9)); }
 }
 .pdp__track {
   display: flex;
@@ -1462,6 +1480,7 @@ body:has(.menu-sheet.is-open) .overlay-backdrop { opacity: 0; }
   flex: 0 0 100%;
   display: block;
   width: 100%;
+  max-height: var(--gal-h);
   aspect-ratio: 4 / 5;
   object-fit: cover;
   scroll-snap-align: start;
@@ -1513,6 +1532,7 @@ body:has(.menu-sheet.is-open) .overlay-backdrop { opacity: 0; }
   .pdp__slide {
     flex-basis: min(88%, calc(75svh * 0.8));
     width: min(88%, calc(75svh * 0.8));
+    max-height: none;
     background: var(--gray-1);
   }
   /* A single photo has nothing to peek at: full bleed. */
