@@ -855,13 +855,6 @@
     menu: '<svg width="31" height="30" viewBox="0 0 31 30" fill="none"><path d="M21 6 9 6M21 12 3 12M15 18H3" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     bars: '<svg viewBox="0 0 24 24" fill="none" class="w-6 h-6"><path d="M20 7H8M20 12H4M20 17H10" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     bag: '<svg viewBox="0 0 24 24" fill="none" class="w-6 h-6"><path d="M6.5 8h11l-.7 10.4a1.6 1.6 0 0 1-1.6 1.5H8.8a1.6 1.6 0 0 1-1.6-1.5L6.5 8Z" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 8.5V7a3 3 0 0 1 6 0v1.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>',
-    /* Empty-cart glyph for the count badge. Sized in % (not a fixed px
-       class) so the one markup fits every badge it's dropped into —
-       22px desktop/floating and 16px mobile — and inherits the badge's
-       white via currentColor. Heavier stroke than ICON.bag: at ~13px the
-       1.6 weight of the full-size icon renders too faint to read. */
-    bagBadge:
-      '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true" class="w-3/5 h-3/5"><path d="M6.5 8h11l-.7 10.4a1.6 1.6 0 0 1-1.6 1.5H8.8a1.6 1.6 0 0 1-1.6-1.5L6.5 8Z" stroke="currentColor" stroke-width="2.2" stroke-linejoin="round"/><path d="M9 8.5V7a3 3 0 0 1 6 0v1.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>',
     close2: '<svg viewBox="0 0 24 24" fill="none" class="w-6 h-6"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     close:
       '<svg viewBox="0 0 24 24" fill="none" class="w-4 h-4"><path d="M18 6 6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -4802,21 +4795,16 @@
   // Starts equal to the actual unit count in DEMO_CART_ITEMS (1+1=2), not
   // an arbitrary seed — so it reaches exactly 0 when the drawer empties.
   let cartCount = DEMO_CART_ITEMS.reduce((n, it) => n + it.qty, 0);
-  /* The brand mark always stays — on the header bag buttons
-     AND the sticky/floating one. Only the dark count badge changes: it
-     shows the number while there are items, and a small white bag glyph
-     once the cart is empty (rather than a bare "0", which reads as a
-     count rather than a state). One code path covers every badge on the
-     page because they all carry [data-cart-count]. */
+  /* The bag icon always stays — on the header bag buttons AND the
+     sticky/floating one. Only the count badge changes: it shows the
+     number while there are items and is hidden once the bag is empty
+     (a bare "0", or a badge with nothing to say, is just noise). One code
+     path covers every badge on the page, the drawer title's count
+     included, because they all carry [data-cart-count]. */
   function setCartCount(n) {
     document.querySelectorAll("[data-cart-count]").forEach((el) => {
-      if (n > 0) {
-        el.textContent = n;
-        el.removeAttribute("aria-label");
-      } else {
-        el.innerHTML = ICON.bagBadge;
-        el.setAttribute("aria-label", "Cart is empty");
-      }
+      el.hidden = n <= 0;
+      el.textContent = n > 0 ? n : "";
     });
     /* Pages that change with the bag's state (the product page's CTAs)
        read body.has-cart. */

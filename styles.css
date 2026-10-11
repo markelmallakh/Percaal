@@ -1129,10 +1129,10 @@ body:has(.menu-sheet.is-open) .overlay-backdrop { opacity: 0; }
 
 /* --- Empty bag --------------------------------------------------------
    While the bag is empty (no body.has-cart) the drawer keeps its title
-   but drops the count, dims View Cart (there is nothing to view), hides
-   the promo / CHECKOUT footer, and centres a short empty state in the
-   list's space. Adding anything brings it all straight back. */
-body:not(.has-cart) .cart-drawer__count { display: none; }
+   (its count is hidden with every other badge, in setCartCount), dims
+   View Cart (there is nothing to view), hides the promo / CHECKOUT
+   footer, and centres a short empty state in the list's space. Adding
+   anything brings it all straight back. */
 body:not(.has-cart) .cart-drawer__viewbag {
   opacity: 0.35;
   pointer-events: none;
