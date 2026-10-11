@@ -2566,16 +2566,18 @@
     }
   }
 
-  /* Empty-cart state — swapped into [data-cart-rows] once the last line
-     item is removed via the stepper (see initSteppers). The bag icon
-     reuses shopping-bag-icon.svg (a white-stroke outline) on a dark
-     circle backdrop, matching the floating cart button's own empty state
-     so the two read as the same "empty" motif. */
+  /* Empty-bag state — swapped into [data-cart-rows] once the last line
+     item is removed via the stepper (see initSteppers). A bag in a soft
+     circle, a line of copy and one way onward; while the bag is empty the
+     drawer also hides its footer and dims View Cart (styles.css, "Empty
+     bag", keyed off body.has-cart). */
   function cartEmptyStateHTML() {
     return `
-      <div class="flex flex-col items-center justify-center gap-3 py-14 text-center">
-        <p class="font-medium text-textSecondary">Your bag is empty</p>
-        <a href="shop.html" class="text-cta font-medium text-sm hover:underline">Continue shopping →</a>
+      <div class="cart-empty">
+        <span class="cart-empty__icon">${ico("shopping-bag-03", "ico-24")}</span>
+        <p class="cart-empty__title">Your bag is empty</p>
+        <p class="cart-empty__text">Sheets, towels and home linen in Egyptian cotton are waiting.</p>
+        <a href="shop.html" class="cart-empty__cta">Start shopping</a>
       </div>`;
   }
   function checkCartEmpty() {
