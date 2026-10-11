@@ -167,13 +167,14 @@
     <script>
       /* Redeem popup: keeps the EGP value in step with the entered points
          and clamps to the balance. 20 points = EGP 1 (the rate stated on
-         the page). Demo only — Confirm just acknowledges. */
+         the page). Confirm moves the points into the wallet through
+         scripts.js (kRedeemPoints), which keeps the balances, the wallet
+         history and the account menu's tags in step on every page. */
       (function () {
         const modal = document.querySelector('[data-modal="redeem"]');
         if (!modal) return;
         const POINTS_PER_EGP = 20;
-        /* live for the session: redeeming moves value from one to the other */
-        const state = { balance: 8320, wallet: 1500 };
+        const balance = () => (window.kPointsBalance ? window.kPointsBalance() : 0);
         const input = modal.querySelector("[data-redeem-input]");
         const valueEl = modal.querySelector("[data-redeem-value]");
         const errEl = modal.querySelector("[data-redeem-error]");
@@ -183,7 +184,7 @@
 
         function sync() {
           const pts = parse();
-          const over = pts > state.balance;
+          const over = pts > balance();
           errEl.hidden = !over;
           valueEl.textContent = "EGP " + (pts / POINTS_PER_EGP).toFixed(2);
           confirm.disabled = over || pts <= 0;
@@ -197,41 +198,34 @@
           sync();
         });
         modal.querySelector("[data-redeem-all]").addEventListener("click", () => {
-          input.value = group(state.balance);
+          input.value = group(balance());
           sync();
         });
         confirm.addEventListener("click", () => {
           const pts = parse();
-          if (!pts || pts > state.balance) return;
-          const egp = pts / POINTS_PER_EGP;
+          if (!pts || pts > balance() || !window.kRedeemPoints) return;
+
+          /* move the value: points out, wallet credit in */
+          const done = window.kRedeemPoints(pts);
+          if (!done) return;
 
           /* celebrate from the button itself */
           const r = confirm.getBoundingClientRect();
           if (window.kBurst) window.kBurst(r.left + r.width / 2, r.top + r.height / 2, { count: 90, spread: 240 });
-
-          /* move the value: points out, wallet credit in */
-          state.balance -= pts;
-          state.wallet += egp;
           paintBalances();
 
           const close = modal.querySelector("[data-close]");
           if (close) close.click();
-          setTimeout(() => spotlightWallet(pts, egp, state.wallet - egp, state.wallet), 480);
+          setTimeout(() => spotlightWallet(pts, done.credit, done.walletFrom, done.walletTo), 480);
         });
 
         /* ---- balances ---- */
+        /* The page figures and the menu tags are painted by scripts.js;
+           only the popup's own balance and field are kept here. */
         function paintBalances() {
-          document.querySelectorAll("[data-points-balance]").forEach((el) => (el.textContent = group(state.balance)));
-          modal.querySelector("[data-redeem-balance]").textContent = group(state.balance);
-          document.querySelectorAll("[data-points-egp]").forEach(
-            (el) => (el.textContent = "EGP " + (state.balance / POINTS_PER_EGP).toFixed(2))
-          );
-          /* the Wallet nav tag is where the credit visibly lands, so it has
-             to move too -- otherwise the spotlight points at a stale figure */
-          document.querySelectorAll("[data-wallet-tab] .acct-count").forEach(
-            (el) => (el.textContent = "EGP " + group(Math.round(state.wallet)))
-          );
-          input.value = state.balance ? group(Math.min(parse() || state.balance, state.balance)) : "0";
+          const bal = balance();
+          modal.querySelector("[data-redeem-balance]").textContent = group(bal);
+          input.value = bal ? group(Math.min(parse() || bal, bal)) : "0";
           sync();
         }
 
@@ -333,7 +327,8 @@
           });
         }
 
-        sync();
+        /* scripts.js is deferred, so its balances exist from DOMContentLoaded */
+        document.addEventListener("DOMContentLoaded", paintBalances);
       })();
     </script>
   </body>

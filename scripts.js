@@ -1111,12 +1111,19 @@
   function accountMenuHTML(active) {
     const tabs = ACCOUNT_TABS.map(([key, label, glyph, href]) => {
       const on = key === active;
-      /* My Points spotlights this tab after a redeem, and finds it by
-         this attribute — keep it even though the rail has no badge. */
+      /* My Points spotlights the wallet tab after a redeem, and finds it
+         by data-wallet-tab. Points and Wallet carry a small balance tag,
+         kept current by syncWalletBalance. */
       const hook = key === "wallet" ? " data-wallet-tab" : "";
+      const tag =
+        key === "points"
+          ? `<span class="acct-count" data-points-count>${pointsTag(pointsBalance())}</span>`
+          : key === "wallet"
+            ? `<span class="acct-count" data-wallet-count>${walletTag(walletBalance())}</span>`
+            : "";
       return `<a href="${href}" class="acct-tab${on ? " is-active" : ""}"${
         on ? ' aria-current="page"' : ""
-      }${hook}>${ico(glyph, "ico-20")}<span>${label}</span></a>`;
+      }${hook}>${ico(glyph, "ico-20")}<span>${label}</span>${tag}</a>`;
     }).join("");
 
     return `
@@ -2832,6 +2839,7 @@
         v.used = true;
         v.usedOn = isoToday();
         addVoucherRedeemed(v.value);
+        document.querySelectorAll("[data-wallet-count]").forEach((el) => (el.textContent = walletTag(walletBalance())));
       }
       pending = null;
       render();
@@ -2961,13 +2969,77 @@
     } catch (e) {}
   }
   function walletBalance() {
-    return WALLET_BASE + voucherRedeemed();
+    return WALLET_BASE + voucherRedeemed() + pointsRedeemed() / POINTS_PER_EGP;
   }
-  /* Paints every wallet-balance readout on the page. */
-  function syncWalletBalance(scope) {
-    (scope || document).querySelectorAll("[data-wallet-balance]").forEach((el) => {
-      el.textContent = egp(walletBalance());
+
+  /* Points. The demo account's balance (the Figma figure) less whatever
+     has been redeemed; redeemed points become wallet credit at the rate
+     My Points states, 20 points = EGP 1. Persisted like the vouchers, so
+     the points, the wallet and the account menu's tags agree on every
+     page; clear `percaal-points-redeemed` to reset. */
+  const POINTS_BASE = 8320;
+  const POINTS_PER_EGP = 20;
+  const POINTS_STORE = "percaal-points-redeemed";
+  function pointsRedeemed() {
+    try {
+      return parseInt(localStorage.getItem(POINTS_STORE), 10) || 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+  function pointsBalance() {
+    return Math.max(0, POINTS_BASE - pointsRedeemed());
+  }
+  const groupNum = (n) => Math.round(n).toLocaleString("en-US");
+  const pointsTag = (n) => groupNum(n);
+  const walletTag = (n) => "EGP " + groupNum(n);
+
+  /* Moves points into the wallet: the points leave the balance, their
+     value lands on the wallet with a line in its history, and every
+     figure on the page is repainted. Returns what changed, so the caller
+     can show the wallet arriving at its new balance. */
+  function redeemPoints(pts) {
+    pts = Math.floor(pts);
+    if (!(pts > 0) || pts > pointsBalance()) return null;
+    const walletFrom = walletBalance();
+    try {
+      localStorage.setItem(POINTS_STORE, String(pointsRedeemed() + pts));
+    } catch (e) {
+      return null; /* nowhere to keep it, so don't pretend it happened */
+    }
+    const credit = pts / POINTS_PER_EGP;
+    const st = walletState.read();
+    st.history.unshift({
+      sign: "+",
+      amount: credit,
+      date: new Date().toISOString().slice(0, 10),
+      reason: "Points redeemed (" + groupNum(pts) + " points)",
+      total: walletBalance(),
     });
+    walletState.write(st);
+    syncWalletBalance(document);
+    return { points: pts, credit, walletFrom, walletTo: walletBalance() };
+  }
+  window.kPointsBalance = pointsBalance;
+  window.kRedeemPoints = redeemPoints;
+
+  /* Paints every balance readout on the page: the checkout/voucher
+     wallet figures, the account menu's tags, the overview's stat cards
+     and the My Points / My Wallet headline figures. Runs on load and
+     after every account-panel swap (kInit), and after any credit. */
+  function syncWalletBalance(scope) {
+    const root = scope || document;
+    const paint = (sel, text) => root.querySelectorAll(sel).forEach((el) => (el.textContent = text));
+    const wallet = walletBalance();
+    const points = pointsBalance();
+    paint("[data-wallet-balance]", egp(wallet));
+    paint("[data-wallet-count]", walletTag(wallet));
+    paint("[data-points-count]", pointsTag(points));
+    paint("[data-acct-wallet]", walletTag(wallet));
+    paint("[data-acct-points]", pointsTag(points) + " Points");
+    paint("[data-wallet-amount]", walletTag(wallet));
+    paint("[data-points-balance]", pointsTag(points));
+    paint("[data-points-egp]", egp(points / POINTS_PER_EGP));
   }
 
   /* Counts every wallet figure from one balance to the next instead of
@@ -6312,6 +6384,7 @@
         });
         walletState.write(st);
         closeOverlay();
+        syncWalletBalance(document);
         const r = document.querySelector("[data-wallet]");
         if (r) {
           renderWallet(r);

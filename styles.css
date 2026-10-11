@@ -5667,19 +5667,21 @@ a.ord-status__card:hover {
 .acct-count {
   margin-inline-start: auto;
   flex: none;
-  padding: 2px 8px;
-  border-radius: var(--radius);
-  background: #f4f4f2;
-  color: #6b7574;
-  font-size: 12px;
-  font-weight: 600;
+  padding: 1px 7px;
+  background: var(--gray-1);
+  color: var(--gray-8);
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 500;
   line-height: 18px;
+  letter-spacing: 0.5px;
+  font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-/* on the highlighted item the grey would disappear into the mint */
+/* On the selected tab's paper tint the grey would disappear. */
 [aria-current="page"] .acct-count {
-  background: #fff;
-  color: #111A19;
+  background: var(--white);
+  color: var(--black);
 }
 
 /* Account dashboard quick-stat cards. They're links to the page behind
@@ -5893,7 +5895,7 @@ a.ord-status__card:hover {
    position:sticky, which creates a stacking context, so a z-index on the
    real link could never rise above the veil and it stayed dimmed.
    Fixed + opaque white so it reads as lit, never as "slightly less
-   dark", with a turquoise halo that breathes. */
+   dark", with a mocha halo that breathes. */
 .is-spotlit {
   position: fixed;
   z-index: 10002;
@@ -5907,14 +5909,14 @@ a.ord-status__card:hover {
   0%,
   100% {
     box-shadow:
-      0 0 0 3px rgba(140, 186, 181, 0.55),
-      0 0 22px 4px rgba(140, 186, 181, 0.35),
+      0 0 0 3px rgba(183, 140, 111, 0.55),
+      0 0 22px 4px rgba(183, 140, 111, 0.35),
       0 12px 32px rgba(0, 0, 0, 0.35);
   }
   50% {
     box-shadow:
-      0 0 0 4px rgba(140, 186, 181, 0.8),
-      0 0 36px 10px rgba(140, 186, 181, 0.6),
+      0 0 0 4px rgba(183, 140, 111, 0.8),
+      0 0 36px 10px rgba(183, 140, 111, 0.6),
       0 12px 32px rgba(0, 0, 0, 0.35);
   }
 }
@@ -5922,7 +5924,7 @@ a.ord-status__card:hover {
   .is-spotlit {
     animation: none;
     box-shadow:
-      0 0 0 4px rgba(140, 186, 181, 0.7),
+      0 0 0 4px rgba(183, 140, 111, 0.7),
       0 12px 32px rgba(0, 0, 0, 0.35);
   }
 }
